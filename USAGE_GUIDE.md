@@ -84,6 +84,7 @@ $env:FDCTL_DATA_ROOT="E:\DFIR_CASES"
 - only accepts Gmail addresses ending with `@gmail.com`
 - bound to the first Gmail address that uses the tool on that device
 - stored under `%LOCALAPPDATA%\FORENSICS_DISCORD\license`
+- local masked email/license history is also stored there so returning users can re-enter only their Gmail address when a valid local trial or activation already exists
 
 That means one installed device only gets one free-trial Gmail identity. A second new Gmail address on the same device will be asked for a paid key instead of receiving another free trial.
 
@@ -132,6 +133,8 @@ When the built-in 3-day trial for that device Gmail has expired, the workflow wi
 
 - licensed email address
 - issued license key
+
+If that Gmail address already has a valid local trial or a valid activated key on the same device, the workflow will accept the email verification and continue without asking the user to paste the key again.
 
 If the email does not match the email identity encoded in the key, activation is rejected.
 

@@ -93,6 +93,7 @@ $env:FDCTL_DATA_ROOT="D:\FORENSICS_CASES"
 - the public bundle only accepts Gmail addresses ending with `@gmail.com`
 - the public bundle starts with a `3-day` trial for the first Gmail address used on that device
 - trial state is stored under `%LOCALAPPDATA%\FORENSICS_DISCORD\license`
+- the bundle stores local masked email/license history so returning users can re-enter only their Gmail address when a valid local activation or trial already exists
 - the user must enter both an email address and a license key prompt in the tool workflow
 - a blank key only works when that Gmail address still has a valid local trial on the current device
 - after trial expiry, the user must activate a signed key issued by the owner
@@ -132,8 +133,8 @@ Supported issued license types:
 
 | Component | Version |
 |---|---:|
-| Operator release | `1.1.6` |
-| Python package `fdctl` | `0.2.6` |
+| Operator release | `1.1.7` |
+| Python package `fdctl` | `0.2.7` |
 | Trial model | `3 days / first Gmail on one device` |
 | Windows target | `11` |
 

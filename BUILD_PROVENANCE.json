@@ -4,9 +4,9 @@
                   "name":  "Truong Trieu Vy",
                   "email":  "trieuvy9198@gmail.com"
               },
-    "generatedAtUtc":  "2026-04-24T07:12:57.0777952Z",
+    "generatedAtUtc":  "2026-04-24T10:18:11.0266480Z",
     "distributionMode":  "portable-cli-bundle",
-    "bundleVersion":  "0.2.6",
+    "bundleVersion":  "0.2.7",
     "runtimeEntryPoint":  "fdctl_runtime\\fdctl_runtime.exe",
     "licenseRequired":  true,
     "builtInTrial":  {
@@ -29,8 +29,8 @@
                   },
                   {
                       "path":  "CHANGELOG_version.md",
-                      "sha256":  "97d004629a59e7cf3ac99564c8eb7d274ebc293ff90a58eb15f3c22587ba5d11",
-                      "sizeBytes":  4082
+                      "sha256":  "300238e09f1f426d6da469d9fc4c8e7b8a6898f4b903e5c9bc673c32e7715bd3",
+                      "sizeBytes":  4714
                   },
                   {
                       "path":  "COPYRIGHT_NOTICE.md",
@@ -54,8 +54,8 @@
                   },
                   {
                       "path":  "launch-analysis-terminal.cmd",
-                      "sha256":  "b47eb134321db04c66552319b4d95a0668da3a5694f19eee41cac6643bd001d6",
-                      "sizeBytes":  1386
+                      "sha256":  "57e536ff2499b232f6124ed30963eb65635a863253c181b631adf72c9a47bedd",
+                      "sizeBytes":  935
                   },
                   {
                       "path":  "LICENSE_PROPRIETARY.md",
@@ -64,18 +64,18 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "3d123127f70ec90ec244ea707d658f0f212415a99920b8375a6f6d11b76c423a",
-                      "sizeBytes":  4380
+                      "sha256":  "41e68f2dd80132c57743efd8a90b8d0c34a07aa702baaa360427e35061b40970",
+                      "sizeBytes":  4546
                   },
                   {
                       "path":  "USAGE_GUIDE.md",
-                      "sha256":  "fcd0ba4214d87d876f1345b576e12a3d4e16f6a1d763b61abb48ddc717cea0e5",
-                      "sizeBytes":  6717
+                      "sha256":  "def3161a93be507e89d1aa33c2d5bfcf44f1de6f9995aba84cecdc0586b6b365",
+                      "sizeBytes":  7095
                   },
                   {
                       "path":  "fdctl_runtime\\fdctl_runtime.exe",
-                      "sha256":  "5e14e1f85c04f0d8e5b23970b53b4bc535a6c4dfbc05e9c78fd3f3bd7de0ad61",
-                      "sizeBytes":  2875299
+                      "sha256":  "1d66c28fcfdf4c77b6d379be4f944bc0756f8574a57555efc1b029da419c7360",
+                      "sizeBytes":  2878403
                   },
                   {
                       "path":  "fdctl_runtime\\_internal\\api-ms-win-core-console-l1-1-0.dll",
@@ -274,7 +274,7 @@
                   },
                   {
                       "path":  "fdctl_runtime\\_internal\\base_library.zip",
-                      "sha256":  "d6c6116d2932fe437a0b27fe13e3fec099f2a213313e11e885ba09a31c1d4433",
+                      "sha256":  "bde5191df4b4a012ec60d43d20953141a4eaac69fea95466913bf39b88e4b1b4",
                       "sizeBytes":  1333490
                   },
                   {
@@ -443,5 +443,5 @@
                       "sizeBytes":  70656
                   }
               ],
-    "integritySignature":  "blj4nVec7oZQkLw_Cweu2aJ_8ncD88yLVCIvhS0JrQBX9PxiJvDWREGLxudZX8WUpojsFau3yQqdMvhPUJWPDA"
+    "integritySignature":  "FnFtCE4eIyB8vbHntwKpRorR7lSRyWfCeHxs2tUAO8hawPKBcYmPzXkO2S4TRwuWq9XP3FtAQjqOWCz6gWYsAw"
 }

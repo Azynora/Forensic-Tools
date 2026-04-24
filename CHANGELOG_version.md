@@ -1,5 +1,13 @@
 # Version Changelog
 
+## 1.1.7 - 2026-04-24
+
+- added local `license_history.json` tracking for Gmail addresses, masked key previews, license labels, and recent activation/trial events
+- improved the terminal activation flow so returning users can re-enter only their Gmail address when a valid local trial or activation already exists
+- added legacy trial migration support so older `trial_3d_device` records can be adopted into the current Gmail-based trial model without silently losing the remaining trial period
+- extended `license status` to include recent local license/email history for troubleshooting
+- bumped Python package `fdctl` to `0.2.7`
+
 ## 1.1.6 - 2026-04-24
 
 - removed the hard-coded owner master key from the public client path
@@ -77,6 +85,6 @@ This release focused on documentation cleanup, copyright marking, and preparing 
 
 ## Current version snapshot
 
-- operator release: `1.1.6`
-- `fdctl`: `0.2.6`
+- operator release: `1.1.7`
+- `fdctl`: `0.2.7`
 - distribution: `portable-cli-bundle`
