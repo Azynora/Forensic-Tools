@@ -1,0 +1,447 @@
+{
+    "project":  "FORENSICS_DISCORD",
+    "owner":  {
+                  "name":  "Truong Trieu Vy",
+                  "email":  "trieuvy9198@gmail.com"
+              },
+    "generatedAtUtc":  "2026-04-24T07:12:57.0777952Z",
+    "distributionMode":  "portable-cli-bundle",
+    "bundleVersion":  "0.2.6",
+    "runtimeEntryPoint":  "fdctl_runtime\\fdctl_runtime.exe",
+    "licenseRequired":  true,
+    "builtInTrial":  {
+                         "durationDays":  3,
+                         "seats":  1,
+                         "activation":  "automatic for the first Gmail address used on one device",
+                         "storage":  "%LOCALAPPDATA%\\FORENSICS_DISCORD\\license"
+                     },
+    "supportedLicenseTypes":  [
+                                  "issued_7d",
+                                  "issued_30d",
+                                  "issued_365d"
+                              ],
+    "defaultWorkspaceRoot":  ".\\workspace",
+    "files":  [
+                  {
+                      "path":  "activate-license.cmd",
+                      "sha256":  "fa39bca7203c78e16d92f37cd17590a07635d9413433b118a5594102d8579b04",
+                      "sizeBytes":  456
+                  },
+                  {
+                      "path":  "CHANGELOG_version.md",
+                      "sha256":  "97d004629a59e7cf3ac99564c8eb7d274ebc293ff90a58eb15f3c22587ba5d11",
+                      "sizeBytes":  4082
+                  },
+                  {
+                      "path":  "COPYRIGHT_NOTICE.md",
+                      "sha256":  "4674bb07aa54a859d534cb801f80c73aee27acf231cec0e87e6fb9022b877d93",
+                      "sizeBytes":  1709
+                  },
+                  {
+                      "path":  "EULA.md",
+                      "sha256":  "9dc3bf260ac554a776c6543a406698a8bae161523bd33f8df2bbeff21a15968e",
+                      "sizeBytes":  1702
+                  },
+                  {
+                      "path":  "fdctl.cmd",
+                      "sha256":  "f8cc8fac64fb880be8df199f19be8774efe79e7c0213ff25af7c737b85a1e495",
+                      "sizeBytes":  1232
+                  },
+                  {
+                      "path":  "fdctl.ps1",
+                      "sha256":  "ef81af2549e96c6297a39b3ed5e31ce24c86ae2d986100b9b5aff0b6bc298514",
+                      "sizeBytes":  1581
+                  },
+                  {
+                      "path":  "launch-analysis-terminal.cmd",
+                      "sha256":  "b47eb134321db04c66552319b4d95a0668da3a5694f19eee41cac6643bd001d6",
+                      "sizeBytes":  1386
+                  },
+                  {
+                      "path":  "LICENSE_PROPRIETARY.md",
+                      "sha256":  "26402d46f45f4d9059797b746383964ac4e3ad99b511ea73bd8195bc4d0088bf",
+                      "sizeBytes":  1272
+                  },
+                  {
+                      "path":  "README.md",
+                      "sha256":  "3d123127f70ec90ec244ea707d658f0f212415a99920b8375a6f6d11b76c423a",
+                      "sizeBytes":  4380
+                  },
+                  {
+                      "path":  "USAGE_GUIDE.md",
+                      "sha256":  "fcd0ba4214d87d876f1345b576e12a3d4e16f6a1d763b61abb48ddc717cea0e5",
+                      "sizeBytes":  6717
+                  },
+                  {
+                      "path":  "fdctl_runtime\\fdctl_runtime.exe",
+                      "sha256":  "5e14e1f85c04f0d8e5b23970b53b4bc535a6c4dfbc05e9c78fd3f3bd7de0ad61",
+                      "sizeBytes":  2875299
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-console-l1-1-0.dll",
+                      "sha256":  "27954e62e12d115bb1540db4bb9de6e2c852d914aea61cba3c203595138537b2",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-datetime-l1-1-0.dll",
+                      "sha256":  "6f22ff5bf9d53b7f2c3fcd553d9b8664ef5401912194b8e599e4dbd8f3105405",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-debug-l1-1-0.dll",
+                      "sha256":  "c5dc0df2fcc456c2b08392ea7d539d43549d04d14ed83d69cd46f79b9e34902a",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-errorhandling-l1-1-0.dll",
+                      "sha256":  "9ff8300ecf0ebd4c8130800b5b8857b6ddf21902264af42fb1ac15c794115864",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-fibers-l1-1-0.dll",
+                      "sha256":  "39174763da266b4b955e27eecaef15d8283bb77f9eca94fe925d4928f37a4fa1",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-file-l1-1-0.dll",
+                      "sha256":  "a9660f0e3ab6032bba0b75e1d02ce0bc57c9043bca423477843a7a3af1b1c200",
+                      "sizeBytes":  27008
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-file-l1-2-0.dll",
+                      "sha256":  "445a2c24c8565834e1e41e4c617d2f9cf5def8e4a477e55e2f18583845b24c1d",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-file-l2-1-0.dll",
+                      "sha256":  "f957a4c261506484b53534a9be8931c02ec1a349b3f431a858f8215cecfec3f7",
+                      "sizeBytes":  20960
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-handle-l1-1-0.dll",
+                      "sha256":  "94f7611fa4568f4577deba250c1254a3c83ffc7b4fd2f00243f3bfac5a993fd8",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-heap-l1-1-0.dll",
+                      "sha256":  "d655a217f4c17982b4c5ecb406290885c74afba361dd840c4245c0b28e07c192",
+                      "sizeBytes":  22888
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-interlocked-l1-1-0.dll",
+                      "sha256":  "69b0f1e099dac7ffbbf1260eb4818abeacd2b9cf105b742b16e6bd5dda3bf035",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-libraryloader-l1-1-0.dll",
+                      "sha256":  "87622d07bb5c9fa5ccd9f74ac70a1e2ae0cdf54462f90f365178a15a814bf3c4",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-localization-l1-2-0.dll",
+                      "sha256":  "79ec668286cb900c66e1caf8a47309d986c9dc4d37a5d2dcedb2ff2a973896d9",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-memory-l1-1-0.dll",
+                      "sha256":  "7f12e6eb9a992ea199bcfc755eea488a8889cd2642dba00e49fb06a14bec8408",
+                      "sizeBytes":  22888
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-namedpipe-l1-1-0.dll",
+                      "sha256":  "daf13af507230a92191c348611e8b31bc384055ea5b9a6d18057646d93bfe4f7",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-processenvironment-l1-1-0.dll",
+                      "sha256":  "74d809270a418e4bc1d3b94348094f00463635cedfbadd97d29686a6d037d2da",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-processthreads-l1-1-0.dll",
+                      "sha256":  "6620a7962adb6a25a51e13add907189763b76d0816a356465d135eeeed1065a0",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-processthreads-l1-1-1.dll",
+                      "sha256":  "82850eb2e7d100938ebd419440e4575750999bc9e349cd074019e413673d02c8",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-profile-l1-1-0.dll",
+                      "sha256":  "b43119bdfc7c562bf07c26e01b7b862aa8dc9d5e795798fe93969111244ed2da",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-rtlsupport-l1-1-0.dll",
+                      "sha256":  "bd0cff402e3f64baaf2bfb17d86b2c4c7d03584ea2601ca5c55de147a769a32a",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-string-l1-1-0.dll",
+                      "sha256":  "1985000499475faf541b17c8acbce788bcdba6dddd3b8910b6730238f1c18862",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-synch-l1-1-0.dll",
+                      "sha256":  "055544d562ca50d49443926bca396de985735f7451806ff2565486e406809d25",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-synch-l1-2-0.dll",
+                      "sha256":  "0d8f2f7d031f143110c9bf5bdd4f75b24e8b41319fa2e20f78068c084e0d7603",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-sysinfo-l1-1-0.dll",
+                      "sha256":  "8010d006df2d62839c933d3b5998abc7a7830ffe32ca68b17c76f3292f5e56ec",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-timezone-l1-1-0.dll",
+                      "sha256":  "1789f5e749cf3a5d419e3b835bd9d78a077ee77f3e761f0fbf3609e38ace6f40",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-core-util-l1-1-0.dll",
+                      "sha256":  "c893a59c4d1fa86fb50d486ebf3a873244b910efec5b00690d4a20afb7ce0761",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-conio-l1-1-0.dll",
+                      "sha256":  "9e466e76079b73bd9b0114004d040d193dc982e4150eee1241a902d16c2bda38",
+                      "sizeBytes":  22888
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-convert-l1-1-0.dll",
+                      "sha256":  "64c48b1280e4540c205ee7798b7da200afd95898d520ece1d56bf8a8a351fc3e",
+                      "sizeBytes":  26968
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-environment-l1-1-0.dll",
+                      "sha256":  "1a513c0601c5b628018c003d8598586d4a48fd1acf51372f6783dc23b0a27756",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-filesystem-l1-1-0.dll",
+                      "sha256":  "89bb192dd079784d9ba716a2e45a1ee6af75c67e9151fde77eb8ec32cb014182",
+                      "sizeBytes":  22888
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-heap-l1-1-0.dll",
+                      "sha256":  "e5a0c8d551e36e5fd394a45a5e9229f592b46d8e80897f25e7f0ca449abb6b00",
+                      "sizeBytes":  22896
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-locale-l1-1-0.dll",
+                      "sha256":  "f13dc1d6895f21fe2f7fd4b7ada78828b5a819013f751aa32eb1704beb4dc469",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-math-l1-1-0.dll",
+                      "sha256":  "a13aed9e8d7f4f53826cedd6acbc7b75dba51aeecd7f030b0f0d7b7c66e1a042",
+                      "sizeBytes":  31088
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-process-l1-1-0.dll",
+                      "sha256":  "90d0c8e9ea6a4e82efcdc7ba522da3989316397218f3d1320eed1bab491c0938",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-runtime-l1-1-0.dll",
+                      "sha256":  "d893a0f2c1bf6247fb94393728c6293570090028d4dd30dcea01a01b0460b0c4",
+                      "sizeBytes":  26992
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-stdio-l1-1-0.dll",
+                      "sha256":  "456adaf7d2116f3e9410a0c1acd19f54bc9decc8e75b02f82c4a7d56c980e71f",
+                      "sizeBytes":  26992
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-string-l1-1-0.dll",
+                      "sha256":  "8d360f373b21726d005df5d6e1e5d55f5aa83f6d9d6a055f4dc0331965671dba",
+                      "sizeBytes":  26992
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-time-l1-1-0.dll",
+                      "sha256":  "c674ee45208477eec3669db64abb586df50d4fa38aa5b47ed2012d4bc5d9ec4e",
+                      "sizeBytes":  22872
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\api-ms-win-crt-utility-l1-1-0.dll",
+                      "sha256":  "7c31b21496d4783456d9093d0742e1727fe77e1ccb27d717c327039859561438",
+                      "sizeBytes":  22912
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\base_library.zip",
+                      "sha256":  "d6c6116d2932fe437a0b27fe13e3fec099f2a213313e11e885ba09a31c1d4433",
+                      "sizeBytes":  1333490
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\libcrypto-3-x64.dll",
+                      "sha256":  "e3575b8d13adfa7693ca7f8b7e4f94f24df33c8d64085972e28c213e225ddcb0",
+                      "sizeBytes":  7976960
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\libffi-8.dll",
+                      "sha256":  "1163e242ec38a0de598ba7956353987c7167c0c6d5000625c3b3fc6e75669206",
+                      "sizeBytes":  28160
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\libssl-3-x64.dll",
+                      "sha256":  "28143bcd23fb00b7fabd66fdfba23a68640862f1fb1582d6ec581419afd206be",
+                      "sizeBytes":  1579008
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\pyexpat.pyd",
+                      "sha256":  "0480cea6b86a8d99bfd735666aa7966ac252bd74d97de0bf5dcd19c2452d8e14",
+                      "sizeBytes":  204288
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\python3.dll",
+                      "sha256":  "7b8cff9cdb3de31edce06fe0ba992958f6e3ab5004befee756015ed2e0221c20",
+                      "sizeBytes":  56320
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\python312.dll",
+                      "sha256":  "960a3863c9cb129f946bbc28947ebcdc9ebaec16afee2c10764bdfed61416556",
+                      "sizeBytes":  6971904
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\select.pyd",
+                      "sha256":  "b241c5d193e5723ac56a2ac070123c78f5c515fb5ee252aca57b0874257e5b1b",
+                      "sizeBytes":  18944
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\sqlite3.dll",
+                      "sha256":  "972f5b2b762d3c839df5bb9571a49a27177fc25a4cac0abb31712b9643464db1",
+                      "sizeBytes":  1598976
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\ucrtbase.dll",
+                      "sha256":  "c04daeba7e7c4b711d33993ab4c51a2e087f98f4211aea0dcb3a216656ba0ab7",
+                      "sizeBytes":  1122768
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\unicodedata.pyd",
+                      "sha256":  "c3e10e814e4e36b5f6f66231ccbb80edd6fd219994406b383ecfa44d57efc537",
+                      "sizeBytes":  1126400
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\VCRUNTIME140.dll",
+                      "sha256":  "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066",
+                      "sizeBytes":  124544
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\VCRUNTIME140_1.dll",
+                      "sha256":  "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f",
+                      "sizeBytes":  49792
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_bz2.pyd",
+                      "sha256":  "969b76222584b7ad1da3e8e1a4bc45f1f892dc47f2996e883dde5feb398a91a8",
+                      "sizeBytes":  73216
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_cffi_backend.cp312-win_amd64.pyd",
+                      "sha256":  "53de34afc3939d81bf2498b77425c52e2c3f3164f8cfe2543d3acc8f24134488",
+                      "sizeBytes":  181248
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_ctypes.pyd",
+                      "sha256":  "7282d8f2b41cd565e8df0e87a42c79accaa7fedc133137552d49dfbc006f34c8",
+                      "sizeBytes":  116224
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_decimal.pyd",
+                      "sha256":  "fcdc8bc61ee2dac17fbb9a8eea45242e22a34d1a71abac9bee7f732dc3f8b79f",
+                      "sizeBytes":  246272
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_elementtree.pyd",
+                      "sha256":  "46dabdeec004a4a94a1a65169f2867a2ce648555101301716d630b792b7f1650",
+                      "sizeBytes":  121856
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_hashlib.pyd",
+                      "sha256":  "f0a3f3c8ced4be5efc3cb47e4de8320a0c59852b52310e1cb0541a56b0cc42ba",
+                      "sizeBytes":  54784
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_lzma.pyd",
+                      "sha256":  "fc151659d1083706c7cc76d459b8cb9393d3b37897bba398928f410791f38f9b",
+                      "sizeBytes":  152576
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_socket.pyd",
+                      "sha256":  "762e124059728986555e815698fb9ce0cf3c50e84adb6ba0df4a96d324079a93",
+                      "sizeBytes":  71680
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_sqlite3.pyd",
+                      "sha256":  "5e5e49370d89baac864db0bd443f75baddba3131a7dd7423ccdeed8d286053cf",
+                      "sizeBytes":  112128
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_ssl.pyd",
+                      "sha256":  "31bed7c9c6e8e997e9cf92ec40d250269c80e8a0d2216be3b5afefd26f038c5e",
+                      "sizeBytes":  164864
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_uuid.pyd",
+                      "sha256":  "dc53e95f037f17c5665fb4aa729e273e3c6dc49017f3df7f8d7ecb631e04495c",
+                      "sizeBytes":  13824
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\_wmi.pyd",
+                      "sha256":  "7399862a3be13b981553b7fa2e1a64b2f8cda92c15c5966faf81a514d36210f1",
+                      "sizeBytes":  25600
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\cryptography\\hazmat\\bindings\\_rust.pyd",
+                      "sha256":  "fe5c4cdb5512f792fb0f5b3ce0cd8c1484614851d56ff5d1e7215213eb9e0bca",
+                      "sizeBytes":  9121280
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_avif.cp312-win_amd64.pyd",
+                      "sha256":  "38b5ca8582752f4f25b4a68dede6653573c37697d9c8100a82e52ecde282e573",
+                      "sizeBytes":  7892480
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_imaging.cp312-win_amd64.pyd",
+                      "sha256":  "6dfd10a98bc81a1999e2b5ddb8be8c1cfb9a2c8e10258c56a52ee0d8930d3d7f",
+                      "sizeBytes":  2589696
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_imagingcms.cp312-win_amd64.pyd",
+                      "sha256":  "46c59cf197b74954dfa01036d97938291573fa9ec339cd34f90fc7c870001cac",
+                      "sizeBytes":  269824
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_imagingft.cp312-win_amd64.pyd",
+                      "sha256":  "fe615fedf586c7206a74bedecddbf58623ffdf57e90ca2f8bca062aebae138c0",
+                      "sizeBytes":  2166272
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_imagingmath.cp312-win_amd64.pyd",
+                      "sha256":  "e1b3e6bc361fd8735df2c920c9878238dabaf797fbc13041ffaa26f635888d3a",
+                      "sizeBytes":  25600
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_imagingtk.cp312-win_amd64.pyd",
+                      "sha256":  "b7de0c367e22ada46a61a156023cc0d30187b45946f4154e077d630f161e2f0e",
+                      "sizeBytes":  14848
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\PIL\\_webp.cp312-win_amd64.pyd",
+                      "sha256":  "6af926fd1a58f3912b6f5e290ef37768c26017988bdd2217c0daa8e1107d4f71",
+                      "sizeBytes":  409600
+                  },
+                  {
+                      "path":  "fdctl_runtime\\_internal\\psutil\\_psutil_windows.pyd",
+                      "sha256":  "0035450801bd7d938e9e146c5ec28e619cb5a5f4a18cdc53ac7e9734c7f94f78",
+                      "sizeBytes":  70656
+                  }
+              ],
+    "integritySignature":  "blj4nVec7oZQkLw_Cweu2aJ_8ncD88yLVCIvhS0JrQBX9PxiJvDWREGLxudZX8WUpojsFau3yQqdMvhPUJWPDA"
+}
