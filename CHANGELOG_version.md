@@ -1,5 +1,13 @@
 # Version Changelog
 
+## 1.1.8 - 2026-04-27
+
+- stabilized public device binding by switching the primary machine fingerprint to a Windows-machine identity that no longer depends on the current username
+- kept backward compatibility for previously activated keys by still accepting the legacy machine-hash path during verification
+- canonicalized Gmail identities before trial and license matching so dotted and plus-tag Gmail variants resolve to the same licensed inbox identity
+- rebuilt the bundle-only public release after the Gmail and device-binding fixes
+- bumped Python package `fdctl` to `0.2.8`
+
 ## 1.1.7 - 2026-04-24
 
 - added local `license_history.json` tracking for Gmail addresses, masked key previews, license labels, and recent activation/trial events
@@ -85,6 +93,6 @@ This release focused on documentation cleanup, copyright marking, and preparing 
 
 ## Current version snapshot
 
-- operator release: `1.1.7`
-- `fdctl`: `0.2.7`
+- operator release: `1.1.8`
+- `fdctl`: `0.2.8`
 - distribution: `portable-cli-bundle`

@@ -82,6 +82,7 @@ $env:FDCTL_DATA_ROOT="E:\DFIR_CASES"
 - starts after the user enters an email address
 - valid for `3 days`
 - only accepts Gmail addresses ending with `@gmail.com`
+- Gmail dotted and plus-tag aliases are canonicalized to the same inbox identity before trial and license matching
 - bound to the first Gmail address that uses the tool on that device
 - stored under `%LOCALAPPDATA%\FORENSICS_DISCORD\license`
 - local masked email/license history is also stored there so returning users can re-enter only their Gmail address when a valid local trial or activation already exists
