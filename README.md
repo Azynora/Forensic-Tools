@@ -1,4 +1,4 @@
-// When I wrote this code, only god % I understood what it did.
+// When I wrote this code, only god & I understood what it did.
 // Now,....only god knows.
 
 # FORENSICS_DISCORD
