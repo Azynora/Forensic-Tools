@@ -1,3 +1,6 @@
+// When I wrote this code, only god % I understood what it did.
+// Now,....only god knows.
+
 # FORENSICS_DISCORD
 
 `FORENSICS_DISCORD` is a terminal-first Windows 11 forensic toolkit for Discord-focused DFIR collection, analysis, and case packaging.
