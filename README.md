@@ -1,5 +1,6 @@
 // When I wrote this code, only god & I understood what it did.
 // Now,....only god knows.
+// I have no idea why it works...
 
 # FORENSICS_DISCORD
 
