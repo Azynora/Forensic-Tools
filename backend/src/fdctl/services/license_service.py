@@ -1147,6 +1147,8 @@ def build_integrity_message(manifest: dict[str, Any]) -> bytes:
 
 def verify_bundle_integrity(root: Path | None = None) -> dict[str, Any]:
     bundle_root = root or project_root()
+    if _source_checkout_present(bundle_root):
+        return {"ok": True, "enforced": False, "reason": "source-checkout", "manifestPath": str(bundle_root / INTEGRITY_MANIFEST_NAME)}
     if not license_enforcement_required(bundle_root):
         return {"ok": True, "enforced": False, "reason": "owner-source-bypass", "manifestPath": str(bundle_root / INTEGRITY_MANIFEST_NAME)}
 
