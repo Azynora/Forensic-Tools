@@ -10,13 +10,15 @@ $buildVenvPython = Join-Path $root ".build-venv\Scripts\python.exe"
 $pythonOverride = $env:FDCTL_BUILD_PYTHON
 if ($pythonOverride) {
     $python = $pythonOverride
-} elseif (Test-Path -LiteralPath $buildVenvPython) {
+}
+elseif (Test-Path -LiteralPath $buildVenvPython) {
     & $buildVenvPython -V | Out-Null
     $versionExitCode = $LASTEXITCODE
     & $buildVenvPython -m pip --version | Out-Null
     if ($versionExitCode -eq 0 -and $LASTEXITCODE -eq 0) {
         $python = $buildVenvPython
-    } else {
+    }
+    else {
         $buildVenvRoot = Join-Path $root ".build-venv"
         if ((Resolve-Path -LiteralPath $buildVenvRoot).Path -ne $buildVenvRoot) {
             throw "Unexpected build environment path: $buildVenvRoot"
@@ -29,7 +31,8 @@ if ($pythonOverride) {
         }
         $python = $buildVenvPython
     }
-} else {
+}
+else {
     $python = "python"
     & $python -m venv (Join-Path $root ".build-venv")
     if ($LASTEXITCODE -ne 0) {
@@ -75,7 +78,8 @@ foreach ($path in @($bundleRoot, $publicRoot)) {
     if (Test-Path -LiteralPath $path) {
         try {
             Remove-Item -LiteralPath $path -Recurse -Force
-        } catch {
+        }
+        catch {
             Get-ChildItem -LiteralPath $path -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
@@ -87,7 +91,7 @@ if (Test-Path -LiteralPath $releaseZip) {
 New-Item -ItemType Directory -Force -Path $bundleRoot, $bundleRuntimeRoot, $publicRoot, $buildRoot, $workRoot, $distRoot, $guiDistRoot, $specRoot, $pyInstallerWorkRoot, $guiPyInstallerWorkRoot | Out-Null
 
 Get-ChildItem -Recurse -Directory -Path $backend -Filter "__pycache__" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-Get-ChildItem -Recurse -File -Path $backend -Include *.pyc,*.pyo -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse -File -Path $backend -Include *.pyc, *.pyo -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 Get-ChildItem -Recurse -Directory -Path (Join-Path $backend "src") -Filter "*.egg-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 
 Push-Location $root
@@ -174,42 +178,42 @@ Get-ChildItem -LiteralPath $bundleRoot -Recurse -File | Where-Object { $_.Name -
     $hash = Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256
     $relativePath = $_.FullName.Substring($bundleRoot.Length).TrimStart("\")
     $bundleFiles += [ordered]@{
-        path = $relativePath
-        sha256 = $hash.Hash.ToLowerInvariant()
+        path      = $relativePath
+        sha256    = $hash.Hash.ToLowerInvariant()
         sizeBytes = $_.Length
     }
 }
 
 $bundleProvenance = [ordered]@{
-    project = "Forensics Suite"
-    owner = [ordered]@{
-        name = "Truong Trieu Vy"
+    project               = "Forensics Suite"
+    owner                 = [ordered]@{
+        name  = "Truong Trieu Vy"
         email = "trieuvy9198@gmail.com"
     }
-    generatedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
-    distributionMode = "windows-gui-installer-and-source-cli"
-    bundleVersion = $version
-    runtimeEntryPoint = "fdctl_runtime\fdctl_runtime.exe"
-    licenseRequired = $true
-    builtInTrial = [ordered]@{
+    generatedAtUtc        = (Get-Date).ToUniversalTime().ToString("o")
+    distributionMode      = "windows-gui-installer-and-source-cli"
+    bundleVersion         = $version
+    runtimeEntryPoint     = "fdctl_runtime\fdctl_runtime.exe"
+    licenseRequired       = $true
+    builtInTrial          = [ordered]@{
         durationDays = 7
-        seats = 1
-        activation = "local seven-day demo trial; owner-issued device-bound Ed25519 keys"
-        storage = "%LOCALAPPDATA%\FORENSICS_DISCORD\license"
+        seats        = 1
+        activation   = "local seven-day demo trial; owner-issued device-bound Ed25519 keys"
+        storage      = "%LOCALAPPDATA%\FORENSICS_DISCORD\license"
     }
     supportedLicenseTypes = @(
         "issued_7d",
         "issued_30d",
         "issued_365d"
     )
-    defaultWorkspaceRoot = "%USERPROFILE%\Documents\Forensics Suite"
-    files = $bundleFiles
+    defaultWorkspaceRoot  = "%USERPROFILE%\Documents\Forensics Suite"
+    files                 = $bundleFiles
 }
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $signatureInputPath = Join-Path $workRoot "bundle-provenance.tmp.json"
 [System.IO.File]::WriteAllText($signatureInputPath, ($bundleProvenance | ConvertTo-Json -Depth 6), $utf8NoBom)
-$signature = & $python -c "import json, pathlib, sys; sys.path.insert(0, sys.argv[2]); from fdctl.services.license_service import integrity_signature_for_manifest; data=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')); print(integrity_signature_for_manifest(data))" $signatureInputPath (Join-Path $backend "src")
+$signature = & $python -c "import json, pathlib, sys; sys.path.insert(0, sys.argv[2]); from tools.license_issuer import integrity_signature_for_manifest; data=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')); print(integrity_signature_for_manifest(data))" $signatureInputPath $root
 $bundleProvenance["integritySignature"] = ($signature | Select-Object -Last 1).ToString().Trim()
 $bundleProvenancePath = Join-Path $bundleRoot "BUILD_PROVENANCE.json"
 [System.IO.File]::WriteAllText($bundleProvenancePath, ($bundleProvenance | ConvertTo-Json -Depth 6), $utf8NoBom)
@@ -235,7 +239,8 @@ for ($attempt = 1; $attempt -le 5 -and -not $zipCreated; $attempt++) {
         Copy-Item -Path (Join-Path $bundleRoot "*") -Destination $zipStageRoot -Recurse -Force
         Compress-Archive -Path (Join-Path $zipStageRoot "*") -DestinationPath $releaseZip -CompressionLevel Optimal -Force
         $zipCreated = $true
-    } catch {
+    }
+    catch {
         if ($attempt -ge 5) {
             throw
         }
@@ -267,7 +272,8 @@ if ($isccCandidates) {
     & $iscc "/DBundleDir=$bundleRoot" "/DOutputDir=$publicRoot" $installerScript
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE." }
     Write-Host "Setup installer created: $(Join-Path $publicRoot 'ForensicsSuite_Setup.exe')"
-} else {
+}
+else {
     Write-Warning "Inno Setup 6 was not found. Portable ZIP is ready; install Inno Setup 6 to create Setup.exe."
 }
 

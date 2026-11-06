@@ -18,11 +18,7 @@ from fdctl.services.license_service import (
     current_license_status,
     deactivate_license,
     format_machine_name,
-    issue_license_key,
-    issued_key_storage_root,
     last_used_email,
-    license_issue_allowed,
-    license_types_summary,
     license_usage_history,
     machine_fingerprint,
     require_bundle_access,
@@ -332,20 +328,7 @@ def build_parser() -> argparse.ArgumentParser:
     license_activate.add_argument("--prompt", action="store_true")
     license_sub.add_parser("deactivate", help="Remove the current local activation")
     license_sub.add_parser("machine", help="Show the current device name and machine fingerprint")
-    license_issue = license_sub.add_parser("issue", help="Issue a signed local license key from the private source workspace")
-    license_issue.add_argument("--email", required=True)
-    license_issue.add_argument("--type", dest="license_type", choices=[item["key"] for item in license_types_summary()], required=True)
-    license_issue.add_argument("--days", dest="days_valid", type=int)
-    license_issue.add_argument("--max-seats", dest="max_seats", type=int, default=1)
-    license_issue.add_argument("--feature", action="append", dest="features")
-    license_issue.add_argument("--machine", required=True, help="Target device fingerprint provided by the end user")
-    license_issue.add_argument("--notes", default="")
-    license_issue.add_argument("--out", dest="output_path")
-    license_issue_owner = license_sub.add_parser("issue-owner", help="Issue a private unlimited owner key from the source workspace")
-    license_issue_owner.add_argument("--email", default="trieuvy9198@gmail.com")
-    license_issue_owner.add_argument("--machine", required=True, help="Target owner device fingerprint")
-    license_issue_owner.add_argument("--notes", default="Owner unlimited activation key")
-    license_issue_owner.add_argument("--out", dest="output_path")
+
 
     return parser
 
@@ -577,134 +560,8 @@ def main(argv: list[str] | None = None) -> int:
                     "toolVersion": f"Release {__release__}",
                     "deviceName": format_machine_name(),
                     "machineFingerprint": machine_fingerprint(),
-                    "issuedKeyStorageRoot": str(issued_key_storage_root()),
                 }
             )
-            return 0
-
-        if args.command == "license" and args.license_command == "issue":
-            if not license_issue_allowed():
-                raise PermissionError(
-                    "License issuance is only available from the owner's private source machine, not from the distributed bundle or an untrusted source checkout."
-                )
-            issued = issue_license_key(
-                args.email,
-                args.license_type,
-                days_valid=args.days_valid,
-                max_seats=args.max_seats,
-                features=args.features,
-                notes=args.notes,
-                bound_machine=args.machine,
-            )
-            output_path = Path(args.output_path) if args.output_path else issued_key_storage_root() / (
-                f"{str(args.email).replace('@', '_at_').replace('.', '_')}_{args.license_type}.key"
-            )
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(issued["token"], encoding="utf-8")
-            _print({"status": "issued", "outputPath": str(output_path), **issued})
-            return 0
-
-        if args.command == "license" and args.license_command == "issue-owner":
-            if not license_issue_allowed():
-                raise PermissionError(
-                    "Owner key issuance is only available from the owner's private source machine."
-                )
-            issued = issue_license_key(
-                args.email,
-                "owner_unlimited",
-                max_seats=1,
-                notes=args.notes,
-                bound_machine=args.machine,
-                release_channel="owner-issued",
-            )
-            output_path = Path(args.output_path) if args.output_path else issued_key_storage_root() / "owner_unlimited.key"
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(issued["token"], encoding="utf-8")
-            _print({"status": "issued", "outputPath": str(output_path), **issued})
-            return 0
-
-        if args.command != "menu":
-            require_bundle_access(args.command)
-
-        if args.command == "apps" and args.apps_command == "detect":
-            rows = []
-            for adapter in adapters.values():
-                detection = adapter.detect() # type: ignore
-                rows.append(
-                    {
-                        "appId": detection.app_id,
-                        "displayName": detection.display_name,
-                        "detected": detection.detected,
-                        "supportLevel": detection.support_level,
-                        "installPaths": detection.install_paths,
-                        "notes": detection.notes,
-                    }
-                )
-            _print(rows)
-            return 0
-
-        if args.command == "app" and args.app_command == "open":
-            result = open_application(args.app, as_admin=args.admin)
-            _print(result)
-            return 0
-
-        if args.command == "case" and args.case_command == "create":
-            context = create_case(
-                args.app,
-                args.case_id,
-                channel_url=args.channel_url,
-                target_user=args.target_user,
-            )
-            _print({"caseId": context.case_id, "appId": context.app_id, "root": str(context.root), "status": "runtime"})
-            return 0
-
-        if args.command == "case" and args.case_command == "save":
-            context = save_case(args.case_id)
-            _print({"caseId": context.case_id, "root": str(context.root), "status": "saved"})
-            return 0
-
-        if args.command == "case" and args.case_command == "discard":
-            discard_case(args.case_id)
-            _print({"caseId": args.case_id, "status": "discarded"})
-            return 0
-
-        if args.command == "collect":
-            context = load_case(args.case_id)
-            result = collect_case(context, elevated=args.elevated)
-            _print({"caseId": context.case_id, "status": "collected", "result": result})
-            return 0
-
-        if args.command == "analyze":
-            context = load_case(args.case_id)
-            result = analyze_case(context)
-            _print({"caseId": context.case_id, "status": "analyzed", "result": result})
-            return 0
-
-        if args.command == "supplement":
-            context = load_case(args.case_id)
-            result = run_supplemental_checks(context)
-            result["reportValidation"] = validate_report_bundle(context)
-            _print({"caseId": context.case_id, "status": "supplemented", "result": result})
-            return 0
-
-        if args.command == "report" and args.report_command == "build":
-            context = load_case(args.case_id)
-            index_path = build_report(context)
-            if not context.saved:
-                print_status("step", "Auto-saving case after report build...", context.case_id)
-                saved = save_case(context.case_id)
-                index_path = open_report(saved)
-                print_status("ok", "Terminal report summary ready.", str(index_path))
-                _print({"caseId": saved.case_id, "status": "saved", "root": str(saved.root), "indexPath": str(index_path)})
-            else:
-                print_status("ok", "Terminal report bundle ready.", str(index_path))
-                _print({"caseId": context.case_id, "status": "report-built", "indexPath": str(index_path)})
-            return 0
-
-        if args.command == "report" and args.report_command == "open":
-            context = load_case(args.case_id)
-            index_path = open_report(context)
-            _print({"caseId": context.case_id, "status": "report-summarized", "indexPath": str(index_path)})
             return 0
 
         if args.command == "ide" and args.ide_command == "open":

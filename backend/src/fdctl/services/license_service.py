@@ -17,7 +17,7 @@ except Exception:  # pragma: no cover - non-Windows fallback
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from fdctl.paths import project_root
 from fdctl.utils import ensure_dir, now_iso, read_json, write_json
@@ -26,18 +26,13 @@ from fdctl.utils import ensure_dir, now_iso, read_json, write_json
 PRODUCT_NAME = "FORENSICS_DISCORD"
 OWNER_NAME = "Truong Trieu Vy"
 OWNER_EMAIL = "trieuvy9198@gmail.com"
-OWNER_MACHINE_FINGERPRINTS = {
-    "[REDACTED_MACHINE_HASH]",
-    "[REDACTED_MACHINE_HASH]",
-}
+OWNER_MACHINE_FINGERPRINTS: set[str] = set()
 LICENSE_SCHEMA_VERSION = 3
 INTEGRITY_MANIFEST_NAME = "BUILD_PROVENANCE.json"
 ACTIVATION_FILE_NAME = "active_license.json"
 REPORT_LICENSE_STATE_NAME = "license-state.js"
 TRIAL_DAYS = 7
 LEGACY_TRIAL_DAYS = 3
-PRIVATE_KEY_ENV = "FDCTL_LICENSE_PRIVATE_KEY"
-DEFAULT_LICENSE_STORAGE_ROOT = Path(os.environ.get("FDCTL_LICENSE_ROOT", r"D:\ForensicWorkspace"))
 LICENSE_HISTORY_NAME = "license_history.json"
 COMPACT_LICENSE_MAGIC = b"FD"
 COMPACT_LICENSE_SCHEMA_VERSION = 2
@@ -106,7 +101,13 @@ def _source_checkout_present(root: Path | None = None) -> bool:
 
 
 def _owner_machine_allowlist() -> set[str]:
-    allowlist = {item.strip().lower() for item in OWNER_MACHINE_FINGERPRINTS if str(item).strip()}
+    allowlist = set(OWNER_MACHINE_FINGERPRINTS)
+    secrets_file = Path.home() / ".fdctl-secrets" / "owner_machines.json"
+    if secrets_file.exists():
+        try:
+            allowlist.update(json.loads(secrets_file.read_text(encoding="utf-8")))
+        except Exception:
+            pass
     override = str(os.environ.get("FDCTL_OWNER_MACHINE_ALLOWLIST", "") or "").strip()
     if override:
         for item in override.replace(";", ",").split(","):
@@ -141,12 +142,6 @@ def license_enforcement_required(root: Path | None = None) -> bool:
     return not owner_source_bypass_allowed(root)
 
 
-def license_issue_allowed(root: Path | None = None) -> bool:
-    forced = str(os.environ.get("FDCTL_ALLOW_LICENSE_ISSUE", "") or "").strip().lower()
-    if forced in {"1", "true", "yes", "on"}:
-        return True
-    return owner_source_bypass_allowed(root)
-
 
 def support_root() -> Path:
     override = str(os.environ.get("FDCTL_LICENSE_HOME", "") or "").strip()
@@ -159,13 +154,6 @@ def support_root() -> Path:
     if appdata:
         return ensure_dir(Path(appdata) / PRODUCT_NAME)
     return ensure_dir(project_root() / ".fdctl-license")
-
-
-def issued_key_storage_root() -> Path:
-    override = str(os.environ.get("FDCTL_ISSUED_KEY_HOME", "") or "").strip()
-    if override:
-        return ensure_dir(Path(override).expanduser().resolve())
-    return ensure_dir(DEFAULT_LICENSE_STORAGE_ROOT)
 
 
 def activation_path() -> Path:
@@ -357,33 +345,7 @@ def _public_keys() -> tuple[Ed25519PublicKey, ...]:
     )  # type: ignore[return-value]
 
 
-def _private_key_candidates() -> list[Path]:
-    candidates: list[Path] = []
-    override = str(os.environ.get(PRIVATE_KEY_ENV, "") or "").strip()
-    if override:
-        candidates.append(Path(override).expanduser().resolve())
-    candidates.append(DEFAULT_LICENSE_STORAGE_ROOT / "forensics_license_private_key.pem")
-    candidates.append(Path.home().resolve() / ".fdctl-secrets" / "foreinsics_license_private_key.pem")
-    candidates.append(Path.home().resolve() / ".fdctl-secrets" / "forensics_license_private_key.pem")
-    return candidates
 
-
-def _private_key_path() -> Path:
-    for path in _private_key_candidates():
-        if path.exists():
-            return path
-    raise FileNotFoundError(
-        f"Private signing key not found. Set {PRIVATE_KEY_ENV} or place the key in %USERPROFILE%\\.fdctl-secrets."
-    )
-
-
-def _private_key() -> Ed25519PrivateKey:
-    return serialization.load_pem_private_key(_private_key_path().read_bytes(), password=None)  # type: ignore[return-value]
-
-
-def _sign_bytes(data: bytes) -> str:
-    signature = _private_key().sign(data)
-    return _url_b64encode(signature)
 
 
 def _verify_bytes(data: bytes, signature: str) -> None:
@@ -636,74 +598,6 @@ def _verify_legacy_license_token(token: str) -> dict[str, Any]:
         "notBefore": not_before.isoformat(),
         "secondsRemaining": max(0, int((expires_at - current).total_seconds())),
     }
-
-
-def issue_license_key(
-    issued_to_email: str,
-    license_type: str,
-    *,
-    issued_by: str = OWNER_NAME,
-    days_valid: int | None = None,
-    max_seats: int = 1,
-    features: list[str] | None = None,
-    notes: str = "",
-    release_channel: str = "bundle-release",
-    bound_machine: str,
-) -> dict[str, Any]:
-    profile = _default_profile(license_type)
-    normalized_email = validate_supported_email(issued_to_email, "issued_to_email")
-    machine_fingerprint_text = str(bound_machine or "").strip().lower()
-    if not machine_fingerprint_text:
-        raise ValueError("bound_machine must be provided when issuing a license key.")
-    days = int(days_valid if days_valid is not None else profile["defaultDays"])
-    if days <= 0 and license_type != "owner_unlimited":
-        raise ValueError("days_valid must be positive")
-    issued_at = now_utc()
-    if license_type == "owner_unlimited":
-        expires_at = datetime.fromtimestamp(MAX_COMPACT_UNIX_TIMESTAMP, UTC)
-        days = max(1, int((expires_at - issued_at).total_seconds() // 86400))
-    else:
-        expires_at = issued_at + timedelta(days=days)
-    license_id_bytes = os.urandom(COMPACT_LICENSE_ID_BYTES)
-    email_hash = email_fingerprint(normalized_email)
-    machine_hash = machine_binding_hash(machine_fingerprint_text)
-    compact_payload = _pack_compact_license_payload(
-        license_type,
-        issued_at,
-        expires_at,
-        max_seats,
-        license_id_bytes,
-        email_hash,
-        machine_hash,
-    )
-    signature = _private_key().sign(compact_payload)
-    token = _encode_letters_only(compact_payload + signature)
-    payload = {
-        "schemaVersion": LICENSE_SCHEMA_VERSION,
-        "product": PRODUCT_NAME,
-        "ownerName": OWNER_NAME,
-        "ownerEmail": OWNER_EMAIL,
-        "ownershipSentinel": ownership_sentinel(),
-        "licenseId": license_id_bytes.hex(),
-        "licenseType": license_type,
-        "licenseLabel": profile["label"],
-        "issuedToEmail": normalized_email,
-        "issuedToName": "",
-        "issuedBy": issued_by.strip() or OWNER_NAME,
-        "issuedAt": issued_at.isoformat(),
-        "notBefore": issued_at.isoformat(),
-        "expiresAt": expires_at.isoformat(),
-        "daysValid": days,
-        "maxSeats": max(1, int(max_seats)),
-        "features": list(features or profile["features"]),
-        "releaseChannel": release_channel,
-        "notes": notes.strip(),
-        "issuedToEmailHash": email_hash.hex(),
-        "issuedToMachineFingerprint": machine_fingerprint_text,
-        "issuedToMachineHash": machine_hash.hex(),
-        "compactKeyFormat": "letters-only",
-    }
-    return {"payload": payload, "token": token, "privateKeyPath": str(_private_key_path())}
 
 
 def verify_license_token(token: str) -> dict[str, Any]:
@@ -1249,10 +1143,6 @@ def build_integrity_message(manifest: dict[str, Any]) -> bytes:
     for item in sorted(files, key=lambda row: str(row.get("path", "")).lower()):
         rows.append(f"{item.get('path', '')}|{item.get('sha256', '')}|{item.get('sizeBytes', 0)}")
     return "\n".join(header + rows).encode("utf-8")
-
-
-def integrity_signature_for_manifest(manifest: dict[str, Any]) -> str:
-    return _sign_bytes(build_integrity_message(manifest))
 
 
 def verify_bundle_integrity(root: Path | None = None) -> dict[str, Any]:

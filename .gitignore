@@ -42,3 +42,6 @@ BUILD_PROVENANCE.local.json
 
 # Proprietary GUI sources (distributed via binary releases only)
 backend/src/fdctl/gui.py
+
+# Private tools (never commit to git)
+tools/

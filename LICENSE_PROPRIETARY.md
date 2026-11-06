@@ -1,34 +1,43 @@
-# Proprietary License Notice
+# Proprietary License Notice / Thông cáo Bản quyền Độc quyền
 
-Forensics Suite is distributed as proprietary software.
+[English](#english) | [Tiếng Việt](#tiếng-việt)
 
+---
+
+<a name="english"></a>
+## ENGLISH
+
+Forensics Suite is distributed as proprietary software.  
 Copyright (c) 2026 Truong Trieu Vy. All rights reserved.
 
-## Permission Scope
+### Terms and Restrictions
+Unless explicitly approved in writing by Truong Trieu Vy, you may not:
+- Copy, sell, sublicense, or redistribute the source code or compiled release binaries.
+- Publish modified or fork versions of this software.
+- Alter or remove any copyright notices, authorship credits, or license metadata.
+- Reverse-engineer compiled executable binaries.
 
-Unless the copyright owner provides prior written approval, you may not:
+### Intellectual Property
+All rights, title, and intellectual property in the software, algorithms, data parsers, and report architectures remain the exclusive property of Truong Trieu Vy (`trieuvy9198@gmail.com`).
 
-- copy or redistribute the repository or bundled executables
-- publish modified or unmodified versions of the project
-- sublicense, resell, or repackage the tool
-- remove or alter ownership and copyright notices
-- reverse engineer packaged builds for redistribution purposes
+---
 
-## Permitted Internal Use
+<a name="tiếng-việt"></a>
+## TIẾNG VIỆT
 
-The owner may grant limited internal-use permission for lawful forensic, incident response, validation, or training work. Any such permission remains revocable and does not transfer ownership.
+Forensics Suite được phân phối dưới hình thức phần mềm bản quyền độc quyền.  
+Bản quyền (c) 2026 Trương Triều Vỹ. Mọi quyền được bảo lưu.
 
-## Ownership Reservation
+### Điều khoản và Giới hạn
+Nếu không có sự đồng ý bằng văn bản từ tác giả Trương Triều Vỹ, nghiêm cấm:
+- Sao chép, buôn bán, cấp phép lại hoặc tái phân phối mã nguồn và file cài đặt nhị phân.
+- Đăng tải các phiên bản chỉnh sửa hoặc phân nhánh (fork) của phần mềm.
+- Xóa bỏ hoặc sửa đổi thông tin quyền tác giả và nhãn thương hiệu.
+- Dịch ngược (reverse engineer) các gói phần mềm đã đóng gói.
 
-All intellectual property rights, title, and interest in the software, workflow design, report structure, exported bundle format, and supporting documentation remain with Truong Trieu Vy.
+### Quyền sở hữu Trí tuệ
+Toàn bộ quyền tác giả, giải pháp công nghệ và cấu trúc báo cáo pháp chứng thuộc quyền sở hữu duy nhất của Trương Triều Vỹ (`trieuvy9198@gmail.com`).
 
-## Confidential Components
+---
 
-Non-public build settings, private configuration, signing assets, and internal operational material are treated as confidential and are not licensed for disclosure.
-
-## Contact
-
-Licensing and permission requests:
-
-- Truong Trieu Vy
-- trieuvy9198@gmail.com
+**Contact / Liên hệ:** Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
