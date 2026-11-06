@@ -1,3 +1,5 @@
-# Dependencies required to build the Windows portable release.
--r requirements.txt
+# Runtime dependencies plus PyInstaller for the Windows portable build.
+psutil>=7.0.0
+Pillow>=11.0.0
+cryptography>=46.0.0
 pyinstaller>=6.0.0
