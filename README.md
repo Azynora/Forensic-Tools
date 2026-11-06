@@ -1,53 +1,41 @@
-// When I wrote this code, only God and I understood what it did.
-// Now, only God knows....
-
 # FORENSICS_DISCORD
 
-**Bộ công cụ DFIR portable cho Windows 11**
+Windows app for Discord forensic collection, analysis and case reporting.
 
-Thu thập và rà soát artifact Discord trên máy Windows, tạo case, timeline, báo cáo và gói xuất để làm việc với Autopsy.
+[Tiếng Việt](README.vi.md) · [English](README.en.md)
 
-<div align="center">
+## Download
 
-[**⬇ Tải bản Windows (.zip)**](https://github.com/Azynora/Forensic-Tools/releases/latest)
+[Download the latest Windows Setup or ZIP from GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
 
-**Windows 11 · CLI · Không cần cài Python để chạy bản phát hành**
+Run `FORENSICS_DISCORD_Setup.exe` and open the app from the Start menu. The installer bundles Python and required libraries. No Python installation or pip command is needed.
 
-</div>
-
-[Tiếng Việt](./README.vi.md) · [English](./README.en.md)
-
-## Bắt đầu
-
-1. Tải file ZIP ở mục [Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
-2. Giải nén vào thư mục có quyền ghi.
-3. Mở `launch-analysis-terminal.cmd` để dùng menu, hoặc mở PowerShell và chạy:
+## Run from source (CLI)
 
 ```powershell
-.\fdctl.cmd --help
-```
-
-## Chạy từ mã nguồn
-
-Clone repo rồi xem [hướng dẫn CLI](./USAGE_GUIDE.md). Cài môi trường và chạy:
-
-```powershell
+git clone https://github.com/Azynora/Forensic-Tools.git
+cd Forensic-Tools
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-.\fdctl.cmd --help
+.\fdctl.cmd menu
 ```
 
-Repo public chứa mã nguồn để clone và đọc. Bản ZIP trong Releases giúp chạy nhanh nhưng không làm mã nguồn trong repo trở thành riêng tư. **Phiên bản: 1.1.9.**
+The source checkout opens the terminal menu. See [USAGE_GUIDE.md](USAGE_GUIDE.md) for CLI commands.
 
-## Tính năng
+## Features
 
-- Thu thập artifact Discord desktop, một số dữ liệu Chrome và live response.
-- Phân tích dấu vết, lập timeline và tạo báo cáo case.
-- Xuất gói dữ liệu sẵn sàng nhập/đối chiếu trong Autopsy.
+- Discord artifact collection, analysis, reports and Autopsy export.
+- In-app synthetic demo labeled `SAMPLE`; it does not read real Discord or Chrome data.
+- Zalo is under development. Selecting it returns to Discord selection.
+- Select a workspace folder in app Settings; default is Documents.
 
-> Đây là công cụ triage và phân tích sơ bộ. Kết quả tự động cần được xác minh với dữ liệu gốc. Gói Autopsy xuất ra không phải native Autopsy case. Chỉ thu thập dữ liệu khi được ủy quyền; artifact có thể chứa cookie hoặc dữ liệu phiên nhạy cảm.
+The local 7-day trial enables the synthetic demo only. Paid access uses a device-bound signed license key issued by the owner. This personal project does not use an online store or payment backend.
 
-## Phạm vi hỗ trợ
+## Project and handling
 
-Discord là adapter chính. Zalo hiện là placeholder; Firefox chưa nằm trong pipeline. Bản phát hành là portable bundle gồm executable và runtime cần thiết. Đóng gói không thể bảo đảm tuyệt đối chống trích xuất hoặc phân tích ngược.
+The public repository contains source code. The installer packages the Python runtime and dependencies for easier use; packaging cannot guarantee absolute protection against reverse engineering. Use the tool only with authorization. Case data may contain sensitive session artifacts.
+
+**Owner:** Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+
+**Release:** 1.2.0

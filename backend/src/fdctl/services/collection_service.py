@@ -20,6 +20,7 @@ from fdctl.utils import (
     write_csv,
     write_json,
 )
+from fdctl.services.license_service import require_bundle_access
 
 def _copy_target(target: ArtifactTarget, case_root: Path, manifest: list[dict], errors: list[dict]) -> None:
     if not target.source.exists():
@@ -151,6 +152,7 @@ def _network_identity(process_rows: list[dict], tcp_rows: list[dict]) -> dict:
     }
 
 def collect_case(case: CaseContext, elevated: bool = False) -> dict:
+    require_bundle_access("collection")
     print_section("Collection Pipeline", f"Case {case.case_id} | App {case.app_id}")
     progress = StageProgress(6)
     print_status("step", "Initializing collection context...", f"Case root: {case.root}")

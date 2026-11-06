@@ -1,5 +1,14 @@
 # Version Changelog
 
+## 1.2.0 - 2026-11-06
+
+- added bilingual Tkinter app with Discord workflow, synthetic SAMPLE demo, case browser, license and workspace settings
+- selecting Zalo now explains that support is under development and returns to Discord selection without closing the CLI/app
+- enforced feature entitlements at collection and analysis service boundaries; trial licenses are limited to synthetic demo access
+- added personal-project licensing with a local seven-day demo trial and owner-issued device-bound Ed25519 keys; no store account or payment backend required
+- retained Ed25519 license verification for migration and added an Inno Setup per-user installer build target
+- simplified bilingual GitHub README and quick installation/CLI guide
+
 ## 1.1.9 - 2026-11-06
 
 - rút gọn README và hướng dẫn vận hành, bổ sung quick start tiếng Việt cùng giới hạn về chứng cứ và bảo vệ mã nguồn

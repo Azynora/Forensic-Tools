@@ -106,9 +106,9 @@ def _ensure_interactive_bundle_access(feature: str) -> dict[str, object]:
         license_key = input("Paste the matching license key (leave blank to cancel): ").strip()
         if not license_key:
             raise PermissionError(
-                "A valid Gmail address is required first, and a matching license key is required when no valid local trial or activation exists. "
+                "A valid Gmail address and owner-issued signed license key are required when no active trial or license exists. "
                 f"Current status: {activated.get('reason', '')}. "
-                "This device only grants one 3-day free trial Gmail."
+                "The local 7-day trial is limited to the synthetic demo."
             )
         activated = activate_license_token(license_key, activation_email)
     print_status(
@@ -241,28 +241,24 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
             print_status("info", "Normal typing, copy/paste, and keypad selection are available.")
         sys.stdout.flush()
         
-        available = [item for item in detections if item.app_id == "discord" or item.app_id == "zalo"]
-        selected = None
-        if args and args.app:
-            selected = next(item for item in available if item.app_id == args.app)
-            print_status("info", f"Preselected app: {selected.display_name}")
+        available = [item for item in detections if item.app_id in {"discord", "zalo"}]
+        selected = next((item for item in available if args and args.app == item.app_id), None)
+        while True:
+            if selected is None:
+                print_section("Available investigation apps")
+                for index, detection in enumerate(available, start=1):
+                    _print_detection_card(index, detection)
+                sys.stdout.flush()
+                choice = _prompt_selection("Select app number to investigate or type app name: ")
+                selected = _resolve_menu_choice(choice, available)
+            if selected.app_id != "zalo":
+                break
+            print_status("info", "Zalo forensic support is under development. No Zalo data will be accessed.")
+            print_status("step", "Returning to app selection. Choose Discord to continue.")
+            selected = None
             sys.stdout.flush()
-        else:
-            print_section("Available investigation apps")
-            for index, detection in enumerate(available, start=1):
-                _print_detection_card(index, detection)
-            sys.stdout.flush()
-            choice = _prompt_selection("Select app number to investigate or type app name: ")
-            selected = _resolve_menu_choice(choice, available)
         
         adapter = adapters[selected.app_id] # type: ignore
-
-        if selected.app_id == "zalo": # pyright: ignore[reportAttributeAccessIssue]
-            print_status("warn", "Zalo is only kept as a secondary placeholder in this build.")
-            print_status("warn", "No Zalo artifact paths are shown and no Zalo analysis flow is executed yet.")
-            print_status("warn", "Please use Discord for the active forensic workflow.")
-            sys.stdout.flush()
-            return 0
 
         print_section("Investigation Scope")
         channel_url = (args.channel_url if args else None) or input("Enter Discord channel link to investigate (optional): ").strip()
@@ -370,7 +366,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.key_file:
                 token = Path(args.key_file).read_text(encoding="utf-8").strip()
             if args.prompt or not activation_email:
-                prompt = "Enter the licensed Gmail address"
+                prompt = "Enter the license Gmail address"
                 if remembered_email:
                     prompt += f" [{remembered_email}]"
                 prompt += ": "
@@ -385,7 +381,7 @@ def main(argv: list[str] | None = None) -> int:
                         if token:
                             status = activate_license_token(token, activation_email)
                     if not status.get("active"):
-                        raise ValueError("A license key is required for this Gmail address on this device.")
+                        raise ValueError("A license key is required for this email on this device.")
             print_status(
                 "ok",
                 "License activated.",

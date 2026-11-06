@@ -754,6 +754,8 @@ def analyze_zalo(case: CaseContext) -> dict:
     return summary
 
 def analyze_case(case: CaseContext) -> dict:
+    from fdctl.services.license_service import require_bundle_access
+    require_bundle_access("analysis")
     adapters = get_adapters()
     adapter = adapters[case.app_id]
     defaults = adapter.build_analysis_defaults(case) # type: ignore

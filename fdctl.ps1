@@ -25,12 +25,8 @@ if (Test-Path -LiteralPath $backendSrc) {
 $bundledExe = $bundledExeCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
 $pythonSourceReady = $false
 if (Test-Path -LiteralPath $pythonExe) {
-    try {
-        & $pythonExe -V | Out-Null
-        $pythonSourceReady = $true
-    } catch {
-        $pythonSourceReady = $false
-    }
+    & $pythonExe -V | Out-Null
+    $pythonSourceReady = ($LASTEXITCODE -eq 0)
 }
 if ($bundledExe) {
     & $bundledExe @args

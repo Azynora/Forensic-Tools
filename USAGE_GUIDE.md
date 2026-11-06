@@ -1,110 +1,18 @@
-# Hướng dẫn sử dụng
+# FORENSICS_DISCORD — Hướng dẫn nhanh
 
-## 1. Yêu cầu
+## Bản cài đặt GUI
 
-- Bản portable: Windows 11 64-bit; không cần cài Python.
-- Mã nguồn: Python 3.10 trở lên.
-- Thu thập Discord có thể yêu cầu quyền Administrator.
-- Chỉ sử dụng trên thiết bị và dữ liệu mà bạn có thẩm quyền kiểm tra.
+1. Tải `FORENSICS_DISCORD_Setup.exe` từ [GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
+2. Cài đặt theo người dùng hiện tại, mở app từ Start Menu.
+3. Chọn ngôn ngữ, workspace và kích hoạt license trong giao diện.
 
-## 2. Khởi chạy
+Python và thư viện được đóng gói trong installer. Case mặc định nằm dưới `Documents\FORENSICS_DISCORD`; có thể đổi nơi lưu trong Cài đặt. Thu thập có thể yêu cầu quyền Administrator.
 
-Giải nén bundle vào thư mục có quyền ghi, mở PowerShell tại thư mục đó:
+Trial cục bộ 7 ngày chỉ cho phép xem demo tổng hợp `SAMPLE`. Demo không đọc Discord/Chrome thật, không tạo chứng cứ. License trả phí mở chức năng forensic.
 
-```powershell
-.\fdctl.cmd --help
-.\launch-analysis-terminal.cmd
-```
+## Source CLI
 
-Lệnh `fdctl.cmd` dùng để chạy lệnh trực tiếp; launcher mở menu điều tra tương tác. Kiểm tra ứng dụng được nhận diện:
-
-```powershell
-.\fdctl.cmd apps detect
-```
-
-## 3. Quy trình case
-
-### Tạo case
-
-```powershell
-.\fdctl.cmd case create --app discord --id case_001
-```
-
-Có thể ghi scope theo kênh và người dùng:
-
-```powershell
-.\fdctl.cmd case create --app discord --id case_001 --channel-url "https://discord.com/channels/GUILD_ID/CHANNEL_ID" --target-user "USER_ID_OR_NAME"
-```
-
-Nhập ID/URL cụ thể nếu có. Scope giúp phân tích lọc kết quả; nó không giới hạn toàn bộ artifact mà collector sao chép.
-
-### Thu thập, phân tích và báo cáo
-
-```powershell
-.\fdctl.cmd collect --case case_001
-.\fdctl.cmd analyze --case case_001
-.\fdctl.cmd supplement --case case_001
-.\fdctl.cmd report build --case case_001
-.\fdctl.cmd report open --case case_001
-.\fdctl.cmd case save --case case_001
-```
-
-Thu thập có thể tạo ảnh chụp màn hình, inventory tiến trình/kết nối và sao chép artifact từ Discord desktop cùng Chrome profile mặc định. Kiểm tra `copy_errors.csv`, manifest và completeness matrix để biết dữ liệu nào thiếu hoặc không đọc được.
-
-## 4. Nơi lưu dữ liệu
-
-Mặc định workspace nằm cạnh bundle:
-
-```text
-workspace\runtime\<case-id>   Case đang làm
-workspace\cases\<case-id>     Case đã lưu
-```
-
-Để dùng ổ đĩa khác, đặt biến môi trường trong PowerShell trước khi chạy:
-
-```powershell
-$env:FDCTL_DATA_ROOT = "E:\DFIR_CASES"
-.\fdctl.cmd apps detect
-```
-
-## 5. Đầu ra chính
-
-- `01_Case_Info\artifact_manifest.csv`: danh sách file đã thu thập và hash bản sao.
-- `01_Case_Info\copy_errors.csv`: lỗi sao chép ghi nhận được.
-- `07_Exports\`: kết quả phân tích, timeline và các bảng CSV/JSON.
-- `08_Report\Muc_luc_bao_cao.md`: mục lục báo cáo.
-- `08_Report\Bien_ban_ban_giao.md`: biên bản bàn giao.
-- `08_Report\case_snapshot.json`: snapshot có cấu trúc.
-- `05_Autopsy_Case\`: gói xuất để đưa dữ liệu vào Autopsy; đây không phải native Autopsy case database.
-
-## 6. Lưu ý về chứng cứ và quyền riêng tư
-
-- Công cụ phục vụ triage và phân tích sơ bộ. Xác minh phát hiện với artifact gốc và ghi nhận thao tác của điều tra viên.
-- Khôi phục tin nhắn và nhận diện ứng viên đã xóa dựa trên dấu vết cục bộ/heuristic; không khẳng định trạng thái xóa chỉ từ nhãn tự động.
-- Collector có thể sao chép cơ sở dữ liệu cookie hoặc dữ liệu phiên. Hạn chế quyền truy cập case, mã hóa nơi lưu trữ phù hợp và không chia sẻ ngoài phạm vi được phép.
-- Hash trong manifest giúp kiểm tra bản sao sau thu thập; không tự nó chứng minh toàn bộ chuỗi bảo quản hoặc tính nhất quán snapshot của nguồn đang chạy.
-- Discord là adapter chính. Zalo mới là placeholder; Firefox chưa nằm trong pipeline đang hoạt động.
-
-## 7. License
-
-Kiểm tra trạng thái hoặc kích hoạt:
-
-```powershell
-.\fdctl.cmd license status
-.\fdctl.cmd license activate --prompt
-```
-
-Bản public dùng trial 3 ngày cho Gmail đầu tiên trên thiết bị và hỗ trợ license ký cho `issued_7d`, `issued_30d`, `issued_365d`. Khi cấp license, chỉ dùng private source workspace và giữ khóa ký ngoài bundle công khai.
-
-Hiển thị fingerprint máy để yêu cầu license:
-
-```powershell
-.\fdctl.cmd license machine
-```
-
-## 8. Phát triển và đóng gói
-
-Cài package trong source workspace:
+Yêu cầu Windows 11 và Python 3.10 trở lên:
 
 ```powershell
 git clone https://github.com/Azynora/Forensic-Tools.git
@@ -112,22 +20,51 @@ cd Forensic-Tools
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-.\fdctl.cmd --help
+.\fdctl.cmd menu
 ```
 
-Build bundle nội bộ:
+Các lệnh thường dùng:
+
+```powershell
+.\fdctl.cmd apps detect
+.\fdctl.cmd case create --app discord --id case_001
+.\fdctl.cmd collect --case case_001
+.\fdctl.cmd analyze --case case_001
+.\fdctl.cmd report build --case case_001
+.\fdctl.cmd case save --case case_001
+```
+
+Chọn Zalo trong menu sẽ báo đang phát triển rồi quay lại lựa chọn ứng dụng. Không có luồng thu thập Zalo.
+
+Đổi workspace trong một phiên PowerShell:
+
+```powershell
+$env:FDCTL_DATA_ROOT = "E:\DFIR_CASES"
+.\fdctl.cmd menu
+```
+
+## License
+
+- App tự bắt đầu trial 7 ngày cho email Gmail đầu tiên trên thiết bị; trial chỉ mở demo SAMPLE.
+- Để yêu cầu key trả phí, gửi email và mã thiết bị ở trang License cho chủ dự án. Chủ dự án xác nhận rồi cấp signed key gắn với fingerprint thiết bị.
+- Kích hoạt bằng email Gmail và key trong trang License. Không có thanh toán hoặc cấp key tự động trong app.
+- License lưu tại `%LOCALAPPDATA%\FORENSICS_DISCORD\license`; token được xác minh bằng public key tích hợp trong app.
+- License Ed25519 cũ được chấp nhận trong giai đoạn chuyển đổi.
+
+## Cấp license thủ công và build Setup
+
+Giữ private signing key ngoài repo, máy khách và gói phát hành. Người dùng gửi fingerprint qua app; trên máy nguồn riêng, dùng `fdctl.cmd license issue` với email, loại license và fingerprint đó. Trả file key cho người dùng qua email. Trial được cấp cục bộ, không cần private key.
+
+Cần Python trên máy build và Inno Setup 6 để tạo bộ cài:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-package.ps1
 ```
 
-Đầu ra hiện được cấu hình tại `dist\FORENSICS_DISCORD`, `dist\github-release` và `dist\FORENSICS_DISCORD_portable.zip`. Script build xóa các đầu ra cùng tên trước khi tạo lại; sao lưu hoặc kiểm tra chúng trước khi build.
+Đầu ra: `dist\FORENSICS_DISCORD_portable.zip`, thư mục `dist\github-release` và, khi có Inno Setup 6, `FORENSICS_DISCORD_Setup.exe`. Build cần private Ed25519 key ngoài repo để ký manifest integrity. Không commit khóa, dữ liệu case hoặc các thư mục `build`, `dist`, `workspace`, `.venv`.
 
-### Đưa source và bản tải lên GitHub
+## Lưu ý
 
-- Commit mã nguồn trong `backend`, launcher, script build, `requirements*.txt`, README và tài liệu pháp lý/vận hành cần thiết.
-- Không commit `.venv`, `build`, `dist`, `_runtime`, `workspace`, file case, license khách hàng, khóa riêng hoặc chứng thư ký. Các thư mục sinh ra đã được loại khỏi Git bằng `.gitignore`.
-- Tạo ZIP bằng script build, sau đó đính kèm `dist\FORENSICS_DISCORD_portable.zip` vào GitHub Release. README tải từ trang Releases; không commit ZIP/EXE vào lịch sử source.
-- Khi source repo public, người dùng có thể đọc và clone mã nguồn. Bản đóng gói không che giấu source đã public.
+Chỉ thu thập dữ liệu khi được ủy quyền. Case có thể chứa cookie và dữ liệu phiên. Kết quả là triage tự động và cần được xác minh với artifact gốc. Public source vẫn có thể được đọc; đóng gói EXE không thể bảo đảm tuyệt đối chống trích xuất/phân tích ngược.
 
-Bundle executable không chứa trực tiếp các file nguồn Python, nhưng không thể bảo đảm tuyệt đối chống trích xuất hoặc phân tích ngược. Muốn giữ kín tuyệt đối một phần logic thì không phân phối phần đó cho máy người dùng.
+**Chủ sở hữu:** Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)

@@ -33,7 +33,8 @@ LICENSE_SCHEMA_VERSION = 3
 INTEGRITY_MANIFEST_NAME = "BUILD_PROVENANCE.json"
 ACTIVATION_FILE_NAME = "active_license.json"
 REPORT_LICENSE_STATE_NAME = "license-state.js"
-TRIAL_DAYS = 3
+TRIAL_DAYS = 7
+LEGACY_TRIAL_DAYS = 3
 PRIVATE_KEY_ENV = "FDCTL_LICENSE_PRIVATE_KEY"
 DEFAULT_LICENSE_STORAGE_ROOT = Path(r"D:\ForensicWorkspace")
 LICENSE_HISTORY_NAME = "license_history.json"
@@ -59,21 +60,21 @@ LICENSE_TYPES: dict[str, dict[str, Any]] = {
     "issued_7d": {
         "label": "Issued Access 7 Days",
         "defaultDays": 7,
-        "features": ["cli", "report"],
+        "features": ["cli", "report", "collection", "analysis", "autopsy"],
         "channel": "issued",
         "public": True,
     },
     "issued_30d": {
         "label": "Issued Access 30 Days",
         "defaultDays": 30,
-        "features": ["cli", "report", "analysis", "autopsy"],
+        "features": ["cli", "report", "collection", "analysis", "autopsy"],
         "channel": "issued",
         "public": True,
     },
     "issued_365d": {
         "label": "Issued Access 365 Days",
         "defaultDays": 365,
-        "features": ["cli", "report", "analysis", "autopsy"],
+        "features": ["cli", "report", "collection", "analysis", "autopsy"],
         "channel": "issued",
         "public": True,
     },
@@ -85,6 +86,7 @@ LICENSE_TYPES: dict[str, dict[str, Any]] = {
         "public": False,
     },
 }
+
 LICENSE_TYPE_CODES = {
     "issued_7d": 1,
     "issued_30d": 2,
@@ -887,8 +889,8 @@ def _trial_record(email: str) -> dict[str, Any]:
         "emailHash": email_fingerprint(normalized_email).hex(),
         "activatedAt": started.isoformat(),
         "expiresAt": expires.isoformat(),
-        "licenseType": "trial_3d_email",
-        "licenseLabel": "Free Trial 3 Days / 1 Email",
+        "licenseType": "trial_7d_email",
+        "licenseLabel": "Free Trial 7 Days / 1 Email",
         "daysValid": TRIAL_DAYS,
         "machineFingerprint": machine_fingerprint(),
         "machineName": format_machine_name(),
@@ -911,8 +913,8 @@ def set_current_email_trial(email: str) -> dict[str, Any]:
         "emailHash": record.get("emailHash", ""),
         "activatedAt": record.get("activatedAt", ""),
         "expiresAt": record.get("expiresAt", ""),
-        "licenseType": "trial_3d_email",
-        "licenseLabel": "Free Trial 3 Days / 1 Email",
+        "licenseType": str(record.get("licenseType", "trial_7d_email")),
+        "licenseLabel": str(record.get("licenseLabel", "Free Trial 7 Days / 1 Email")),
         "daysValid": TRIAL_DAYS,
         "machineFingerprint": machine_fingerprint(),
         "machineName": format_machine_name(),
@@ -920,8 +922,8 @@ def set_current_email_trial(email: str) -> dict[str, Any]:
     write_json(activation_path(), active_record)
     remember_email_usage(
         normalize_email(email),
-        license_type="trial_3d_email",
-        license_label="Free Trial 3 Days / 1 Email",
+        license_type=str(record.get("licenseType", "trial_7d_email")),
+        license_label=str(record.get("licenseLabel", "Free Trial 7 Days / 1 Email")),
         source="trial",
         expires_at=str(record.get("expiresAt", "")),
         event="trial-start",
@@ -937,7 +939,7 @@ def _migrate_legacy_trial_record(record: dict[str, Any], email: str) -> dict[str
         raise ValueError(f"This device already used its free trial with {trial_email}.")
     entries = registry.setdefault("entries", {})
     activated_at = str(record.get("activatedAt", "") or now_iso())
-    expires_at = str(record.get("expiresAt", "") or (now_utc() + timedelta(days=TRIAL_DAYS)).isoformat())
+    expires_at = str(record.get("expiresAt", "") or (now_utc() + timedelta(days=LEGACY_TRIAL_DAYS)).isoformat())
     migrated = {
         "mode": "trial",
         "product": PRODUCT_NAME,
@@ -950,7 +952,7 @@ def _migrate_legacy_trial_record(record: dict[str, Any], email: str) -> dict[str
         "expiresAt": expires_at,
         "licenseType": "trial_3d_email",
         "licenseLabel": "Free Trial 3 Days / 1 Email",
-        "daysValid": int(record.get("daysValid", TRIAL_DAYS) or TRIAL_DAYS),
+        "daysValid": int(record.get("daysValid", LEGACY_TRIAL_DAYS) or LEGACY_TRIAL_DAYS),
         "machineFingerprint": machine_fingerprint(),
         "machineName": format_machine_name(),
     }
@@ -1013,14 +1015,14 @@ def _trial_status(record: dict[str, Any], selected_email: str) -> dict[str, Any]
         "product": PRODUCT_NAME,
         "ownerName": OWNER_NAME,
         "ownerEmail": OWNER_EMAIL,
-        "licenseLabel": str(record.get("licenseLabel", "Free Trial 3 Days / 1 Email")),
-        "licenseType": str(record.get("licenseType", "trial_3d_email")),
+        "licenseLabel": str(record.get("licenseLabel", "Free Trial 7 Days / 1 Email")),
+        "licenseType": str(record.get("licenseType", "trial_7d_email")),
         "issuedToEmail": stored_email or normalized_email,
         "issuedToName": "",
         "issuedAt": str(record.get("activatedAt", "")),
         "expiresAt": str(record.get("expiresAt", "")),
         "daysValid": int(record.get("daysValid", TRIAL_DAYS) or TRIAL_DAYS),
-        "features": ["cli", "report", "trial"],
+        "features": ["demo"],
         "releaseChannel": "trial",
         "activationPath": str(activation_path()),
         "requestPath": str(license_request_path()),
@@ -1041,6 +1043,7 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
             "ownerEmail": OWNER_EMAIL,
             "licenseLabel": "Owner Source Workspace",
             "licenseType": "owner_source",
+            "features": ["cli", "report", "collection", "analysis", "autopsy", "owner"],
             "issuedToEmail": OWNER_EMAIL,
             "issuedToName": OWNER_NAME,
             "expiresAt": "",
@@ -1049,6 +1052,7 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
             "requestPath": str(license_request_path()),
         }
 
+    path = activation_path()
     normalized_email = ""
     if str(selected_email or "").strip():
         try:
@@ -1070,7 +1074,6 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
                 "requestPath": str(license_request_path()),
                 "activatedForEmail": "",
             }
-    path = activation_path()
     if not path.exists():
         if not normalized_email:
             return {
@@ -1093,20 +1096,11 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
             return _trial_status(set_current_email_trial(normalized_email), normalized_email)
         except ValueError as exc:
             return {
-                "active": False,
-                "reason": f"invalid: {exc}",
-                "enforced": True,
-                "product": PRODUCT_NAME,
-                "ownerName": OWNER_NAME,
-                "ownerEmail": OWNER_EMAIL,
-                "licenseLabel": "",
-                "licenseType": "",
-                "issuedToEmail": normalized_email,
-                "issuedToName": "",
-                "expiresAt": "",
-                "activationPath": str(path),
+                "active": False, "reason": f"invalid: {exc}", "enforced": True,
+                "product": PRODUCT_NAME, "ownerName": OWNER_NAME, "ownerEmail": OWNER_EMAIL,
+                "licenseLabel": "", "licenseType": "", "issuedToEmail": normalized_email,
+                "expiresAt": "", "features": [], "activationPath": str(path),
                 "requestPath": str(license_request_path()),
-                "activatedForEmail": "",
             }
 
     try:
@@ -1221,10 +1215,22 @@ def require_active_license(feature: str, root: Path | None = None, selected_emai
         request_hint = activation_request_text() if status.get("enforced") else ""
         raise PermissionError(
             f"License activation is required for {feature}. "
-            f"Use a valid Gmail address and ask {OWNER_NAME} <{OWNER_EMAIL}> for a 7/30/365-day key. "
+            f"Use a Gmail address and owner-issued signed key. Owner contact: {OWNER_NAME} <{OWNER_EMAIL}>. "
             f"Activation request saved at {status.get('requestPath', '')}. "
             f"{request_hint}"
         )
+    normalized_feature = feature.lower()
+    if any(word in normalized_feature for word in ("collect", "workflow", "case-create")):
+        entitlement = "collection"
+    elif "analy" in normalized_feature or "supplement" in normalized_feature:
+        entitlement = "analysis"
+    elif "report" in normalized_feature or "autopsy" in normalized_feature:
+        entitlement = "report" if "report" in status.get("features", []) else "autopsy"
+    else:
+        entitlement = "cli"
+    features = status.get("features", [])
+    if status.get("enforced") and entitlement not in features and "owner" not in features:
+        raise PermissionError("This license does not include the requested feature. Trial access is limited to the synthetic demo.")
     return status
 
 

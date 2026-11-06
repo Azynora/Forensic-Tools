@@ -49,8 +49,10 @@ $buildRoot = Join-Path $root "build\pyinstaller"
 $buildSession = "session-" + [guid]::NewGuid().ToString("N")
 $workRoot = Join-Path $buildRoot $buildSession
 $distRoot = Join-Path $workRoot "release-dist"
+$guiDistRoot = Join-Path $workRoot "gui-dist"
 $specRoot = Join-Path $workRoot "specs"
-$pyInstallerWorkRoot = Join-Path $workRoot "fdctl"
+$pyInstallerWorkRoot = Join-Path $workRoot "fdctl-cli"
+$guiPyInstallerWorkRoot = Join-Path $workRoot "fdctl-gui"
 $releaseZip = Join-Path $root "dist\FORENSICS_DISCORD_portable.zip"
 $docsToCopy = @(
     "README.md",
@@ -82,7 +84,7 @@ if (Test-Path -LiteralPath $releaseZip) {
     Remove-Item -LiteralPath $releaseZip -Force
 }
 
-New-Item -ItemType Directory -Force -Path $bundleRoot, $bundleRuntimeRoot, $publicRoot, $buildRoot, $workRoot, $distRoot, $specRoot, $pyInstallerWorkRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $bundleRoot, $bundleRuntimeRoot, $publicRoot, $buildRoot, $workRoot, $distRoot, $guiDistRoot, $specRoot, $pyInstallerWorkRoot, $guiPyInstallerWorkRoot | Out-Null
 
 Get-ChildItem -Recurse -Directory -Path $backend -Filter "__pycache__" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 Get-ChildItem -Recurse -File -Path $backend -Include *.pyc,*.pyo -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
@@ -97,8 +99,12 @@ if ($installExitCode -ne 0) {
 }
 
 Push-Location $backend
-& $python -m PyInstaller --noconfirm --clean --onedir --name fdctl_runtime --distpath $distRoot --workpath $pyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\__main__.py"
+& $python -m PyInstaller --noconfirm --clean --onedir --console --name fdctl_runtime --distpath $distRoot --workpath $pyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\cli_entry.py"
 $buildExitCode = $LASTEXITCODE
+if ($buildExitCode -eq 0) {
+    & $python -m PyInstaller --noconfirm --clean --onedir --windowed --name FORENSICS_DISCORD --distpath $guiDistRoot --workpath $guiPyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\__main__.py"
+    $buildExitCode = $LASTEXITCODE
+}
 Pop-Location
 if ($buildExitCode -ne 0) {
     throw "PyInstaller failed with exit code $buildExitCode."
@@ -107,6 +113,9 @@ if ($buildExitCode -ne 0) {
 $runtimeSourceRoot = Join-Path $distRoot "fdctl_runtime"
 $runtimeExeSource = Join-Path $runtimeSourceRoot "fdctl_runtime.exe"
 $runtimeInternalSource = Join-Path $runtimeSourceRoot "_internal"
+$guiRuntimeRoot = Join-Path $guiDistRoot "FORENSICS_DISCORD"
+$guiExeSource = Join-Path $guiRuntimeRoot "FORENSICS_DISCORD.exe"
+$guiInternalSource = Join-Path $guiRuntimeRoot "_internal"
 $bundleInternalRoot = Join-Path $bundleRuntimeRoot "_internal"
 
 if (-not (Test-Path -LiteralPath $runtimeExeSource)) {
@@ -115,10 +124,18 @@ if (-not (Test-Path -LiteralPath $runtimeExeSource)) {
 if (-not (Test-Path -LiteralPath $runtimeInternalSource)) {
     throw "Missing built runtime internal folder: $runtimeInternalSource"
 }
+if (-not (Test-Path -LiteralPath $guiExeSource)) {
+    throw "Missing built GUI executable: $guiExeSource"
+}
+if (-not (Test-Path -LiteralPath $guiInternalSource)) {
+    throw "Missing GUI runtime dependencies: $guiInternalSource"
+}
 
 Copy-Item -LiteralPath $runtimeExeSource -Destination (Join-Path $bundleRuntimeRoot "fdctl_runtime.exe") -Force
+Copy-Item -LiteralPath $guiExeSource -Destination (Join-Path $bundleRuntimeRoot "FORENSICS_DISCORD.exe") -Force
 New-Item -ItemType Directory -Force -Path $bundleInternalRoot | Out-Null
 Copy-Item -Path (Join-Path $runtimeInternalSource "*") -Destination $bundleInternalRoot -Recurse -Force
+Copy-Item -Path (Join-Path $guiInternalSource "*") -Destination $bundleInternalRoot -Recurse -Force
 
 $bundleRuntimeExe = Join-Path $bundleRuntimeRoot "fdctl_runtime.exe"
 if (-not (Test-Path -LiteralPath $bundleRuntimeExe)) {
@@ -150,7 +167,7 @@ foreach ($doc in $docsToCopy) {
     Copy-Item -LiteralPath (Join-Path $root $doc) -Destination (Join-Path $bundleRoot $doc) -Force
 }
 
-$version = & $python -c "import pathlib, sys; sys.path.insert(0, sys.argv[1]); from fdctl import __version__; print(__version__)" (Join-Path $backend "src")
+$version = & $python -c "import pathlib, sys; sys.path.insert(0, sys.argv[1]); from fdctl import __release__; print(__release__)" (Join-Path $backend "src")
 $version = ($version | Select-Object -Last 1).ToString().Trim()
 $bundleFiles = @()
 Get-ChildItem -LiteralPath $bundleRoot -Recurse -File | Where-Object { $_.Name -notin @("BUILD_PROVENANCE.json", "SHA256SUMS.txt") } | ForEach-Object {
@@ -170,14 +187,14 @@ $bundleProvenance = [ordered]@{
         email = "trieuvy9198@gmail.com"
     }
     generatedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
-    distributionMode = "portable-cli-bundle"
+    distributionMode = "windows-gui-installer-and-source-cli"
     bundleVersion = $version
     runtimeEntryPoint = "fdctl_runtime\fdctl_runtime.exe"
     licenseRequired = $true
     builtInTrial = [ordered]@{
-        durationDays = 3
+        durationDays = 7
         seats = 1
-        activation = "automatic for the first Gmail address used on one device"
+        activation = "local seven-day demo trial; owner-issued device-bound Ed25519 keys"
         storage = "%LOCALAPPDATA%\FORENSICS_DISCORD\license"
     }
     supportedLicenseTypes = @(
@@ -185,7 +202,7 @@ $bundleProvenance = [ordered]@{
         "issued_30d",
         "issued_365d"
     )
-    defaultWorkspaceRoot = ".\workspace"
+    defaultWorkspaceRoot = "%USERPROFILE%\Documents\FORENSICS_DISCORD"
     files = $bundleFiles
 }
 
@@ -225,3 +242,40 @@ for ($attempt = 1; $attempt -le 5 -and -not $zipCreated; $attempt++) {
         Start-Sleep -Seconds 2
     }
 }
+
+if (-not $zipCreated -or -not (Test-Path -LiteralPath $releaseZip)) {
+    throw "Failed to create the portable release archive: $releaseZip"
+}
+
+$zipItem = Get-Item -LiteralPath $releaseZip
+if ($zipItem.Length -le 0) {
+    throw "The portable release archive is empty: $releaseZip"
+}
+
+Write-Host "Portable bundle created: $releaseZip ($($zipItem.Length) bytes)"
+Write-Host "Expanded bundle created: $publicRoot"
+
+$isccCandidates = @(
+    (Get-Command ISCC.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source),
+    (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+    (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+if ($isccCandidates) {
+    $iscc = $isccCandidates | Select-Object -First 1
+    $installerScript = Join-Path $root "installer\FORENSICS_DISCORD.iss"
+    & $iscc "/DBundleDir=$bundleRoot" "/DOutputDir=$publicRoot" $installerScript
+    if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE." }
+    Write-Host "Setup installer created: $(Join-Path $publicRoot 'FORENSICS_DISCORD_Setup.exe')"
+} else {
+    Write-Warning "Inno Setup 6 was not found. Portable ZIP is ready; install Inno Setup 6 to create Setup.exe."
+}
+
+$releaseArtifactPaths = @($releaseZip)
+$setupArtifact = Join-Path $publicRoot "FORENSICS_DISCORD_Setup.exe"
+if (Test-Path -LiteralPath $setupArtifact) { $releaseArtifactPaths += $setupArtifact }
+$releaseChecksums = foreach ($artifact in $releaseArtifactPaths) {
+    $hash = (Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
+    "{0} *{1}" -f $hash, (Split-Path -Leaf $artifact)
+}
+[System.IO.File]::WriteAllLines((Join-Path $publicRoot "RELEASE_SHA256SUMS.txt"), $releaseChecksums, $utf8NoBom)
+Write-Host "Release artifact checksums written: $(Join-Path $publicRoot 'RELEASE_SHA256SUMS.txt')"

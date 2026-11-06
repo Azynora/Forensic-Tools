@@ -29,6 +29,20 @@ def workspace_root() -> Path:
     configured_root = _optional_env_path("FDCTL_DATA_ROOT")
     if configured_root:
         return configured_root
+    local_appdata = str(os.environ.get("LOCALAPPDATA", "") or "").strip()
+    if local_appdata:
+        settings = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
+        try:
+            import json
+            data = json.loads(settings.read_text(encoding="utf-8"))
+            workspace = str(data.get("workspace", "") or "").strip()
+            if workspace:
+                return Path(workspace).expanduser().resolve()
+        except Exception:
+            pass
+    if getattr(sys, "frozen", False):
+        documents = Path.home() / "Documents" / "FORENSICS_DISCORD"
+        return documents
     return project_root() / "workspace"
 
 
