@@ -1,3 +1,6 @@
+// When I wrote this code, only God and I understood what it did.
+// Now, only God knows....
+
 # FORENSICS_DISCORD
 
 **Bộ công cụ DFIR portable cho Windows 11**
