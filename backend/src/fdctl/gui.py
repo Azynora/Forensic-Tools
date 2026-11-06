@@ -32,12 +32,11 @@ from fdctl.utils import is_admin, rerun_as_admin
 
 PRODUCT_NAME = "Forensics Suite"
 
-# High-DPI support on Windows 10/11
+
 def _enable_high_dpi() -> None:
     if sys.platform == "win32":
         try:
             import ctypes
-            # 2 = PROCESS_PER_MONITOR_DPI_AWARE_V2
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
         except Exception:
             try:
@@ -47,27 +46,26 @@ def _enable_high_dpi() -> None:
                 pass
 
 
-# Refined, modern color palette
 COLORS = {
-    "navy": "#0B132B",          # Deep slate sidebar
-    "navy_hover": "#1C2541",    # Sidebar item hover
-    "navy_active": "#243254",   # Sidebar active tab
-    "accent_blue": "#2563EB",   # Vibrant primary action blue
-    "blue_hover": "#1D4ED8",    # Primary action hover
-    "canvas": "#F4F6F9",        # Crisp modern background
-    "white": "#FFFFFF",         # Pure white cards
-    "ink": "#0F172A",           # Dark text (Slate-900)
-    "ink_secondary": "#334155", # Subtitle text (Slate-700)
-    "muted": "#64748B",         # Secondary text (Slate-500)
-    "line": "#E2E8F0",          # Borders (Slate-200)
-    "green": "#059669",         # Emerald green
-    "green_bg": "#ECFDF5",      # Emerald pill background
-    "amber": "#D97706",         # Amber
-    "amber_bg": "#FFFBEB",      # Amber pill background
-    "blue_pill": "#1D4ED8",     # Blue pill text
-    "blue_pill_bg": "#EFF6FF",  # Blue pill background
-    "red": "#DC2626",           # Crimson red
-    "red_bg": "#FEF2F2",        # Crimson background
+    "navy": "#0B132B",
+    "navy_hover": "#1C2541",
+    "navy_active": "#243254",
+    "accent_blue": "#2563EB",
+    "blue_hover": "#1D4ED8",
+    "canvas": "#F4F6F9",
+    "white": "#FFFFFF",
+    "ink": "#0F172A",
+    "ink_secondary": "#334155",
+    "muted": "#64748B",
+    "line": "#E2E8F0",
+    "green": "#059669",
+    "green_bg": "#ECFDF5",
+    "amber": "#D97706",
+    "amber_bg": "#FFFBEB",
+    "blue_pill": "#1D4ED8",
+    "blue_pill_bg": "#EFF6FF",
+    "red": "#DC2626",
+    "red_bg": "#FEF2F2",
 }
 
 TEXT = {
@@ -76,12 +74,12 @@ TEXT = {
         "brand_title": "FORENSICS SUITE",
         "brand_subtitle": "ĐIỀU TRA PHÁP CHỨNG SỐ",
         "nav": [
-            "🔍  Tổng quan",
-            "🧪  Demo dữ liệu",
-            "📂  Cases & Báo cáo",
-            "🔑  Bản quyền",
-            "⚙️  Cài đặt",
-            "❓  Trợ giúp",
+            "◈  Tổng quan",
+            "◬  Demo dữ liệu",
+            "▤  Cases & Báo cáo",
+            "🔒  Bản quyền",
+            "⚙  Cài đặt",
+            "ℹ  Trợ giúp",
         ],
         "page_titles": [
             "Tổng quan Điều tra",
@@ -110,14 +108,14 @@ TEXT = {
         "target_user_hint": "Tên người dùng hoặc ID cần khoanh vùng (tùy chọn)",
         "app_supported": "● ĐÃ HỖ TRỢ",
         "app_planned": "◷ ĐANG PHÁT TRIỂN",
-        "start": "🚀 Bắt đầu điều tra",
-        "explore_demo": "🧪 Khám phá Demo",
+        "start": "Bắt đầu điều tra",
+        "explore_demo": "Khám phá Demo",
         "supported_now": "Ứng dụng sẵn sàng",
         "planned_apps": "Ứng dụng lộ trình",
         "workspace": "Thư mục Workspace",
         "current_license": "Quyền sử dụng",
-        "open_workspace": "📂 Mở Workspace",
-        "scan_apps": "🔄 Quét ứng dụng",
+        "open_workspace": "Mở Workspace",
+        "scan_apps": "Quét ứng dụng",
         "catalog_title": "Danh mục Ứng dụng & Lộ trình Tích hợp",
         "live_log_title": "Tiến trình Điều tra & Nhật ký Trực tiếp",
         "demo_title": "Dữ liệu Mẫu (Sample Walkthrough)",
@@ -143,16 +141,16 @@ TEXT = {
         "file_note": "Mục đích sử dụng",
         "report_preview": "Tóm tắt Kết luận Hồ sơ",
         "report_text": "Kịch bản tabletop hư cấu. Mọi tài khoản, thông điệp và tệp chỉ phục vụ minh họa tính năng; không phải người dùng hay bằng chứng thực tế.",
-        "open_sample_report": "📄 Xem Tóm tắt Báo cáo Mẫu",
+        "open_sample_report": "Xem Tóm tắt Báo cáo Mẫu",
         "demo_notice": "LƯU Ý: Chế độ Demo sử dụng dữ liệu tổng hợp cố định. Công cụ không đọc Discord, Zalo, trình duyệt hay tệp cá nhân trên máy.",
         "cases": "Danh sách Hồ sơ Điều tra (Cases)",
         "case_folder": "Vị trí lưu trữ:",
         "recent_cases": "Các hồ sơ đã lưu trong Workspace",
-        "no_cases": "Chưa có hồ sơ nào trong workspace này.",
-        "open_folder": "📂 Mở Thư mục Case",
-        "open_report": "🌐 Xem Báo cáo (Report)",
-        "open_autopsy": "📦 Gói Autopsy",
-        "refresh_cases": "🔄 Làm mới danh sách",
+        "no_cases": "Trống",
+        "open_folder": "Mở Thư mục Case",
+        "open_report": "Xem Báo cáo (Report)",
+        "open_autopsy": "Gói Autopsy",
+        "refresh_cases": "Làm mới danh sách",
         "case_details_title": "Chi tiết Hồ sơ Được chọn",
         "license": "Bản quyền & Giấy phép",
         "license_state": "Trạng thái Quyền hạn",
@@ -162,7 +160,7 @@ TEXT = {
         "trial": "Bắt đầu Dùng thử 7 Ngày (Demo)",
         "request_key": "Gửi Yêu cầu Cấp License",
         "device": "Mã định danh Thiết bị (Hardware Fingerprint):",
-        "copy_device": "📋 Sao chép Mã máy",
+        "copy_device": "Sao chép Mã máy",
         "copied": "✓ Đã sao chép vào bộ nhớ tạm!",
         "owner": f"Chủ sở hữu & Bản quyền: {OWNER_NAME} ({OWNER_EMAIL})",
         "settings": "Cài đặt & Môi trường",
@@ -172,9 +170,9 @@ TEXT = {
         "save": "Lưu Cài đặt",
         "language": "Ngôn ngữ Giao diện:",
         "admin_status": "Quyền thực thi Quản trị viên (Administrator):",
-        "admin_yes": "🛡️ Đang chạy với quyền Administrator (Tối ưu để trích xuất file đang mở)",
-        "admin_no": "⚠️ Đang chạy với quyền người dùng thông thường (Có thể bị hạn chế quyền truy cập)",
-        "relaunch_admin": "🛡️ Khởi động lại với quyền Admin",
+        "admin_yes": "Đang chạy với quyền Administrator (Tối ưu để trích xuất file đang mở)",
+        "admin_no": "Đang chạy với quyền người dùng thông thường (Có thể bị hạn chế quyền truy cập)",
+        "relaunch_admin": "Khởi động lại với quyền Admin",
         "help": "Trợ giúp & Tài liệu",
         "about_text": "Forensics Suite là giải pháp điều tra pháp chứng số mở rộng, hỗ trợ thu thập dấu vết, phục hồi tin nhắn cache, kiểm tra cookie/session và xuất báo cáo chuẩn Autopsy.",
         "cli_title": "Sử dụng Dòng lệnh (CLI Suite)",
@@ -198,12 +196,12 @@ TEXT = {
         "brand_title": "FORENSICS SUITE",
         "brand_subtitle": "DIGITAL FORENSICS PLATFORM",
         "nav": [
-            "🔍  Overview",
-            "🧪  Data Demo",
-            "📂  Cases & Reports",
-            "🔑  License",
-            "⚙️  Settings",
-            "❓  Help",
+            "◈  Overview",
+            "◬  Data Demo",
+            "▤  Cases & Reports",
+            "🔒  License",
+            "⚙  Settings",
+            "ℹ  Help",
         ],
         "page_titles": [
             "Investigation Overview",
@@ -232,14 +230,14 @@ TEXT = {
         "target_user_hint": "Username or ID to prioritize (optional)",
         "app_supported": "● SUPPORTED",
         "app_planned": "◷ IN DEVELOPMENT",
-        "start": "🚀 Start Investigation",
-        "explore_demo": "🧪 Explore Demo",
+        "start": "Start Investigation",
+        "explore_demo": "Explore Demo",
         "supported_now": "Available Apps",
         "planned_apps": "Roadmap Apps",
         "workspace": "Workspace Folder",
         "current_license": "Access Status",
-        "open_workspace": "📂 Open Workspace",
-        "scan_apps": "🔄 Detect Apps",
+        "open_workspace": "Open Workspace",
+        "scan_apps": "Detect Apps",
         "catalog_title": "Application Catalog & Roadmap",
         "live_log_title": "Live Investigation Activity & Logs",
         "demo_title": "Synthetic Data Walkthrough",
@@ -265,16 +263,16 @@ TEXT = {
         "file_note": "Purpose",
         "report_preview": "Investigation Findings Summary",
         "report_text": "Fictional tabletop exercise. Accounts, messages, and files are synthetic illustrations; they are not real users or forensic evidence.",
-        "open_sample_report": "📄 View Sample Findings",
+        "open_sample_report": "View Sample Findings",
         "demo_notice": "NOTICE: Demo mode uses fixed synthetic content. It does not read Discord, Zalo, browsers, or personal files.",
         "cases": "Investigation Cases & Reports",
         "case_folder": "Storage location:",
         "recent_cases": "Saved Cases in Workspace",
-        "no_cases": "No investigation cases found in this workspace yet.",
-        "open_folder": "📂 Open Case Folder",
-        "open_report": "🌐 Open Report",
-        "open_autopsy": "📦 Autopsy Bundle",
-        "refresh_cases": "🔄 Refresh List",
+        "no_cases": "Empty",
+        "open_folder": "Open Case Folder",
+        "open_report": "Open Report",
+        "open_autopsy": "Autopsy Bundle",
+        "refresh_cases": "Refresh List",
         "case_details_title": "Selected Case Details",
         "license": "License & Hardware",
         "license_state": "Entitlement Status",
@@ -284,7 +282,7 @@ TEXT = {
         "trial": "Start 7-Day Demo Trial",
         "request_key": "Request Signed License",
         "device": "Hardware Fingerprint:",
-        "copy_device": "📋 Copy Machine ID",
+        "copy_device": "Copy Machine ID",
         "copied": "✓ Copied to clipboard!",
         "owner": f"Author & Ownership: {OWNER_NAME} ({OWNER_EMAIL})",
         "settings": "Settings & Environment",
@@ -294,9 +292,9 @@ TEXT = {
         "save": "Save Settings",
         "language": "Interface Language:",
         "admin_status": "Administrator Execution Privilege:",
-        "admin_yes": "🛡️ Running with Administrator privilege (Recommended for live file locks)",
-        "admin_no": "⚠️ Running as Standard User (Certain file locks may require elevation)",
-        "relaunch_admin": "🛡️ Relaunch as Admin",
+        "admin_yes": "Running with Administrator privilege (Recommended for live file locks)",
+        "admin_no": "Running as Standard User (Certain file locks may require elevation)",
+        "relaunch_admin": "Relaunch as Admin",
         "help": "Help & Documentation",
         "about_text": "Forensics Suite is an extensible digital investigation platform designed for artifact triage, cache message reconstruction, session verification, and Autopsy package generation.",
         "cli_title": "Command-Line Interface (CLI)",
@@ -426,38 +424,34 @@ class ForensicsApp(tk.Tk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        # Left Sidebar
         self.sidebar = ttk.Frame(self, style="Sidebar.TFrame", width=255, padding=(14, 18))
         self.sidebar.grid(row=0, column=0, sticky="ns")
         self.sidebar.grid_propagate(False)
 
-        # Main Workspace Canvas
         self.main = ttk.Frame(self, style="Canvas.TFrame")
         self.main.grid(row=0, column=1, sticky="nsew")
         self.main.grid_columnconfigure(0, weight=1)
         self.main.grid_rowconfigure(1, weight=1)
 
-        # Brand / Logo Header
+        # Brand header with clean FS monogram
         brand = ttk.Frame(self.sidebar, style="Sidebar.TFrame")
         brand.pack(fill="x", pady=(4, 24))
-        icon = tk.Label(brand, text="🛡️", bg=COLORS["accent_blue"], fg="white", font=("Segoe UI", 14), width=3, height=1, pady=6)
+        icon = tk.Label(brand, text="FS", bg=COLORS["accent_blue"], fg="white", font=("Segoe UI", 12, "bold"), width=3, height=1, pady=6)
         icon.pack(side="left", padx=(0, 10))
         brand_text = ttk.Frame(brand, style="Sidebar.TFrame")
         brand_text.pack(side="left", fill="x", expand=True)
         ttk.Label(brand_text, text=TEXT[self.lang]["brand_title"], style="Brand.TLabel").pack(anchor="w")
         ttk.Label(brand_text, text=TEXT[self.lang]["brand_subtitle"], style="BrandSub.TLabel").pack(anchor="w", pady=(2, 0))
 
-        # Navigation Menu List
         self.nav_container = ttk.Frame(self.sidebar, style="Sidebar.TFrame")
         self.nav_container.pack(fill="x")
 
-        # Sidebar Bottom Footer
         self.sidebar_bottom = ttk.Frame(self.sidebar, style="Sidebar.TFrame")
         self.sidebar_bottom.pack(side="bottom", fill="x")
 
         self.lang_btn = tk.Button(
             self.sidebar_bottom,
-            text="🇻🇳 Tiếng Việt" if self.lang == "vi" else "🇬🇧 English",
+            text="Tiếng Việt (VI)" if self.lang == "vi" else "English (EN)",
             bg=COLORS["navy_hover"],
             fg="#E2E8F0",
             activebackground=COLORS["navy_active"],
@@ -473,7 +467,6 @@ class ForensicsApp(tk.Tk):
         self.sidebar_status = ttk.Label(self.sidebar_bottom, textvariable=self.status_var, style="Sidebar.TLabel", wraplength=210)
         self.sidebar_status.pack(anchor="w", pady=(0, 4))
 
-        # Top Header Bar in Main Area
         self.header = ttk.Frame(self.main, style="Canvas.TFrame", padding=(30, 20, 30, 10))
         self.header.grid(row=0, column=0, sticky="ew")
         self.header.grid_columnconfigure(0, weight=1)
@@ -485,13 +478,11 @@ class ForensicsApp(tk.Tk):
         ttk.Label(title_stack, textvariable=self.page_title_var, style="PageTitle.TLabel").pack(anchor="w")
         ttk.Label(title_stack, textvariable=self.page_subtitle_var, style="CanvasMuted.TLabel").pack(anchor="w", pady=(4, 0))
 
-        # Top Right Badges
         top_actions = ttk.Frame(self.header, style="Canvas.TFrame")
         top_actions.grid(row=0, column=1, sticky="e")
         self.license_badge = ttk.Label(top_actions, textvariable=self.license_badge_var, style="BadgeGreen.TLabel")
         self.license_badge.pack(side="right", padx=(8, 0))
 
-        # Scrollable / Switchable Content Area
         self.content = ttk.Frame(self.main, style="Canvas.TFrame", padding=(30, 10, 30, 25))
         self.content.grid(row=1, column=0, sticky="nsew")
         self.content.grid_columnconfigure(0, weight=1)
@@ -523,7 +514,7 @@ class ForensicsApp(tk.Tk):
             btn.pack(fill="x", pady=2)
             self.nav_buttons.append(btn)
 
-        self.lang_btn.configure(text="🇻🇳 Tiếng Việt (VI)" if self.lang == "vi" else "🇬🇧 English (EN)")
+        self.lang_btn.configure(text="Tiếng Việt (VI)" if self.lang == "vi" else "English (EN)")
 
     def toggle_language(self) -> None:
         self.lang = "en" if self.lang == "vi" else "vi"
@@ -556,9 +547,7 @@ class ForensicsApp(tk.Tk):
                 btn.configure(bg=COLORS["navy"], fg="#CBD5E1", font=("Segoe UI", 10))
 
     def card(self, parent: ttk.Widget, padding: int = 18) -> tk.Frame:
-        # Custom bordered white card
-        f = tk.Frame(parent, bg=COLORS["white"], highlightbackground=COLORS["line"], highlightthickness=1, padx=padding, pady=padding)
-        return f
+        return tk.Frame(parent, bg=COLORS["white"], highlightbackground=COLORS["line"], highlightthickness=1, padx=padding, pady=padding)
 
     def section_label(self, parent: tk.Widget, text: str) -> tk.Label:
         lbl = tk.Label(parent, text=text, bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 12, "bold"))
@@ -588,7 +577,6 @@ class ForensicsApp(tk.Tk):
     def _show_overview(self) -> None:
         t = TEXT[self.lang]
 
-        # Top Summary Metrics (4 cards)
         metrics = ttk.Frame(self.content, style="Canvas.TFrame")
         metrics.pack(fill="x", pady=(0, 16))
         for col in range(4):
@@ -599,20 +587,18 @@ class ForensicsApp(tk.Tk):
         cases_dir = Path(self.workspace_var.get()) / "cases"
         case_count = sum(1 for p in cases_dir.iterdir() if p.is_dir()) if cases_dir.exists() else 0
 
-        self._metric_card(metrics, 0, str(supported_count), t["supported_now"], "🛡️", COLORS["green"])
-        self._metric_card(metrics, 1, str(planned_count), t["planned_apps"], "⏱️", COLORS["amber"])
-        self._metric_card(metrics, 2, str(case_count), "Hồ sơ đã lưu" if self.lang == "vi" else "Saved Cases", "📂", COLORS["accent_blue"])
+        self._metric_card(metrics, 0, str(supported_count), t["supported_now"], "●", COLORS["green"])
+        self._metric_card(metrics, 1, str(planned_count), t["planned_apps"], "⏱", COLORS["amber"])
+        self._metric_card(metrics, 2, str(case_count), "Hồ sơ đã lưu" if self.lang == "vi" else "Saved Cases", "▤", COLORS["accent_blue"])
         short_ws = Path(self.workspace_var.get()).name or "workspace"
         self._metric_card(metrics, 3, short_ws, t["workspace"], "💻", "#6366F1", small=True)
 
-        # Investigation Setup Card
         scope_card = self.card(self.content, padding=20)
         scope_card.pack(fill="x", pady=(0, 16))
         scope_card.grid_columnconfigure(1, weight=1)
 
         tk.Label(scope_card, text=t["scope_title"], bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 13, "bold")).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 14))
 
-        # App selector row
         tk.Label(scope_card, text=t["choose_app"], bg=COLORS["white"], fg=COLORS["ink_secondary"], font=("Segoe UI", 10, "bold")).grid(row=1, column=0, sticky="w", pady=4)
         app_row = tk.Frame(scope_card, bg=COLORS["white"])
         app_row.grid(row=1, column=1, sticky="w", padx=(10, 0), pady=4)
@@ -624,17 +610,14 @@ class ForensicsApp(tk.Tk):
         self.app_status_badge = tk.Label(app_row, text=t["app_supported"], bg=COLORS["green_bg"], fg=COLORS["green"], font=("Segoe UI", 8, "bold"), padx=8, pady=3)
         self.app_status_badge.pack(side="left", padx=10)
 
-        # Channel URL input
         tk.Label(scope_card, text=t["channel_url"], bg=COLORS["white"], fg=COLORS["ink_secondary"], font=("Segoe UI", 10)).grid(row=2, column=0, sticky="w", pady=6)
         ch_entry = ttk.Entry(scope_card, textvariable=self.channel_url_var, width=54)
         ch_entry.grid(row=2, column=1, sticky="w", padx=(10, 0), pady=6)
 
-        # Target user input
         tk.Label(scope_card, text=t["target_user"], bg=COLORS["white"], fg=COLORS["ink_secondary"], font=("Segoe UI", 10)).grid(row=3, column=0, sticky="w", pady=6)
         user_entry = ttk.Entry(scope_card, textvariable=self.target_user_var, width=54)
         user_entry.grid(row=3, column=1, sticky="w", padx=(10, 0), pady=6)
 
-        # Action Buttons
         btn_row = tk.Frame(scope_card, bg=COLORS["white"])
         btn_row.grid(row=4, column=0, columnspan=2, sticky="w", pady=(14, 0))
 
@@ -683,7 +666,6 @@ class ForensicsApp(tk.Tk):
         )
         ws_btn.pack(side="left")
 
-        # Live Console Log Box
         log_card = self.card(self.content, padding=16)
         log_card.pack(fill="both", expand=True)
         tk.Label(log_card, text=t["live_log_title"], bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 11, "bold")).pack(anchor="w")
@@ -747,14 +729,12 @@ class ForensicsApp(tk.Tk):
     def _show_demo(self) -> None:
         t = TEXT[self.lang]
 
-        # Top Badge Banner
         head = ttk.Frame(self.content, style="Canvas.TFrame")
         head.pack(fill="x", pady=(0, 12))
         head.grid_columnconfigure(0, weight=1)
         ttk.Label(head, text=t["demo_subtitle"], style="CanvasMuted.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(head, text=t["sample_badge"], style="BadgeAmber.TLabel").grid(row=0, column=1, sticky="e")
 
-        # Demo Metrics (4 cards)
         metrics = ttk.Frame(self.content, style="Canvas.TFrame")
         metrics.pack(fill="x", pady=(0, 12))
         for col in range(4):
@@ -764,7 +744,7 @@ class ForensicsApp(tk.Tk):
             (str(len(DEMO_MESSAGES)), t["metric_messages"], "💬"),
             ("3", t["metric_participants"], "👥"),
             (str(len(DEMO_FILES)), t["metric_files"], "📎"),
-            ("4", t["metric_events"], "⏱️"),
+            ("4", t["metric_events"], "⏱"),
         ]
         for col, (value, label, icon) in enumerate(counts):
             card = self.card(metrics, padding=12)
@@ -773,19 +753,16 @@ class ForensicsApp(tk.Tk):
             tk.Label(card, text=value, bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 18, "bold")).pack(anchor="w")
             tk.Label(card, text=label, bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9)).pack(anchor="w")
 
-        # Split Layout: Left Timeline, Right Artifacts & Summary
         split = ttk.Frame(self.content, style="Canvas.TFrame")
         split.pack(fill="both", expand=True, pady=(0, 12))
         split.grid_columnconfigure(0, weight=3)
         split.grid_columnconfigure(1, weight=2)
         split.grid_rowconfigure(0, weight=1)
 
-        # Timeline Card
         tl_card = self.card(split, padding=14)
         tl_card.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
         self.section_label(tl_card, t["timeline"])
 
-        # Timeline Treeview
         tree = ttk.Treeview(tl_card, columns=("time", "participant", "channel", "message"), show="headings", height=8)
         tree.heading("time", text=t["time"])
         tree.heading("participant", text=t["participant"])
@@ -801,13 +778,11 @@ class ForensicsApp(tk.Tk):
             msg = row[3] if self.lang == "en" else self._translate_demo_message(row[3])
             tree.insert("", "end", values=(row[0], row[1], row[2], msg))
 
-        # Right Column
         right_col = ttk.Frame(split, style="Canvas.TFrame")
         right_col.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
         right_col.grid_rowconfigure(1, weight=1)
         right_col.grid_columnconfigure(0, weight=1)
 
-        # Artifacts Table
         art_card = self.card(right_col, padding=14)
         art_card.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         self.section_label(art_card, t["artifacts"])
@@ -825,7 +800,6 @@ class ForensicsApp(tk.Tk):
             display_note = self._translate_demo_file_note(note) if self.lang == "vi" else note
             files_tree.insert("", "end", values=(filename, file_type, display_note))
 
-        # Case Findings Card
         summary_card = self.card(right_col, padding=14)
         summary_card.grid(row=1, column=0, sticky="nsew")
         self.section_label(summary_card, t["report_preview"])
@@ -846,10 +820,9 @@ class ForensicsApp(tk.Tk):
         )
         open_summary_btn.pack(anchor="w")
 
-        # Bottom Safety Notice
         notice_card = self.card(self.content, padding=12)
         notice_card.pack(fill="x")
-        tk.Label(notice_card, text=t["demo_notice"], bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9), wraplength=950, justify="left").pack(anchor="w")
+        tk.Label(notice_card, text=t["demo_notice"], bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9), wraplength=650, justify="left").pack(anchor="w")
 
     def _show_sample_modal(self) -> None:
         title = "Sample Findings · Tabletop Exercise" if self.lang == "en" else "Kết luận Mẫu · Diễn tập Tabletop"
@@ -892,7 +865,6 @@ class ForensicsApp(tk.Tk):
         t = TEXT[self.lang]
         folder = Path(self.workspace_var.get()) / "cases"
 
-        # Top Folder Card
         top = self.card(self.content, padding=16)
         top.pack(fill="x", pady=(0, 14))
         top.grid_columnconfigure(0, weight=1)
@@ -909,28 +881,28 @@ class ForensicsApp(tk.Tk):
         open_dir_btn = tk.Button(btn_box, text=t["open_folder"], bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 9, "bold"), relief="solid", borderwidth=1, padx=12, pady=5, command=lambda: self.open_path(folder))
         open_dir_btn.pack(side="left")
 
-        # Cases Table Card
         cases_card = self.card(self.content, padding=16)
         cases_card.pack(fill="both", expand=True)
 
         self.section_label(cases_card, t["recent_cases"])
 
-        # Table
+        # Table with adjusted generous column widths (folders width=130 avoids truncation of "Thư mục con")
         self.cases_tree = ttk.Treeview(cases_card, columns=("case", "modified", "folders", "path"), show="headings", height=10)
-        self.cases_tree.heading("case", text="Mã Hồ sơ (Case ID)")
+        self.cases_tree.heading("case", text="Mã Hồ sơ (Case ID)" if self.lang == "vi" else "Case ID")
         self.cases_tree.heading("modified", text="Thời điểm Sửa đổi" if self.lang == "vi" else "Last Modified")
         self.cases_tree.heading("folders", text="Thư mục con" if self.lang == "vi" else "Subfolders")
         self.cases_tree.heading("path", text="Đường dẫn Đầy đủ" if self.lang == "vi" else "Full Path")
 
         self.cases_tree.column("case", width=220, stretch=False)
         self.cases_tree.column("modified", width=170, stretch=False)
-        self.cases_tree.column("folders", width=100, stretch=False)
+        self.cases_tree.column("folders", width=130, stretch=False)
         self.cases_tree.column("path", width=360, stretch=True)
         self.cases_tree.pack(fill="both", expand=True, pady=(10, 14))
 
         cases = sorted((path for path in folder.iterdir() if path.is_dir()), key=lambda path: path.stat().st_mtime, reverse=True)[:100] if folder.exists() else []
         if not cases:
-            self.cases_tree.insert("", "end", values=(t["no_cases"], "", "", ""))
+            # Display single word 'Trống' or leave empty as requested
+            self.cases_tree.insert("", "end", values=("Trống" if self.lang == "vi" else "Empty", "", "", ""))
         else:
             for path in cases:
                 modified = path.stat().st_mtime
@@ -940,7 +912,6 @@ class ForensicsApp(tk.Tk):
 
         self.cases_tree.bind("<Double-1>", lambda _event: self._open_selected_case())
 
-        # Action bar under table
         actions_bar = tk.Frame(cases_card, bg=COLORS["white"])
         actions_bar.pack(fill="x")
 
@@ -960,7 +931,7 @@ class ForensicsApp(tk.Tk):
         if not sel:
             return None
         vals = self.cases_tree.item(sel[0], "values")
-        if vals and vals[0] != TEXT[self.lang]["no_cases"] and len(vals) >= 4:
+        if vals and vals[0] not in {"Trống", "Empty", "(Trống)", "", TEXT[self.lang]["no_cases"]} and len(vals) >= 4 and vals[3]:
             return Path(str(vals[3]))
         return None
 
@@ -968,6 +939,8 @@ class ForensicsApp(tk.Tk):
         p = self._get_selected_case_path()
         if p and p.exists():
             self.open_path(p)
+        else:
+            messagebox.showinfo("Case", "Chưa có hồ sơ nào được chọn." if self.lang == "vi" else "No case selected.")
 
     def _open_selected_report(self) -> None:
         p = self._get_selected_case_path()
@@ -977,6 +950,8 @@ class ForensicsApp(tk.Tk):
                 webbrowser.open(rep.as_uri())
             else:
                 messagebox.showinfo("Report", "Báo cáo chưa được xây dựng cho hồ sơ này." if self.lang == "vi" else "Report not built for this case yet.")
+        else:
+            messagebox.showinfo("Report", "Chưa có hồ sơ nào được chọn." if self.lang == "vi" else "No case selected.")
 
     def _open_selected_autopsy(self) -> None:
         p = self._get_selected_case_path()
@@ -986,6 +961,8 @@ class ForensicsApp(tk.Tk):
                 self.open_path(auto)
             else:
                 messagebox.showinfo("Autopsy", "Gói Autopsy chưa được xuất cho hồ sơ này." if self.lang == "vi" else "Autopsy bundle not exported for this case yet.")
+        else:
+            messagebox.showinfo("Autopsy", "Chưa có hồ sơ nào được chọn." if self.lang == "vi" else "No case selected.")
 
     # -------------------------------------------------------------------------
     # PAGE 3: LICENSE & DEVICE
@@ -994,7 +971,6 @@ class ForensicsApp(tk.Tk):
         t = TEXT[self.lang]
         status = current_license_status(selected_email=self.email_var.get())
 
-        # Status Card
         top = self.card(self.content, padding=18)
         top.pack(fill="x", pady=(0, 14))
 
@@ -1005,7 +981,6 @@ class ForensicsApp(tk.Tk):
         exp_text = f"Hạn dùng: {status.get('expiresAt', 'N/A')}" if self.lang == "vi" else f"Expires: {status.get('expiresAt', 'N/A')}"
         tk.Label(top, text=exp_text, bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9)).pack(anchor="w")
 
-        # Hardware Fingerprint Card (with Copy button)
         fp_card = self.card(self.content, padding=18)
         fp_card.pack(fill="x", pady=(0, 14))
         fp_card.grid_columnconfigure(0, weight=1)
@@ -1033,7 +1008,6 @@ class ForensicsApp(tk.Tk):
         self.copy_status_lbl = tk.Label(fp_card, text="", bg=COLORS["white"], fg=COLORS["green"], font=("Segoe UI", 9, "bold"))
         self.copy_status_lbl.grid(row=2, column=0, sticky="w")
 
-        # Activation Form
         form = self.card(self.content, padding=18)
         form.pack(fill="x", pady=(0, 14))
         form.grid_columnconfigure(0, weight=1)
@@ -1056,7 +1030,6 @@ class ForensicsApp(tk.Tk):
         req_btn = tk.Button(buttons, text=t["request_key"], bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 9), relief="solid", borderwidth=1, padx=12, pady=6, command=self.request_key)
         req_btn.pack(side="left")
 
-        # Ownership Card
         owner_card = self.card(self.content, padding=14)
         owner_card.pack(fill="x")
         tk.Label(owner_card, text=t["owner"], bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9)).pack(anchor="w")
@@ -1096,7 +1069,6 @@ class ForensicsApp(tk.Tk):
         save_btn = tk.Button(card, text=t["save"], bg=COLORS["accent_blue"], fg="white", font=("Segoe UI", 10, "bold"), relief="flat", padx=16, pady=7, command=self.save_settings)
         save_btn.pack(anchor="w")
 
-        # Privilege & Admin Elevation Card
         admin_card = self.card(self.content, padding=18)
         admin_card.pack(fill="x")
 
@@ -1132,13 +1104,14 @@ class ForensicsApp(tk.Tk):
         about.pack(fill="x", pady=(0, 14))
 
         tk.Label(about, text=PRODUCT_NAME, bg=COLORS["white"], fg=COLORS["ink"], font=("Segoe UI", 16, "bold")).pack(anchor="w")
-        tk.Label(about, text=t["about_text"], bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 10), wraplength=900, justify="left").pack(anchor="w", pady=(8, 14))
+        # Ensure wraplength does not exceed card width and fill="x" so text starts at margin
+        about_lbl = tk.Label(about, text=t["about_text"], bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 10), wraplength=650, justify="left")
+        about_lbl.pack(fill="x", anchor="w", pady=(8, 14))
 
         tk.Label(about, text=t["version"], bg=COLORS["white"], fg=COLORS["ink_secondary"], font=("Segoe UI", 9, "bold")).pack(anchor="w")
         tk.Label(about, text=t["owner"], bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9)).pack(anchor="w", pady=(4, 0))
         tk.Label(about, text=f"Contact: {__contact__}", bg=COLORS["white"], fg=COLORS["muted"], font=("Segoe UI", 9)).pack(anchor="w", pady=(2, 0))
 
-        # CLI Cheat Sheet
         cli_card = self.card(self.content, padding=18)
         cli_card.pack(fill="x")
 
