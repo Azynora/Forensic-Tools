@@ -1,0 +1,5 @@
+# Install the project and its runtime dependencies from the repository root.
+-e ./backend
+psutil>=7.0.0
+Pillow>=11.0.0
+cryptography>=46.0.0

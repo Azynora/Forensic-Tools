@@ -8,7 +8,6 @@ $bundledExeCandidates = @(
     (Join-Path $root "build\pyinstaller\release-dist\fdctl_runtime\fdctl_runtime.exe")
 )
 $pythonExe = Join-Path $root ".venv\Scripts\python.exe"
-$codexRuntimePython = "C:\Users\Developer\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
 
@@ -40,8 +39,6 @@ if ($bundledExe) {
     }
 } elseif ($pythonSourceReady) {
     & $pythonExe -m fdctl @args
-} elseif (Test-Path -LiteralPath $codexRuntimePython) {
-    & $codexRuntimePython -m fdctl @args
 } else {
     python -m fdctl @args
 }

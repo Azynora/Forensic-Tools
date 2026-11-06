@@ -1,0 +1,39 @@
+# Local evidence, test fixtures, and machine-specific state
+workspace/
+.fdctl-license/
+
+# Generated runtime and release artifacts (upload releases separately)
+_runtime/
+fdctl_runtime/
+*.exe
+*.zip
+*.7z
+*.whl
+
+# Build and environment output
+dist/
+.venv/
+backend/.venv/
+build/
+backend/build/
+backend/dist/
+backend/src/fdctl.egg-info/
+*.pyc
+__pycache__/
+*.spec
+FORENSICS_CASES/
+.vscode/
+.env
+.env.*
+secrets/
+private/
+signing/
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+*.sig
+*.sha256
+BUILD_PROVENANCE.local.json

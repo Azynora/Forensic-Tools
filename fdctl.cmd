@@ -7,7 +7,6 @@ if not exist "%BUNDLED_EXE%" set "BUNDLED_EXE=%ROOT%build\pyinstaller\release-di
 set "USE_SOURCE=0"
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
-set "CODEX_RUNTIME_PYTHON=C:\Users\Developer\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 
 if /I "%~1"=="menu" (
     title FORENSICS_DISCORD Investigator
@@ -31,7 +30,6 @@ if exist "%PYTHON_EXE%" (
     "%PYTHON_EXE%" -V >nul 2>&1
     if errorlevel 1 set "PYTHON_EXE="
 )
-if not defined PYTHON_EXE if exist "%CODEX_RUNTIME_PYTHON%" set "PYTHON_EXE=%CODEX_RUNTIME_PYTHON%"
 if defined PYTHON_EXE (
     "%PYTHON_EXE%" -m fdctl %*
 ) else (

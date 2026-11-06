@@ -1,5 +1,13 @@
 # Version Changelog
 
+## 1.1.9 - 2026-11-06
+
+- rút gọn README và hướng dẫn vận hành, bổ sung quick start tiếng Việt cùng giới hạn về chứng cứ và bảo vệ mã nguồn
+- thêm README chọn tiếng Việt/Anh, requirements cho source/build và quy tắc loại trừ runtime, build, case data khỏi Git
+- loại bỏ đường dẫn Python riêng của máy phát triển khỏi launcher và script build
+- giới hạn case ID và xác nhận case path nằm trực tiếp trong workspace trước khi thao tác
+- cập nhật package `fdctl` lên `0.2.9` và chuẩn bị repository source song ngữ
+
 ## 1.1.8 - 2026-04-27
 
 - stabilized public device binding by switching the primary machine fingerprint to a Windows-machine identity that no longer depends on the current username
@@ -93,6 +101,6 @@ This release focused on documentation cleanup, copyright marking, and preparing 
 
 ## Current version snapshot
 
-- operator release: `1.1.8`
-- `fdctl`: `0.2.8`
+- operator release: `1.1.9`
+- `fdctl`: `0.2.9`
 - distribution: `portable-cli-bundle`

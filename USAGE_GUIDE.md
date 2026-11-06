@@ -1,300 +1,133 @@
-# Usage Guide
+# Hướng dẫn sử dụng
 
-This guide describes the active `FORENSICS_DISCORD` product shape: a **terminal-only, portable Windows 11 bundle**.
+## 1. Yêu cầu
 
-## Product model
+- Bản portable: Windows 11 64-bit; không cần cài Python.
+- Mã nguồn: Python 3.10 trở lên.
+- Thu thập Discord có thể yêu cầu quyền Administrator.
+- Chỉ sử dụng trên thiết bị và dữ liệu mà bạn có thẩm quyền kiểm tra.
 
-- no GUI launcher
-- no frontend web report
-- no Windows installer
-- no mandatory installation path
-- portable execution from any extracted or cloned folder
+## 2. Khởi chạy
 
-The supported end-user shells are:
-
-- `cmd`
-- PowerShell
-
-## Requirements
-
-### Public portable bundle
-
-- Windows 11 64-bit
-- no separate Python or Node.js installation required
-- Administrator approval only when the forensic workflow needs elevation during collection
-
-### Private source workspace
-
-- Windows 11 64-bit
-- Python `3.10+`
-- Administrator access when elevated collection is required
-
-## Running from a portable release
-
-After downloading a GitHub release zip or cloning the bundle-only public repository, extract it to any drive and run:
+Giải nén bundle vào thư mục có quyền ghi, mở PowerShell tại thư mục đó:
 
 ```powershell
 .\fdctl.cmd --help
-.\fdctl.cmd apps detect
 .\launch-analysis-terminal.cmd
 ```
 
-Direct PowerShell usage also works:
+Lệnh `fdctl.cmd` dùng để chạy lệnh trực tiếp; launcher mở menu điều tra tương tác. Kiểm tra ứng dụng được nhận diện:
 
 ```powershell
-.\fdctl.ps1 --help
-.\fdctl.ps1 license status
-```
-
-## Default storage behavior
-
-The portable bundle stores case data beside the portable folder by default:
-
-```text
-.\workspace
-```
-
-Saved cases are stored under:
-
-```text
-.\workspace\cases\<case-id>
-```
-
-Runtime cases are stored under:
-
-```text
-.\workspace\runtime\<case-id>
-```
-
-### Override the case root
-
-If you want to store forensic data on another drive:
-
-```powershell
-$env:FDCTL_DATA_ROOT="E:\DFIR_CASES"
 .\fdctl.cmd apps detect
 ```
 
-## Licensing
+## 3. Quy trình case
 
-### Built-in trial
+### Tạo case
 
-- starts after the user enters an email address
-- valid for `3 days`
-- only accepts Gmail addresses ending with `@gmail.com`
-- Gmail dotted and plus-tag aliases are canonicalized to the same inbox identity before trial and license matching
-- bound to the first Gmail address that uses the tool on that device
-- stored under `%LOCALAPPDATA%\FORENSICS_DISCORD\license`
-- local masked email/license history is also stored there so returning users can re-enter only their Gmail address when a valid local trial or activation already exists
+```powershell
+.\fdctl.cmd case create --app discord --id case_001
+```
 
-That means one installed device only gets one free-trial Gmail identity. A second new Gmail address on the same device will be asked for a paid key instead of receiving another free trial.
+Có thể ghi scope theo kênh và người dùng:
 
-### Owner-only access
+```powershell
+.\fdctl.cmd case create --app discord --id case_001 --channel-url "https://discord.com/channels/GUILD_ID/CHANNEL_ID" --target-user "USER_ID_OR_NAME"
+```
 
-The public client bundle does not contain any hard-coded owner master key.
+Nhập ID/URL cụ thể nếu có. Scope giúp phân tích lọc kết quả; nó không giới hạn toàn bộ artifact mà collector sao chép.
 
-- the owner should use a separately issued signed owner key kept outside the public bundle
-- the owner key is generated only from the private source workspace
-- the owner key is separate from customer-issued time-limited keys
-- the public bundle only contains the public verification key, not the signing secret
+### Thu thập, phân tích và báo cáo
 
-### Activation after trial
+```powershell
+.\fdctl.cmd collect --case case_001
+.\fdctl.cmd analyze --case case_001
+.\fdctl.cmd supplement --case case_001
+.\fdctl.cmd report build --case case_001
+.\fdctl.cmd report open --case case_001
+.\fdctl.cmd case save --case case_001
+```
 
-Check status:
+Thu thập có thể tạo ảnh chụp màn hình, inventory tiến trình/kết nối và sao chép artifact từ Discord desktop cùng Chrome profile mặc định. Kiểm tra `copy_errors.csv`, manifest và completeness matrix để biết dữ liệu nào thiếu hoặc không đọc được.
+
+## 4. Nơi lưu dữ liệu
+
+Mặc định workspace nằm cạnh bundle:
+
+```text
+workspace\runtime\<case-id>   Case đang làm
+workspace\cases\<case-id>     Case đã lưu
+```
+
+Để dùng ổ đĩa khác, đặt biến môi trường trong PowerShell trước khi chạy:
+
+```powershell
+$env:FDCTL_DATA_ROOT = "E:\DFIR_CASES"
+.\fdctl.cmd apps detect
+```
+
+## 5. Đầu ra chính
+
+- `01_Case_Info\artifact_manifest.csv`: danh sách file đã thu thập và hash bản sao.
+- `01_Case_Info\copy_errors.csv`: lỗi sao chép ghi nhận được.
+- `07_Exports\`: kết quả phân tích, timeline và các bảng CSV/JSON.
+- `08_Report\Muc_luc_bao_cao.md`: mục lục báo cáo.
+- `08_Report\Bien_ban_ban_giao.md`: biên bản bàn giao.
+- `08_Report\case_snapshot.json`: snapshot có cấu trúc.
+- `05_Autopsy_Case\`: gói xuất để đưa dữ liệu vào Autopsy; đây không phải native Autopsy case database.
+
+## 6. Lưu ý về chứng cứ và quyền riêng tư
+
+- Công cụ phục vụ triage và phân tích sơ bộ. Xác minh phát hiện với artifact gốc và ghi nhận thao tác của điều tra viên.
+- Khôi phục tin nhắn và nhận diện ứng viên đã xóa dựa trên dấu vết cục bộ/heuristic; không khẳng định trạng thái xóa chỉ từ nhãn tự động.
+- Collector có thể sao chép cơ sở dữ liệu cookie hoặc dữ liệu phiên. Hạn chế quyền truy cập case, mã hóa nơi lưu trữ phù hợp và không chia sẻ ngoài phạm vi được phép.
+- Hash trong manifest giúp kiểm tra bản sao sau thu thập; không tự nó chứng minh toàn bộ chuỗi bảo quản hoặc tính nhất quán snapshot của nguồn đang chạy.
+- Discord là adapter chính. Zalo mới là placeholder; Firefox chưa nằm trong pipeline đang hoạt động.
+
+## 7. License
+
+Kiểm tra trạng thái hoặc kích hoạt:
 
 ```powershell
 .\fdctl.cmd license status
-```
-
-Activate by pasting a key:
-
-```powershell
 .\fdctl.cmd license activate --prompt
 ```
 
-Or activate from a file:
+Bản public dùng trial 3 ngày cho Gmail đầu tiên trên thiết bị và hỗ trợ license ký cho `issued_7d`, `issued_30d`, `issued_365d`. Khi cấp license, chỉ dùng private source workspace và giữ khóa ký ngoài bundle công khai.
 
-```powershell
-.\fdctl.cmd license activate --email user@gmail.com --key-file .\issued_30d.key
-```
-
-Activation succeeds only when the entered Gmail address matches the `issuedToEmail` value embedded in the signed key.
-Issued keys are exported in grouped letters-only format, for example `ABCD-EFGH-JKLM-NPQR-...`.
-Customer keys are issued for one Gmail address and one target device fingerprint.
-
-### Guided activation in the terminal workflow
-
-End users do not need to run the activation command manually if they use the guided launcher:
-
-```powershell
-.\launch-analysis-terminal.cmd
-```
-
-When the built-in 3-day trial for that device Gmail has expired, the workflow will prompt for:
-
-- licensed email address
-- issued license key
-
-If that Gmail address already has a valid local trial or a valid activated key on the same device, the workflow will accept the email verification and continue without asking the user to paste the key again.
-
-If the email does not match the email identity encoded in the key, activation is rejected.
-
-Deactivate the local activation:
-
-```powershell
-.\fdctl.cmd license deactivate
-```
-
-Supported issued license types:
-
-- `issued_7d`
-- `issued_30d`
-- `issued_365d`
-
-Private source workspaces can also issue an owner-only unlimited key for the registered owner account.
-
-### Issuing a customer key for one device
-
-End users should send the machine fingerprint shown in their activation request. Then issue the key from the private source workspace:
-
-```powershell
-.\fdctl.cmd license issue --email user@gmail.com --type issued_30d --machine "<fingerprint-from-user>" --out ".\user_30d.key"
-```
-
-End users can print their device name and machine fingerprint with:
+Hiển thị fingerprint máy để yêu cầu license:
 
 ```powershell
 .\fdctl.cmd license machine
 ```
 
-If `--out` is omitted, the key is stored automatically in:
+## 8. Phát triển và đóng gói
 
-```text
-D:\ForensicWorkspace
-```
-
-## Core commands
-
-Detect supported applications:
+Cài package trong source workspace:
 
 ```powershell
-.\fdctl.cmd apps detect
+git clone https://github.com/Azynora/Forensic-Tools.git
+cd Forensic-Tools
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+.\fdctl.cmd --help
 ```
 
-Create a new case:
-
-```powershell
-.\fdctl.cmd case create --app discord --id discord_case_001
-```
-
-Create a scoped case:
-
-```powershell
-.\fdctl.cmd case create --app discord --id discord_case_001 --channel-url "https://discord.gg/example" --target-user "mavanvo2472"
-```
-
-Collect artifacts:
-
-```powershell
-.\fdctl.cmd collect --case discord_case_001
-```
-
-Analyze a case:
-
-```powershell
-.\fdctl.cmd analyze --case discord_case_001
-```
-
-Run supplemental completeness checks:
-
-```powershell
-.\fdctl.cmd supplement --case discord_case_001
-```
-
-Build the report bundle:
-
-```powershell
-.\fdctl.cmd report build --case discord_case_001
-```
-
-Open a terminal summary of the report:
-
-```powershell
-.\fdctl.cmd report open --case discord_case_001
-```
-
-Save the case:
-
-```powershell
-.\fdctl.cmd case save --case discord_case_001
-```
-
-Discard the case:
-
-```powershell
-.\fdctl.cmd case discard --case discord_case_001
-```
-
-Run the guided investigation workflow:
-
-```powershell
-.\fdctl.cmd menu --app discord
-```
-
-Or launch the guided terminal directly:
-
-```powershell
-.\launch-analysis-terminal.cmd
-```
-
-## End-to-end example
-
-```powershell
-.\fdctl.cmd case create --app discord --id discord_case_demo --channel-url "https://discord.gg/example" --target-user "mavanvo2472"
-.\fdctl.cmd collect --case discord_case_demo
-.\fdctl.cmd analyze --case discord_case_demo
-.\fdctl.cmd supplement --case discord_case_demo
-.\fdctl.cmd report build --case discord_case_demo
-.\fdctl.cmd report open --case discord_case_demo
-.\fdctl.cmd case save --case discord_case_demo
-```
-
-## Report outputs
-
-The report is written entirely inside the saved case.
-
-Most important files:
-
-- `08_Report\Muc_luc_bao_cao.md`
-- `08_Report\Bien_ban_ban_giao.md`
-- `08_Report\case_snapshot.json`
-- `08_Report\validation_summary.json`
-
-Other key evidence remains in:
-
-- `07_Exports\*.csv`
-- `05_Autopsy_Case\`
-- `01_Case_Info\`
-
-## Internal build workflow
-
-Build the portable bundle from the private source workspace:
+Build bundle nội bộ:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-package.ps1
 ```
 
-Outputs:
+Đầu ra hiện được cấu hình tại `dist\FORENSICS_DISCORD`, `dist\github-release` và `dist\FORENSICS_DISCORD_portable.zip`. Script build xóa các đầu ra cùng tên trước khi tạo lại; sao lưu hoặc kiểm tra chúng trước khi build.
 
-```text
-.\dist\FORENSICS_DISCORD
-.\dist\github-release
-.\dist\FORENSICS_DISCORD_portable.zip
-```
+### Đưa source và bản tải lên GitHub
 
-## Notes
+- Commit mã nguồn trong `backend`, launcher, script build, `requirements*.txt`, README và tài liệu pháp lý/vận hành cần thiết.
+- Không commit `.venv`, `build`, `dist`, `_runtime`, `workspace`, file case, license khách hàng, khóa riêng hoặc chứng thư ký. Các thư mục sinh ra đã được loại khỏi Git bằng `.gitignore`.
+- Tạo ZIP bằng script build, sau đó đính kèm `dist\FORENSICS_DISCORD_portable.zip` vào GitHub Release. README tải từ trang Releases; không commit ZIP/EXE vào lịch sử source.
+- Khi source repo public, người dùng có thể đọc và clone mã nguồn. Bản đóng gói không che giấu source đã public.
 
-- Discord is the primary supported target.
-- Zalo remains a placeholder in the current build.
-- Firefox collection is not part of the active pipeline.
-- `05_Autopsy_Case` is an Autopsy-ready export bundle, not a native Autopsy project database.
+Bundle executable không chứa trực tiếp các file nguồn Python, nhưng không thể bảo đảm tuyệt đối chống trích xuất hoặc phân tích ngược. Muốn giữ kín tuyệt đối một phần logic thì không phân phối phần đó cho máy người dùng.

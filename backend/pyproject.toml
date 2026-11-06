@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fdctl"
+version = "0.2.9"
+description = "CLI-first chat application forensics toolkit for Windows"
+readme = {text = "CLI-first Windows forensics toolkit for Discord-focused investigations.", content-type = "text/markdown"}
+requires-python = ">=3.10"
+authors = [
+  { name = "Truong Trieu Vy", email = "trieuvy9198@gmail.com" }
+]
+dependencies = [
+  "psutil>=7.0.0",
+  "Pillow>=11.0.0",
+  "cryptography>=46.0.0"
+]
+
+[project.scripts]
+fdctl = "fdctl.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
