@@ -2,7 +2,9 @@ from __future__ import annotations
 import argparse
 import ctypes
 import json
+import os
 import sys
+from typing import Any
 from pathlib import Path
 from fdctl import __release__
 from fdctl.adapters import get_adapters
@@ -35,18 +37,123 @@ def _styled_banner() -> None:
     print_banner("FORENSICS SUITE", "Extensible digital forensics workspace for Windows")
     sys.stdout.flush()
 
+def _get_cli_language() -> str:
+    local_appdata = os.environ.get("LOCALAPPDATA", "")
+    if local_appdata:
+        p = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
+        if p.exists():
+            try:
+                import json
+                return json.loads(p.read_text(encoding="utf-8")).get("language", "vi")
+            except Exception:
+                pass
+    return "vi"
+
+
+def _toggle_cli_language() -> str:
+    cur = _get_cli_language()
+    new_lang = "en" if cur == "vi" else "vi"
+    local_appdata = os.environ.get("LOCALAPPDATA", "")
+    if local_appdata:
+        p = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            import json
+            data = {}
+            if p.exists():
+                data = json.loads(p.read_text(encoding="utf-8"))
+            data["language"] = new_lang
+            p.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+    return new_lang
+
+
+def _scan_all_installed_apps() -> list[dict[str, Any]]:
+    home = Path.home()
+    appdata = home / "AppData"
+    roaming = appdata / "Roaming"
+    local = appdata / "Local"
+    programs = local / "Programs"
+
+    targets = [
+        {
+            "id": "discord",
+            "name": "Discord Desktop",
+            "status": "available",
+            "paths": [roaming / "discord", local / "Discord"],
+            "features_vi": "Thu thập đầy đủ (LevelDB, SQLite, Session Tokens, Cache tin nhắn, Chuẩn hóa Autopsy)",
+            "features_en": "Full Artifact Acquisition (LevelDB, SQLite, Session Tokens, Message Cache, Autopsy Export)",
+        },
+        {
+            "id": "zalo",
+            "name": "Zalo PC",
+            "status": "planned",
+            "paths": [programs / "Zalo", roaming / "ZaloData", roaming / "Zalo", local / "ZaloPC"],
+            "features_vi": "ZaloData, IndexedDB cache, cơ sở dữ liệu tin nhắn mã hóa (Lộ trình phát triển)",
+            "features_en": "ZaloData, IndexedDB cache, encrypted chat database (Roadmap integration)",
+        },
+        {
+            "id": "telegram",
+            "name": "Telegram Desktop",
+            "status": "planned",
+            "paths": [roaming / "Telegram Desktop", local / "Telegram Desktop"],
+            "features_vi": "Trích xuất phiên tdata, SQLite local cache (Lộ trình phát triển)",
+            "features_en": "tdata session extraction, SQLite local cache (Roadmap integration)",
+        },
+        {
+            "id": "whatsapp",
+            "name": "WhatsApp",
+            "status": "planned",
+            "paths": [local / "WhatsApp", roaming / "WhatsApp"],
+            "features_vi": "IndexedDB, tin nhắn đa phương tiện và cơ sở dữ liệu cục bộ (Lộ trình phát triển)",
+            "features_en": "IndexedDB, local chat databases and media cache (Roadmap integration)",
+        },
+        {
+            "id": "messenger",
+            "name": "Facebook Messenger",
+            "status": "planned",
+            "paths": [programs / "Messenger", roaming / "Messenger"],
+            "features_vi": "Cookie phiên đăng nhập, cache tin nhắn tạm (Lộ trình phát triển)",
+            "features_en": "Session cookies, temporary message cache (Roadmap integration)",
+        },
+        {
+            "id": "signal",
+            "name": "Signal Desktop",
+            "status": "planned",
+            "paths": [programs / "signal-desktop", roaming / "Signal"],
+            "features_vi": "Cơ sở dữ liệu mã hóa SQLite SQLCipher (Lộ trình phát triển)",
+            "features_en": "SQLCipher encrypted database (Roadmap integration)",
+        },
+    ]
+
+    results = []
+    for app in targets:
+        found_paths = [str(p) for p in app["paths"] if p.exists()]
+        results.append({
+            "id": app["id"],
+            "name": app["name"],
+            "status": app["status"],
+            "installed": bool(found_paths),
+            "paths": found_paths,
+            "features_vi": app["features_vi"],
+            "features_en": app["features_en"],
+        })
+    return results
+
+
 def _resolve_menu_choice(choice: str, available: list) -> object:
     normalized = choice.strip().lower()
     if normalized.isdigit():
         val = int(normalized)
         if 1 <= val <= len(available):
             return available[val - 1]
-        if val in {0, 3, 4, 5, 6, 7, 8}:
+        if val in {0, 3, 4, 5, 6, 7, 8, 9}:
             return str(val)
     for detection in available:
         if normalized in {detection.app_id.lower(), detection.display_name.lower()}:
             return detection
-    if normalized in {"demo", "cases", "case", "report", "reports", "apps", "license", "workspace", "settings", "exit", "quit", "q"}:
+    if normalized in {"demo", "cases", "case", "report", "reports", "apps", "license", "workspace", "settings", "exit", "quit", "q", "lang", "language"}:
         return normalized
     raise ValueError(f"Unsupported app selection: {choice}")
 
@@ -149,11 +256,49 @@ def _cli_show_reports() -> None:
     input("\nPress Enter to return...")
 
 
-def _cli_show_apps(detections: list) -> None:
-    print_section("Installed Supported Applications")
-    for idx, det in enumerate(detections, start=1):
-        _print_detection_card(idx, det)
-    input("\nPress Enter to return...")
+def _cli_show_apps(lang: str = "vi") -> None:
+    clear_screen()
+    _styled_banner()
+    title = "KẾT QUẢ QUÉT ỨNG DỤNG NHẮN TIN TRÊN MÁY" if lang == "vi" else "INSTALLED MESSAGING APPLICATIONS SCAN REPORT"
+    print_section(title)
+
+    apps = _scan_all_installed_apps()
+    installed_count = sum(1 for a in apps if a["installed"])
+
+    summary_text = (
+        f"Đã phát hiện {installed_count}/{len(apps)} ứng dụng có mặt trên thiết bị này."
+        if lang == "vi"
+        else f"Scan complete: Found {installed_count}/{len(apps)} messaging applications on this device."
+    )
+    print_status("info", summary_text)
+    print("  " + "=" * 84)
+
+    for idx, app in enumerate(apps, start=1):
+        if app["installed"]:
+            state_label = "● ĐÃ CÀI ĐẶT TRÊN MÁY (Installed)"
+        else:
+            state_label = "○ CHƯA CÀI ĐẶT (Not Installed)"
+
+        if app["status"] == "available":
+            support_label = "● ĐÃ HỖ TRỢ HOÀN CHỈNH (Supported & Ready)"
+        else:
+            support_label = "◷ ĐANG PHÁT TRIỂN / LỘ TRÌNH (Roadmap)"
+
+        print(f"\n  [{idx}] {app['name']}")
+        print(f"      Trạng thái cài đặt: {state_label}")
+        print(f"      Hỗ trợ pháp chứng:  {support_label}")
+        feat = app["features_vi"] if lang == "vi" else app["features_en"]
+        print(f"      Khả năng điều tra:  {feat}")
+        if app["installed"]:
+            print("      Đường dẫn phát hiện:")
+            for p in app["paths"]:
+                print(f"        -> {p}")
+        print("  " + "-" * 84)
+
+    prompt = "\nNhấn [1] để Quét lại, hoặc nhấn [Enter] để quay lại Menu: " if lang == "vi" else "\nPress [1] to Rescan, or press [Enter] to return to Menu: "
+    choice = input(prompt).strip()
+    if choice == "1":
+        _cli_show_apps(lang)
 
 
 def _cli_show_license(access_status: dict) -> None:
@@ -178,19 +323,61 @@ def _cli_show_license(access_status: dict) -> None:
     input("\nPress Enter to return...")
 
 
-def _cli_show_workspace() -> None:
-    print_section("Workspace & Environment Details")
-    print_kv("Workspace root", str(workspace_root()))
-    print_kv("Project root", str(project_root()))
-    print_kv("Tool version", f"Release {__release__}")
-    print_kv("Python runtime", sys.executable)
-    print_kv("Elevation state", "Administrator" if is_admin() else "Standard User")
-    open_choice = input("\nOpen workspace folder in Windows Explorer? [y/N]: ").strip().lower()
-    if open_choice in {"y", "yes"}:
+def _cli_show_workspace(lang: str = "vi") -> None:
+    clear_screen()
+    _styled_banner()
+    title = "THƯ MỤC LƯU TRỮ HỒ SƠ & BẰNG CHỨNG (CASE STORAGE & WORKSPACE)" if lang == "vi" else "CASE STORAGE & EVIDENCE WORKSPACE DETAILS"
+    print_section(title)
+
+    ws_root = workspace_root()
+    cases_dir = ws_root / "cases"
+    case_count = sum(1 for p in cases_dir.iterdir() if p.is_dir()) if cases_dir.exists() else 0
+
+    if lang == "vi":
+        print("""
+Mục đích của Thư mục Lưu trữ Hồ sơ & Bằng chứng (Workspace):
+- Đây là thư mục an toàn lưu trữ toàn bộ các hồ sơ vụ việc điều tra số (Cases) và chứng cứ kỹ thuật.
+- Mỗi vụ việc khi được tạo sẽ có một thư mục riêng biệt (ví dụ: cases/case_discord_001) và được
+  phân chia nghiêm ngặt thành 8 thư mục con chuẩn hóa pháp chứng số (DFIR Standard):
+    1. 01_Case_Info         : Thông tin giám định viên, thời gian, nhật ký, mã băm sha256 niêm phong.
+    2. 02_Live_Response     : Trạng thái tiến trình ứng dụng đang chạy, kết nối mạng, RAM triage.
+    3. 03_Acquired_Files    : Toàn bộ file dữ liệu gốc trích xuất từ AppData (LevelDB, SQLite...).
+    4. 04_Browser_Artifacts : Lịch sử web, cookie, session liên quan đến tài khoản nhắn tin.
+    5. 05_Autopsy_Case      : Gói dữ liệu cấu trúc chuẩn để mở trực tiếp trong phần mềm Autopsy.
+    6. 06_Screenshots       : Ảnh chụp màn hình bằng chứng hiện trường vụ việc.
+    7. 07_Exports           : Dữ liệu bóc tách được xuất ra file JSON, CSV, bảng tính.
+    8. 08_Report            : Báo cáo điều tra chính thức (HTML tương tác, Markdown, Timeline).
+""")
+    else:
+        print("""
+Purpose of Case Storage & Evidence Workspace:
+- This is the secure directory storing all digital forensics cases and acquired evidence.
+- Each investigation case resides in its own isolated folder (e.g. cases/case_discord_001)
+  organized into 8 standardized DFIR subdirectories:
+    1. 01_Case_Info         : Investigator metadata, timestamps, case notes, cryptographic hashes.
+    2. 02_Live_Response     : Running process state, network connections, memory triage artifacts.
+    3. 03_Acquired_Files    : Raw files collected from AppData (LevelDB, SQLite databases, cache).
+    4. 04_Browser_Artifacts : Browser history and session cookies linked to chat activity.
+    5. 05_Autopsy_Case      : Standardized case structure ready for direct ingestion in Autopsy.
+    6. 06_Screenshots       : Visual evidence screenshots.
+    7. 07_Exports           : Structured tables and exported datasets (JSON, CSV).
+    8. 08_Report            : Canonical forensic reports (Interactive HTML, Markdown timeline).
+""")
+    print("  " + "-" * 78)
+    print_kv("Thư mục lưu trữ Case" if lang == "vi" else "Case storage path", str(cases_dir))
+    print_kv("Số hồ sơ hiện có" if lang == "vi" else "Saved cases count", f"{case_count} hồ sơ (cases)")
+    print_kv("Quyền thực thi" if lang == "vi" else "Elevation state", "Administrator (Quản trị viên)" if is_admin() else "Standard User")
+    print_kv("Phiên bản Suite" if lang == "vi" else "Suite version", f"Release {__release__}")
+    print("  " + "-" * 78)
+
+    prompt = "\nNhấn [1] để Mở thư mục này trong Windows Explorer, hoặc nhấn [Enter] để quay lại: " if lang == "vi" else "\nPress [1] to Open folder in Windows Explorer, or press [Enter] to return: "
+    choice = input(prompt).strip()
+    if choice == "1":
+        cases_dir.mkdir(parents=True, exist_ok=True)
         import webbrowser
-        webbrowser.open(workspace_root().as_uri())
-        print_status("ok", "Opened workspace folder.")
-    input("\nPress Enter to return...")
+        webbrowser.open(cases_dir.as_uri())
+        print_status("ok", "Đã mở thư mục trong Windows Explorer." if lang == "vi" else "Opened folder in Windows Explorer.")
+        input("\nBấm Enter để quay lại Menu..." if lang == "vi" else "\nPress Enter to return...")
 
 
 def _print_detection_card(index: int, detection: object) -> None:
@@ -342,57 +529,66 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         _styled_banner()
         print_copyright_notice()
         access_status = _ensure_interactive_bundle_access("interactive workflow")
-        print_section("Workspace")
-        print_kv("Tool version", f"Release {__release__}")
-        print_kv("Run folder", str(project_root()))
-        print_kv("Case data root", str(workspace_root()))
-        print_kv("Device name", format_machine_name())
-        print_kv("Active email", str(access_status.get("issuedToEmail", "") or access_status.get("activatedForEmail", "") or ""))
-        print_kv("Storage layout", "8 standard case folders")
-        for folder_name in [
-            "01_Case_Info",
-            "02_Live_Response",
-            "03_Acquired_Files",
-            "04_Browser_Artifacts",
-            "05_Autopsy_Case",
-            "06_Screenshots",
-            "07_Exports",
-            "08_Report",
-        ]:
-            print(f"  - {folder_name}")
-        numlock_state = _numlock_enabled()
-        if numlock_state is False:
-            print_status(
-                "warn",
-                "Num Lock is OFF. You can still type normally and paste text; keypad number entry may need Num Lock ON.",
-            )
-        elif numlock_state is True:
-            print_status("info", "Normal typing, copy/paste, and keypad selection are available.")
-        sys.stdout.flush()
-        
+
         available = [item for item in detections if item.app_id in {"discord", "zalo"}]
         selected = next((item for item in available if args and args.app == item.app_id), None)
+
         while True:
+            lang = _get_cli_language()
             if selected is None:
-                print_section("Investigation & Tool Navigation")
-                for index, detection in enumerate(available, start=1):
-                    _print_detection_card(index, detection)
-                print("  " + "-" * 70)
-                print("  [3] 🧪 Trải nghiệm Dữ liệu Mẫu (Synthetic Data Demo / Sample Mode)")
-                print("  [4] 📂 Quản lý & Xem Danh sách Hồ sơ (Cases & Evidence Browser)")
-                print("  [5] 📊 Mở Báo cáo Điều tra Gần nhất (Open Latest Report)")
-                print("  [6] 🛠️ Quét & Phát hiện Ứng dụng trên Máy (Detect Installed Apps)")
-                print("  [7] 🔑 Quản lý Bản quyền & Thiết bị (License Status & Info)")
-                print("  [8] ⚙️ Thông tin Không gian làm việc (Workspace & System Info)")
-                print("  [0] 🚪 Thoát Chương trình (Exit)")
-                print("  " + "-" * 70)
+                clear_screen()
+                _styled_banner()
+                user_email = str(access_status.get("issuedToEmail", "") or access_status.get("activatedForEmail", "") or "Free Trial")
+                lic_label = str(access_status.get("licenseLabel", "Trial"))
+                lang_label = "Tiếng Việt (VI)" if lang == "vi" else "English (EN)"
+                cases_dir = workspace_root() / "cases"
+
+                print(f" [👤 Email: {user_email} | 🔒 {lic_label} | 💻 {format_machine_name()} | 🌐 {lang_label}]")
+                print(f" [📁 Thư mục lưu Case: {cases_dir}]")
+                print(" " + "=" * 80)
+
+                if lang == "vi":
+                    print("  🎯 ĐIỀU TRA ỨNG DỤNG (APPLICATION FORENSICS):")
+                    print("    [1] Discord  ● ĐÃ HỖ TRỢ (Thu thập Token, SQLite, LevelDB Cache, Autopsy)")
+                    print("    [2] Zalo     ◷ ĐANG PHÁT TRIỂN (Lộ trình tích hợp / Roadmap)")
+                    print("")
+                    print("  🛠️ CÔNG CỤ & QUẢN LÝ DỮ LIỆU (TOOLS & DATA MANAGEMENT):")
+                    print("    [3] 🧪 Chạy Thử nghiệm Dữ liệu Mẫu (Synthetic Sample Walkthrough)")
+                    print("    [4] 📂 Quản lý & Xem Danh sách Hồ sơ (Cases & Evidence Browser)")
+                    print("    [5] 📊 Mở Báo cáo Điều tra Gần nhất (Open Latest Report HTML)")
+                    print("    [6] 🔍 Quét & Kiểm tra Ứng dụng trên Máy (Scan Installed Chat Apps on PC)")
+                    print("")
+                    print("  ⚙️ CẤU HÌNH & HỆ THỐNG (SETTINGS & SYSTEM):")
+                    print("    [7] 🔑 Quản lý Bản quyền & Thiết bị (License Status & Hardware Fingerprint)")
+                    print("    [8] 📁 Thư mục Lưu trữ Bằng chứng (Case Storage & Workspace Explorer)")
+                    print("    [9] 🌐 Đổi Ngôn ngữ hiển thị / Switch Language (VI / EN)")
+                    print("    [0] 🚪 Thoát Chương trình (Exit)")
+                else:
+                    print("  🎯 APPLICATION FORENSICS:")
+                    print("    [1] Discord  ● FULLY SUPPORTED (Token Extraction, SQLite, LevelDB, Autopsy)")
+                    print("    [2] Zalo     ◷ IN DEVELOPMENT (Planned Integration / Roadmap)")
+                    print("")
+                    print("  🛠️ TOOLS & DATA MANAGEMENT:")
+                    print("    [3] 🧪 Synthetic Investigation Demo (Sample Walkthrough Case)")
+                    print("    [4] 📂 Saved Cases & Evidence Browser")
+                    print("    [5] 📊 Open Latest Built Report (HTML)")
+                    print("    [6] 🔍 Scan Installed Messaging Applications on PC")
+                    print("")
+                    print("  ⚙️ SETTINGS & SYSTEM:")
+                    print("    [7] 🔑 License Status & Hardware Fingerprint")
+                    print("    [8] 📁 Case Storage & Workspace Explorer")
+                    print("    [9] 🌐 Switch Language (Tiếng Việt / English)")
+                    print("    [0] 🚪 Exit Forensics Suite")
+
+                print(" " + "-" * 80)
                 sys.stdout.flush()
-                choice = _prompt_selection("Select app number to investigate or type app name: ")
+                prompt_text = "Nhập số lựa chọn (1-9, 0 để thoát): " if lang == "vi" else "Enter choice number (1-9, 0 to exit): "
+                choice = _prompt_selection(prompt_text)
                 selected = _resolve_menu_choice(choice, available)
 
             if isinstance(selected, str):
                 if selected in {"0", "exit", "quit", "q"}:
-                    print_status("info", "Exiting Forensics Suite.")
+                    print_status("info", "Tạm biệt! Đã thoát Forensics Suite." if lang == "vi" else "Exiting Forensics Suite.")
                     return 0
                 if selected in {"3", "demo"}:
                     _cli_show_demo()
@@ -401,11 +597,14 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
                 elif selected in {"5", "report", "reports"}:
                     _cli_show_reports()
                 elif selected in {"6", "apps"}:
-                    _cli_show_apps(detections)
+                    _cli_show_apps(lang)
                 elif selected in {"7", "license"}:
                     _cli_show_license(access_status)
                 elif selected in {"8", "workspace", "settings"}:
-                    _cli_show_workspace()
+                    _cli_show_workspace(lang)
+                elif selected in {"9", "lang", "language"}:
+                    new_l = _toggle_cli_language()
+                    print_status("ok", f"Ngôn ngữ hiển thị đã đổi sang: {'Tiếng Việt' if new_l == 'vi' else 'English'}")
                 selected = None
                 continue
 
@@ -415,7 +614,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
             print_status("step", "Returning to app selection. Choose Discord to continue.")
             selected = None
             sys.stdout.flush()
-        
+
         adapter = adapters[selected.app_id] # type: ignore
 
         print_section("Investigation Scope")
@@ -449,25 +648,25 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         workflow_progress.advance("Case created", f"{context.case_id} -> {context.root}")
         print_status("ok", f"Created case: {context.case_id}")
         sys.stdout.flush()
-        
+
         print_section("Collection")
         collect_result = collect_case(context)
         workflow_progress.advance("Collection finished", f"Artifacts: {collect_result.get('artifactCount', 0)} | Screenshots: {len(collect_result.get('screenshots', []))}")
         print(json.dumps({"collect": collect_result}, ensure_ascii=False, indent=2))
         sys.stdout.flush()
-        
+
         print_section("Analysis")
         analyze_result = analyze_case(context)
         workflow_progress.advance("Analysis finished", f"Recovered messages: {analyze_result.get('recoveredMessageRows', 0)} | Timeline rows: {analyze_result.get('timelineRows', 0)}")
         print(json.dumps({"analyze": analyze_result}, ensure_ascii=False, indent=2))
         sys.stdout.flush()
-        
+
         print_section("Report")
         report_path = build_report(context)
         workflow_progress.advance("Report bundle ready", str(report_path))
         print(json.dumps({"report": str(report_path)}, ensure_ascii=False, indent=2))
         sys.stdout.flush()
-        
+
         print_status("step", "Auto-saving case after report build...", context.case_id)
         saved = save_case(context.case_id)
         final_report = open_report(saved)
@@ -488,7 +687,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         )
         sys.stdout.flush()
         return 0
-        
+
     except KeyboardInterrupt:
         print("\n[!] Operation cancelled by user")
         sys.stdout.flush()
@@ -500,6 +699,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         traceback.print_exc()
         sys.stdout.flush()
         return 1
+
 
 def main(argv: list[str] | None = None) -> int:
     try:
