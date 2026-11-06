@@ -2,19 +2,44 @@ $ErrorActionPreference = "Stop"
 
 $root = $PSScriptRoot
 $backend = Join-Path $root "backend"
-$pythonExe = Join-Path $root ".venv\Scripts\python.exe"
+$buildTempRoot = Join-Path $root ".build-temp"
+New-Item -ItemType Directory -Force -Path $buildTempRoot | Out-Null
+$env:TEMP = $buildTempRoot
+$env:TMP = $buildTempRoot
+$buildVenvPython = Join-Path $root ".build-venv\Scripts\python.exe"
 $pythonOverride = $env:FDCTL_BUILD_PYTHON
 if ($pythonOverride) {
     $python = $pythonOverride
-} elseif ((Test-Path -LiteralPath $pythonExe)) {
-    try {
-        & $pythonExe -V | Out-Null
-        $python = $pythonExe
-    } catch {
+} elseif (Test-Path -LiteralPath $buildVenvPython) {
+    & $buildVenvPython -V | Out-Null
+    $versionExitCode = $LASTEXITCODE
+    & $buildVenvPython -m pip --version | Out-Null
+    if ($versionExitCode -eq 0 -and $LASTEXITCODE -eq 0) {
+        $python = $buildVenvPython
+    } else {
+        $buildVenvRoot = Join-Path $root ".build-venv"
+        if ((Resolve-Path -LiteralPath $buildVenvRoot).Path -ne $buildVenvRoot) {
+            throw "Unexpected build environment path: $buildVenvRoot"
+        }
+        Remove-Item -LiteralPath $buildVenvRoot -Recurse -Force
         $python = "python"
+        & $python -m venv $buildVenvRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to recreate the build virtual environment with $python."
+        }
+        $python = $buildVenvPython
     }
 } else {
     $python = "python"
+    & $python -m venv (Join-Path $root ".build-venv")
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to create the build virtual environment with $python."
+    }
+    $python = $buildVenvPython
+}
+& $python -V | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    throw "Python executable is unavailable: $python"
 }
 
 $bundleRoot = Join-Path $root "dist\FORENSICS_DISCORD"
@@ -63,12 +88,15 @@ Get-ChildItem -Recurse -Directory -Path $backend -Filter "__pycache__" -ErrorAct
 Get-ChildItem -Recurse -File -Path $backend -Include *.pyc,*.pyo -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 Get-ChildItem -Recurse -Directory -Path (Join-Path $backend "src") -Filter "*.egg-info" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 
-Push-Location $backend
+Push-Location $root
 & $python -m pip install -r (Join-Path $root "requirements-build.txt")
-if ($LASTEXITCODE -ne 0) {
-    Pop-Location
+$installExitCode = $LASTEXITCODE
+Pop-Location
+if ($installExitCode -ne 0) {
     throw "Failed to install build requirements with $python."
 }
+
+Push-Location $backend
 & $python -m PyInstaller --noconfirm --clean --onedir --name fdctl_runtime --distpath $distRoot --workpath $pyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\__main__.py"
 $buildExitCode = $LASTEXITCODE
 Pop-Location
@@ -100,9 +128,9 @@ if (-not (Test-Path -LiteralPath $bundleRuntimeExe)) {
     throw "Failed to copy runtime executable into bundle: $bundleRuntimeExe"
 }
 
-$bundlePythonDll = Join-Path $bundleInternalRoot "python312.dll"
-if (-not (Test-Path -LiteralPath $bundlePythonDll)) {
-    throw "Failed to copy bundled Python runtime DLL: $bundlePythonDll"
+$bundlePythonDll = Get-ChildItem -LiteralPath $bundleInternalRoot -File -Filter "python3*.dll" | Select-Object -First 1
+if (-not $bundlePythonDll) {
+    throw "Failed to copy a bundled Python runtime DLL into $bundleInternalRoot"
 }
 
 Get-ChildItem -LiteralPath $bundleRuntimeRoot -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue

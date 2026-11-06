@@ -13,6 +13,8 @@ fdctl_runtime/
 # Build and environment output
 dist/
 .venv/
+.build-venv/
+.build-temp/
 backend/.venv/
 build/
 backend/build/
