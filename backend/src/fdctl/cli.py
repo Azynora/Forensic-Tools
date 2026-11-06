@@ -42,13 +42,159 @@ def _styled_banner() -> None:
 def _resolve_menu_choice(choice: str, available: list) -> object:
     normalized = choice.strip().lower()
     if normalized.isdigit():
-        index = int(normalized) - 1
-        if 0 <= index < len(available):
-            return available[index]
+        val = int(normalized)
+        if 1 <= val <= len(available):
+            return available[val - 1]
+        if val in {0, 3, 4, 5, 6, 7, 8}:
+            return str(val)
     for detection in available:
         if normalized in {detection.app_id.lower(), detection.display_name.lower()}:
             return detection
+    if normalized in {"demo", "cases", "case", "report", "reports", "apps", "license", "workspace", "settings", "exit", "quit", "q"}:
+        return normalized
     raise ValueError(f"Unsupported app selection: {choice}")
+
+
+def _cli_show_demo() -> None:
+    print_section("Synthetic Investigation Demo (SAMPLE)")
+    print_status("info", "Scenario: Fictional Tabletop Response Exercise (CASE-SAMPLE-0142)")
+    print_status("warn", "NOTICE: All messages, accounts, and files are simulated. No live user data was read.")
+    print_kv("Channel", "#ops-tabletop")
+    print_kv("Timeline Events", "4 key checkpoints (08:15 to 08:57)")
+    print("\n  [Simulated Timeline]")
+    events = [
+        ("08:15:04", "analyst_sample", "Exercise begins. All events are simulated."),
+        ("08:18:27", "responder_mock", "Mock alert received; no live systems involved."),
+        ("08:24:10", "observer_demo", "Checkpoint saved to sample-note.txt."),
+        ("08:31:52", "analyst_sample", "Review the sample attachment only."),
+        ("08:37:16", "responder_mock", "sample-map.png is a demo placeholder."),
+        ("08:46:39", "observer_demo", "Simulated handoff complete."),
+        ("08:57:03", "analyst_sample", "Exercise closed; no real data accessed."),
+    ]
+    for time_str, user_str, msg_str in events:
+        print(f"    {time_str} | {user_str:<16} | {msg_str}")
+    print("\n  [Sample Artifacts]")
+    print("    - sample-note.txt  (Text document: Exercise checklist)")
+    print("    - sample-map.png   (Image asset: Mock network topology)")
+    print_status("ok", "Demo inspection finished.")
+    input("\nPress Enter to return to main menu...")
+
+
+def _cli_show_cases() -> None:
+    print_section("Saved Cases Browser")
+    cases_dir = workspace_root() / "cases"
+    if not cases_dir.exists():
+        print_status("info", f"Cases directory does not exist yet: {cases_dir}")
+        input("\nPress Enter to return...")
+        return
+    cases = sorted((p for p in cases_dir.iterdir() if p.is_dir()), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not cases:
+        print_status("info", f"No saved cases found in {cases_dir}")
+        input("\nPress Enter to return...")
+        return
+    from datetime import datetime
+    print_kv("Cases directory", str(cases_dir))
+    print(f"\n  {'#':<4} {'Case ID':<30} {'Modified':<20} {'Folders'}")
+    print("  " + "-" * 70)
+    for idx, case_path in enumerate(cases[:20], start=1):
+        mtime = datetime.fromtimestamp(case_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+        subfolders = sum(1 for sub in case_path.iterdir() if sub.is_dir())
+        print(f"  [{idx:<2}] {case_path.name:<30} {mtime:<20} {subfolders} folders")
+    print("\nOptions:")
+    print("  - Enter case number to open folder in Windows Explorer")
+    print("  - Enter case number with 'r' (e.g. '1r') to open its report")
+    print("  - Press Enter to return to main menu")
+    choice = input("Your choice: ").strip().lower()
+    if not choice:
+        return
+    open_rep = choice.endswith("r")
+    num_part = choice[:-1] if open_rep else choice
+    if num_part.isdigit():
+        case_idx = int(num_part) - 1
+        if 0 <= case_idx < len(cases):
+            selected_case = cases[case_idx]
+            if open_rep:
+                rep_file = selected_case / "08_Report" / "Muc_luc_bao_cao.md"
+                if rep_file.exists():
+                    import webbrowser
+                    webbrowser.open(rep_file.as_uri())
+                    print_status("ok", f"Opened report for {selected_case.name}")
+                else:
+                    print_status("warn", "Report not built for this case yet.")
+            else:
+                import webbrowser
+                webbrowser.open(selected_case.as_uri())
+                print_status("ok", f"Opened folder: {selected_case}")
+    input("\nPress Enter to return...")
+
+
+def _cli_show_reports() -> None:
+    print_section("Investigation Reports")
+    cases_dir = workspace_root() / "cases"
+    if not cases_dir.exists():
+        print_status("info", "No cases found.")
+        input("\nPress Enter to return...")
+        return
+    reports = []
+    for c in cases_dir.iterdir():
+        if c.is_dir():
+            rep = c / "08_Report" / "Muc_luc_bao_cao.md"
+            if rep.exists():
+                reports.append((c.stat().st_mtime, c.name, rep))
+    if not reports:
+        print_status("info", "No built reports found in workspace cases.")
+        input("\nPress Enter to return...")
+        return
+    reports.sort(key=lambda r: r[0], reverse=True)
+    latest = reports[0]
+    import webbrowser
+    print_status("ok", f"Opening latest investigation report: {latest[1]}")
+    webbrowser.open(latest[2].as_uri())
+    input("\nPress Enter to return...")
+
+
+def _cli_show_apps(detections: list) -> None:
+    print_section("Installed Supported Applications")
+    for idx, det in enumerate(detections, start=1):
+        _print_detection_card(idx, det)
+    input("\nPress Enter to return...")
+
+
+def _cli_show_license(access_status: dict) -> None:
+    print_section("License & Device Information")
+    from fdctl.services.license_service import current_license_status, machine_fingerprint, format_machine_name, activate_license_token
+    status = current_license_status(force_enforced=True)
+    print_kv("Active status", str(status.get("licenseLabel", "No active license")))
+    print_kv("Registered email", str(status.get("issuedToEmail") or status.get("activatedForEmail") or "(none)"))
+    print_kv("Expires at", str(status.get("expiresAt", "N/A")))
+    print_kv("Device name", format_machine_name())
+    print_kv("Hardware fingerprint", machine_fingerprint())
+    print_kv("Allowed features", ", ".join(status.get("features", [])))
+    key_input = input("\nEnter new license key to activate (or leave blank to return): ").strip()
+    if key_input:
+        email = input("Enter associated Gmail address: ").strip()
+        if email:
+            try:
+                res = activate_license_token(key_input, email)
+                print_status("ok", "Activated successfully!", res.get("licenseLabel", ""))
+            except Exception as e:
+                print_status("fail", f"Activation failed: {e}")
+    input("\nPress Enter to return...")
+
+
+def _cli_show_workspace() -> None:
+    print_section("Workspace & Environment Details")
+    print_kv("Workspace root", str(workspace_root()))
+    print_kv("Project root", str(project_root()))
+    print_kv("Tool version", f"Release {__release__}")
+    print_kv("Python runtime", sys.executable)
+    print_kv("Elevation state", "Administrator" if is_admin() else "Standard User")
+    open_choice = input("\nOpen workspace folder in Windows Explorer? [y/N]: ").strip().lower()
+    if open_choice in {"y", "yes"}:
+        import webbrowser
+        webbrowser.open(workspace_root().as_uri())
+        print_status("ok", "Opened workspace folder.")
+    input("\nPress Enter to return...")
 
 
 def _print_detection_card(index: int, detection: object) -> None:
@@ -245,12 +391,41 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         selected = next((item for item in available if args and args.app == item.app_id), None)
         while True:
             if selected is None:
-                print_section("Available investigation apps")
+                print_section("Investigation & Tool Navigation")
                 for index, detection in enumerate(available, start=1):
                     _print_detection_card(index, detection)
+                print("  " + "-" * 70)
+                print("  [3] 🧪 Trải nghiệm Dữ liệu Mẫu (Synthetic Data Demo / Sample Mode)")
+                print("  [4] 📂 Quản lý & Xem Danh sách Hồ sơ (Cases & Evidence Browser)")
+                print("  [5] 📊 Mở Báo cáo Điều tra Gần nhất (Open Latest Report)")
+                print("  [6] 🛠️ Quét & Phát hiện Ứng dụng trên Máy (Detect Installed Apps)")
+                print("  [7] 🔑 Quản lý Bản quyền & Thiết bị (License Status & Info)")
+                print("  [8] ⚙️ Thông tin Không gian làm việc (Workspace & System Info)")
+                print("  [0] 🚪 Thoát Chương trình (Exit)")
+                print("  " + "-" * 70)
                 sys.stdout.flush()
                 choice = _prompt_selection("Select app number to investigate or type app name: ")
                 selected = _resolve_menu_choice(choice, available)
+
+            if isinstance(selected, str):
+                if selected in {"0", "exit", "quit", "q"}:
+                    print_status("info", "Exiting Forensics Suite.")
+                    return 0
+                if selected in {"3", "demo"}:
+                    _cli_show_demo()
+                elif selected in {"4", "cases", "case"}:
+                    _cli_show_cases()
+                elif selected in {"5", "report", "reports"}:
+                    _cli_show_reports()
+                elif selected in {"6", "apps"}:
+                    _cli_show_apps(detections)
+                elif selected in {"7", "license"}:
+                    _cli_show_license(access_status)
+                elif selected in {"8", "workspace", "settings"}:
+                    _cli_show_workspace()
+                selected = None
+                continue
+
             if selected.app_id != "zalo":
                 break
             print_status("info", "Zalo forensic support is under development. No Zalo data will be accessed.")
