@@ -45,9 +45,15 @@ COMPACT_MACHINE_HASH_BYTES = 12
 TRIAL_REGISTRY_NAME = "trial_registry.json"
 MAX_COMPACT_UNIX_TIMESTAMP = 0xFFFFFFFF
 PUBLIC_KEY_PEM = """-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAXmobkVDnbDHV+zsnBKrzNNgdRiheFPs6aopag0GegII=
+MCowBQYDK2VwAyEANa7zxA5/Kyv2+eMlGAvrqjUMo/9XAL79x6fQlN+g+Es=
 -----END PUBLIC KEY-----
 """
+LEGACY_PUBLIC_KEY_PEMS: tuple[str, ...] = (
+    """-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEAXmobkVDnbDHV+zsnBKrzNNgdRiheFPs6aopag0GegII=
+-----END PUBLIC KEY-----
+""",
+)
 
 LICENSE_TYPES: dict[str, dict[str, Any]] = {
     "issued_7d": {
@@ -340,8 +346,12 @@ def requested_license_types() -> list[str]:
     return [item["key"] for item in license_types_summary(public_only=True)]
 
 
-def _public_key() -> Ed25519PublicKey:
-    return serialization.load_pem_public_key(PUBLIC_KEY_PEM.encode("utf-8"))  # type: ignore[return-value]
+def _public_keys() -> tuple[Ed25519PublicKey, ...]:
+    pems = (PUBLIC_KEY_PEM, *LEGACY_PUBLIC_KEY_PEMS)
+    return tuple(
+        serialization.load_pem_public_key(pem.encode("utf-8"))  # type: ignore[misc]
+        for pem in pems
+    )  # type: ignore[return-value]
 
 
 def _private_key_candidates() -> list[Path]:
@@ -374,17 +384,22 @@ def _sign_bytes(data: bytes) -> str:
 
 
 def _verify_bytes(data: bytes, signature: str) -> None:
-    try:
-        _public_key().verify(_url_b64decode(signature), data)
-    except InvalidSignature as exc:
-        raise ValueError("Signature is invalid.") from exc
+    _verify_with_any_public_key(_url_b64decode(signature), data)
 
 
 def _verify_signature_bytes(data: bytes, signature: bytes) -> None:
-    try:
-        _public_key().verify(signature, data)
-    except InvalidSignature as exc:
-        raise ValueError("Signature is invalid.") from exc
+    _verify_with_any_public_key(signature, data)
+
+
+def _verify_with_any_public_key(signature: bytes, data: bytes) -> None:
+    last_error: InvalidSignature | None = None
+    for public_key in _public_keys():
+        try:
+            public_key.verify(signature, data)
+            return
+        except InvalidSignature as exc:
+            last_error = exc
+    raise ValueError("Signature is invalid.") from last_error
 
 
 def _format_license_key_letters(raw_text: str) -> str:

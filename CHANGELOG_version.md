@@ -7,6 +7,7 @@
 - loại bỏ đường dẫn Python riêng của máy phát triển khỏi launcher và script build
 - giới hạn case ID và xác nhận case path nằm trực tiếp trong workspace trước khi thao tác
 - cập nhật package `fdctl` lên `0.2.9` và chuẩn bị repository source song ngữ
+- xoay khóa ký cho bản phát hành mới, giữ public key cũ để xác thực các license đã cấp
 
 ## 1.1.8 - 2026-04-27
 
