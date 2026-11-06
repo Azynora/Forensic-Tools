@@ -114,7 +114,7 @@ def _capture_screenshots(case: CaseContext, app_name: str, artifact_count: int, 
     canvas = Image.new("RGB", (1600, 900), "#f4efe6")
     draw = ImageDraw.Draw(canvas)
     draw.rounded_rectangle((60, 60, 1540, 840), radius=28, fill="#fffdf8", outline="#c6d3ce", width=3)
-    draw.text((120, 110), f"FORENSICS_DISCORD - {app_name}", fill="#0f1720")
+    draw.text((120, 110), f"FORENSICS SUITE - {app_name}", fill="#0f1720")
     draw.text((120, 180), f"Case ID: {case.case_id}", fill="#334155")
     draw.text((120, 240), f"Collected at: {now_iso()}", fill="#334155")
     draw.text((120, 330), f"Artifacts copied: {artifact_count}", fill="#0f766e")

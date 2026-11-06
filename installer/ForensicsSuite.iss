@@ -1,26 +1,26 @@
 #ifndef BundleDir
-  #define BundleDir "..\dist\FORENSICS_DISCORD"
+  #define BundleDir "..\dist\ForensicsSuite"
 #endif
 #ifndef OutputDir
   #define OutputDir "..\dist\github-release"
 #endif
 
-#define AppName "FORENSICS_DISCORD"
-#define AppVersion "1.2.0"
+#define AppName "Forensics Suite"
+#define AppVersion "1.3.0"
 #define AppPublisher "Truong Trieu Vy"
-#define AppExe "fdctl_runtime\FORENSICS_DISCORD.exe"
+#define AppExe "fdctl_runtime\ForensicsSuite.exe"
 
 [Setup]
 AppId={{8D82F581-8730-4F44-87AF-2027012A0472}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
-DefaultDirName={localappdata}\Programs\FORENSICS_DISCORD
+DefaultDirName={localappdata}\Programs\Forensics Suite
 DefaultGroupName={#AppName}
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir={#OutputDir}
-OutputBaseFilename=FORENSICS_DISCORD_Setup
+OutputBaseFilename=ForensicsSuite_Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

@@ -973,7 +973,7 @@ def _migrate_legacy_trial_record(record: dict[str, Any], email: str) -> dict[str
 
 def activation_request_text() -> str:
     request = (
-        f"FORENSICS_DISCORD activation request{os.linesep}"
+        f"Forensics Suite activation request{os.linesep}"
         f"Owner: {OWNER_NAME} <{OWNER_EMAIL}>{os.linesep}"
         f"Machine fingerprint: {machine_fingerprint()}{os.linesep}"
         f"Hostname: {socket.gethostname()}{os.linesep}"

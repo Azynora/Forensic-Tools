@@ -1,16 +1,16 @@
-# FORENSICS_DISCORD
+# Forensics Suite
 
-Windows app for Discord forensic collection, analysis and case reporting.
+An extensible Windows workspace for digital forensics across messaging applications.
 
 [Tiếng Việt](README.vi.md) · [English](README.en.md)
 
 ## Download
 
-[Download the latest Windows Setup or ZIP from GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
+[Download the latest installer or portable ZIP from GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
 
-Run `FORENSICS_DISCORD_Setup.exe` and open the app from the Start menu. The installer bundles Python and required libraries. No Python installation or pip command is needed.
+Run `ForensicsSuite_Setup.exe` and open Forensics Suite from the Start menu. Python and dependencies are bundled.
 
-## Run from source (CLI)
+## Run from source
 
 ```powershell
 git clone https://github.com/Azynora/Forensic-Tools.git
@@ -21,21 +21,19 @@ python -m pip install -r requirements.txt
 .\fdctl.cmd menu
 ```
 
-The source checkout opens the terminal menu. See [USAGE_GUIDE.md](USAGE_GUIDE.md) for CLI commands.
+Source users get the CLI menu. The GUI installer is for Windows users who want a desktop app.
 
-## Features
+## Applications and demo
 
-- Discord artifact collection, analysis, reports and Autopsy export.
-- In-app synthetic demo labeled `SAMPLE`; it does not read real Discord or Chrome data.
-- Zalo is under development. Selecting it returns to Discord selection.
-- Select a workspace folder in app Settings; default is Documents.
+- Discord collection, analysis, case reports, and Autopsy export are currently available.
+- Zalo, Telegram, WhatsApp, Messenger, and Signal are shown as planned integrations. Selecting an unavailable app explains its status and returns to Discord.
+- The built-in Demo page contains a populated fictional case with a timeline, accounts, illustrative files, and a report summary. Every item is synthetic; the demo never reads user data or creates evidence.
+- Choose a workspace folder in Settings. The default is `Documents\Forensics Suite`.
 
-The local 7-day trial enables the synthetic demo only. Paid access uses a device-bound signed license key issued by the owner. This personal project does not use an online store or payment backend.
+The project is maintained by one owner. Full collection access uses a device-bound signed license issued manually; there is no online store or payment backend.
 
-## Project and handling
+## Ownership and data
 
-The public repository contains source code. The installer packages the Python runtime and dependencies for easier use; packaging cannot guarantee absolute protection against reverse engineering. Use the tool only with authorization. Case data may contain sensitive session artifacts.
+The source and release are proprietary. Case data can contain sensitive session artifacts, so use the tool only with authorization and protect the selected workspace.
 
 **Owner:** Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
-
-**Release:** 1.2.0

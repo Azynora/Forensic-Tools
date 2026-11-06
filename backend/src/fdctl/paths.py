@@ -41,7 +41,7 @@ def workspace_root() -> Path:
         except Exception:
             pass
     if getattr(sys, "frozen", False):
-        documents = Path.home() / "Documents" / "FORENSICS_DISCORD"
+        documents = Path.home() / "Documents" / "Forensics Suite"
         return documents
     return project_root() / "workspace"
 

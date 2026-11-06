@@ -36,7 +36,7 @@ def _print(data: object) -> None:
     print(json.dumps(data, ensure_ascii=False, indent=2))
 
 def _styled_banner() -> None:
-    print_banner("FORENSICS_DISCORD", "Discord-first investigation launcher for Windows")
+    print_banner("FORENSICS SUITE", "Extensible digital forensics workspace for Windows")
     sys.stdout.flush()
 
 def _resolve_menu_choice(choice: str, available: list) -> object:

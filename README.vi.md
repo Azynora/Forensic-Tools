@@ -1,16 +1,16 @@
-# FORENSICS_DISCORD — Tiếng Việt
+# Forensics Suite — Tiếng Việt
 
-Ứng dụng Windows hỗ trợ thu thập, phân tích và lập báo cáo forensic Discord.
+Nền tảng Windows có thể mở rộng để điều tra số trên nhiều ứng dụng nhắn tin.
 
 [English](README.en.md) · [Trang chính](README.md)
 
-## Tải và cài đặt
+## Tải ứng dụng
 
-[Tải Setup.exe hoặc ZIP mới nhất tại GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
+[Tải bản cài hoặc ZIP portable mới nhất tại GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
 
-Chạy `FORENSICS_DISCORD_Setup.exe`, sau đó mở ứng dụng từ Start Menu. Python và thư viện đã được đóng gói sẵn; không cần cài Python hoặc chạy pip.
+Chạy `ForensicsSuite_Setup.exe`, sau đó mở Forensics Suite từ Start Menu. Python và thư viện cần thiết đã được đóng gói.
 
-## Chạy từ mã nguồn bằng CLI
+## Chạy từ source
 
 ```powershell
 git clone https://github.com/Azynora/Forensic-Tools.git
@@ -21,21 +21,19 @@ python -m pip install -r requirements.txt
 .\fdctl.cmd menu
 ```
 
-Source mở menu terminal. Xem [USAGE_GUIDE.md](USAGE_GUIDE.md) để biết các lệnh CLI.
+Source mở menu CLI. Bộ cài GUI dành cho người muốn dùng ứng dụng desktop trên Windows.
 
-## Tính năng
+## Ứng dụng và demo
 
-- Thu thập artifact Discord, phân tích, tạo báo cáo và xuất dữ liệu cho Autopsy.
-- Demo dữ liệu tổng hợp có nhãn `SAMPLE`, không đọc dữ liệu Discord hoặc Chrome thật.
-- Zalo đang phát triển; nếu chọn Zalo, ứng dụng sẽ quay lại lựa chọn Discord.
-- Có thể chọn workspace trong phần Cài đặt; mặc định là Documents.
+- Discord hiện hỗ trợ thu thập, phân tích, báo cáo case và xuất dữ liệu cho Autopsy.
+- Zalo, Telegram, WhatsApp, Messenger và Signal đang nằm trong lộ trình. Chọn ứng dụng chưa hỗ trợ sẽ hiện thông báo rồi quay lại Discord.
+- Trang Demo có sẵn một hồ sơ hư cấu với timeline, tài khoản, tệp minh họa và tóm tắt báo cáo. Toàn bộ dữ liệu đều tổng hợp; demo không đọc dữ liệu người dùng và không tạo chứng cứ.
+- Chọn nơi lưu workspace trong Cài đặt. Mặc định là `Documents\Forensics Suite`.
 
-Trial cục bộ 7 ngày chỉ mở demo tổng hợp. License trả phí dùng key có chữ ký, gắn với thiết bị và do chủ dự án cấp thủ công. Dự án cá nhân này không dùng cửa hàng online hoặc backend thanh toán.
+Dự án do một cá nhân duy trì. Quyền thu thập đầy đủ dùng license ký số gắn với thiết bị và được chủ dự án cấp thủ công; không có cửa hàng online hay backend thanh toán.
 
-## Mã nguồn và dữ liệu
+## Bản quyền và dữ liệu
 
-Repo public có mã nguồn. Bộ cài đóng gói Python/runtime để dễ chạy, nhưng không thể đảm bảo tuyệt đối chống phân tích ngược. Chỉ sử dụng khi được ủy quyền; dữ liệu case có thể chứa thông tin phiên nhạy cảm.
+Mã nguồn và bản phát hành thuộc chủ dự án. Dữ liệu case có thể chứa thông tin phiên nhạy cảm; chỉ sử dụng khi được ủy quyền và bảo vệ thư mục workspace.
 
 **Chủ sở hữu:** Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
-
-**Phiên bản:** 1.2.0

@@ -4,7 +4,7 @@ $root = $PSScriptRoot
 $backendSrc = Join-Path $root "backend\src"
 $bundledExeCandidates = @(
     (Join-Path $root "fdctl_runtime\fdctl_runtime.exe"),
-    (Join-Path $root "dist\FORENSICS_DISCORD\fdctl_runtime\fdctl_runtime.exe"),
+    (Join-Path $root "dist\ForensicsSuite\fdctl_runtime\fdctl_runtime.exe"),
     (Join-Path $root "build\pyinstaller\release-dist\fdctl_runtime\fdctl_runtime.exe")
 )
 $pythonExe = Join-Path $root ".venv\Scripts\python.exe"
@@ -13,7 +13,7 @@ $env:PYTHONIOENCODING = "utf-8"
 
 if ($args.Count -gt 0 -and $args[0] -eq "menu") {
     try {
-        $Host.UI.RawUI.WindowTitle = "FORENSICS_DISCORD Investigator"
+        $Host.UI.RawUI.WindowTitle = "Forensics Suite Investigator"
     } catch {
     }
 }

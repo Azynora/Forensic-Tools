@@ -1,6 +1,6 @@
 # Proprietary License Notice
 
-FORENSICS_DISCORD is distributed as proprietary software.
+Forensics Suite is distributed as proprietary software.
 
 Copyright (c) 2026 Truong Trieu Vy. All rights reserved.
 

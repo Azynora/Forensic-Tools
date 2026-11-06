@@ -9,9 +9,9 @@ if not exist "%FDCTL_CMD%" (
 )
 
 chcp 65001>nul
-title FORENSICS_DISCORD License Activation
-echo [FORENSICS_DISCORD] Official bundle activation
-echo [FORENSICS_DISCORD] Paste the key issued by Truong Trieu Vy when prompted.
+title Forensics Suite License Activation
+echo [Forensics Suite] Official bundle activation
+echo [Forensics Suite] Paste the key issued by Truong Trieu Vy when prompted.
 echo.
 call "%FDCTL_CMD%" license activate --prompt
 echo.

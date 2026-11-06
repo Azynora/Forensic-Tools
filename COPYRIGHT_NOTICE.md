@@ -1,6 +1,6 @@
 # Copyright Notice
 
-FORENSICS_DISCORD
+Forensics Suite
 
 - Copyright owner: Truong Trieu Vy
 - Contact email: trieuvy9198@gmail.com
@@ -10,7 +10,7 @@ FORENSICS_DISCORD
 
 Copyright (c) 2026 Truong Trieu Vy. All rights reserved.
 
-The FORENSICS_DISCORD source code, terminal workflow, forensic processing logic, case structure, build outputs, and supporting documentation are authored and owned by:
+The Forensics Suite source code, terminal workflow, forensic processing logic, case structure, build outputs, and supporting documentation are authored and owned by:
 
 - Truong Trieu Vy
 - trieuvy9198@gmail.com

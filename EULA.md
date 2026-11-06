@@ -1,12 +1,12 @@
 # End User License Agreement (EULA)
 
-This EULA applies to the FORENSICS_DISCORD tool, portable bundle scripts, packaged runtime artifacts, and generated forensic report outputs.
+This EULA applies to Forensics Suite, its portable bundle scripts, packaged runtime artifacts, and generated forensic report outputs.
 
 By running or using the software, the user agrees to the following terms.
 
 ## 1. Ownership
 
-FORENSICS_DISCORD is owned by Truong Trieu Vy.
+Forensics Suite is owned by Truong Trieu Vy.
 
 Copyright (c) 2026 Truong Trieu Vy. All rights reserved.
 

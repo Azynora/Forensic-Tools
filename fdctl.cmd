@@ -2,14 +2,14 @@
 setlocal
 set "ROOT=%~dp0"
 set "BUNDLED_EXE=%ROOT%fdctl_runtime\fdctl_runtime.exe"
-if not exist "%BUNDLED_EXE%" set "BUNDLED_EXE=%ROOT%dist\FORENSICS_DISCORD\fdctl_runtime\fdctl_runtime.exe"
+if not exist "%BUNDLED_EXE%" set "BUNDLED_EXE=%ROOT%dist\ForensicsSuite\fdctl_runtime\fdctl_runtime.exe"
 if not exist "%BUNDLED_EXE%" set "BUNDLED_EXE=%ROOT%build\pyinstaller\release-dist\fdctl_runtime\fdctl_runtime.exe"
 set "USE_SOURCE=0"
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 
 if /I "%~1"=="menu" (
-    title FORENSICS_DISCORD Investigator
+    title Forensics Suite Investigator
     chcp 65001>nul
     cls
 )

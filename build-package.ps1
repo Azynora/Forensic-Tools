@@ -42,7 +42,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "Python executable is unavailable: $python"
 }
 
-$bundleRoot = Join-Path $root "dist\FORENSICS_DISCORD"
+$bundleRoot = Join-Path $root "dist\ForensicsSuite"
 $bundleRuntimeRoot = Join-Path $bundleRoot "fdctl_runtime"
 $publicRoot = Join-Path $root "dist\github-release"
 $buildRoot = Join-Path $root "build\pyinstaller"
@@ -53,7 +53,7 @@ $guiDistRoot = Join-Path $workRoot "gui-dist"
 $specRoot = Join-Path $workRoot "specs"
 $pyInstallerWorkRoot = Join-Path $workRoot "fdctl-cli"
 $guiPyInstallerWorkRoot = Join-Path $workRoot "fdctl-gui"
-$releaseZip = Join-Path $root "dist\FORENSICS_DISCORD_portable.zip"
+$releaseZip = Join-Path $root "dist\ForensicsSuite_portable.zip"
 $docsToCopy = @(
     "README.md",
     "README.vi.md",
@@ -102,7 +102,7 @@ Push-Location $backend
 & $python -m PyInstaller --noconfirm --clean --onedir --console --name fdctl_runtime --distpath $distRoot --workpath $pyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\cli_entry.py"
 $buildExitCode = $LASTEXITCODE
 if ($buildExitCode -eq 0) {
-    & $python -m PyInstaller --noconfirm --clean --onedir --windowed --name FORENSICS_DISCORD --distpath $guiDistRoot --workpath $guiPyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\__main__.py"
+    & $python -m PyInstaller --noconfirm --clean --onedir --windowed --name ForensicsSuite --distpath $guiDistRoot --workpath $guiPyInstallerWorkRoot --specpath $specRoot --paths "$backend\src" "$backend\src\fdctl\__main__.py"
     $buildExitCode = $LASTEXITCODE
 }
 Pop-Location
@@ -113,8 +113,8 @@ if ($buildExitCode -ne 0) {
 $runtimeSourceRoot = Join-Path $distRoot "fdctl_runtime"
 $runtimeExeSource = Join-Path $runtimeSourceRoot "fdctl_runtime.exe"
 $runtimeInternalSource = Join-Path $runtimeSourceRoot "_internal"
-$guiRuntimeRoot = Join-Path $guiDistRoot "FORENSICS_DISCORD"
-$guiExeSource = Join-Path $guiRuntimeRoot "FORENSICS_DISCORD.exe"
+$guiRuntimeRoot = Join-Path $guiDistRoot "ForensicsSuite"
+$guiExeSource = Join-Path $guiRuntimeRoot "ForensicsSuite.exe"
 $guiInternalSource = Join-Path $guiRuntimeRoot "_internal"
 $bundleInternalRoot = Join-Path $bundleRuntimeRoot "_internal"
 
@@ -132,7 +132,7 @@ if (-not (Test-Path -LiteralPath $guiInternalSource)) {
 }
 
 Copy-Item -LiteralPath $runtimeExeSource -Destination (Join-Path $bundleRuntimeRoot "fdctl_runtime.exe") -Force
-Copy-Item -LiteralPath $guiExeSource -Destination (Join-Path $bundleRuntimeRoot "FORENSICS_DISCORD.exe") -Force
+Copy-Item -LiteralPath $guiExeSource -Destination (Join-Path $bundleRuntimeRoot "ForensicsSuite.exe") -Force
 New-Item -ItemType Directory -Force -Path $bundleInternalRoot | Out-Null
 Copy-Item -Path (Join-Path $runtimeInternalSource "*") -Destination $bundleInternalRoot -Recurse -Force
 Copy-Item -Path (Join-Path $guiInternalSource "*") -Destination $bundleInternalRoot -Recurse -Force
@@ -181,7 +181,7 @@ Get-ChildItem -LiteralPath $bundleRoot -Recurse -File | Where-Object { $_.Name -
 }
 
 $bundleProvenance = [ordered]@{
-    project = "FORENSICS_DISCORD"
+    project = "Forensics Suite"
     owner = [ordered]@{
         name = "Truong Trieu Vy"
         email = "trieuvy9198@gmail.com"
@@ -202,7 +202,7 @@ $bundleProvenance = [ordered]@{
         "issued_30d",
         "issued_365d"
     )
-    defaultWorkspaceRoot = "%USERPROFILE%\Documents\FORENSICS_DISCORD"
+    defaultWorkspaceRoot = "%USERPROFILE%\Documents\Forensics Suite"
     files = $bundleFiles
 }
 
@@ -258,20 +258,21 @@ Write-Host "Expanded bundle created: $publicRoot"
 $isccCandidates = @(
     (Get-Command ISCC.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source),
     (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
-    (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+    (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe"),
+    (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe")
 ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
 if ($isccCandidates) {
     $iscc = $isccCandidates | Select-Object -First 1
-    $installerScript = Join-Path $root "installer\FORENSICS_DISCORD.iss"
+    $installerScript = Join-Path $root "installer\ForensicsSuite.iss"
     & $iscc "/DBundleDir=$bundleRoot" "/DOutputDir=$publicRoot" $installerScript
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE." }
-    Write-Host "Setup installer created: $(Join-Path $publicRoot 'FORENSICS_DISCORD_Setup.exe')"
+    Write-Host "Setup installer created: $(Join-Path $publicRoot 'ForensicsSuite_Setup.exe')"
 } else {
     Write-Warning "Inno Setup 6 was not found. Portable ZIP is ready; install Inno Setup 6 to create Setup.exe."
 }
 
 $releaseArtifactPaths = @($releaseZip)
-$setupArtifact = Join-Path $publicRoot "FORENSICS_DISCORD_Setup.exe"
+$setupArtifact = Join-Path $publicRoot "ForensicsSuite_Setup.exe"
 if (Test-Path -LiteralPath $setupArtifact) { $releaseArtifactPaths += $setupArtifact }
 $releaseChecksums = foreach ($artifact in $releaseArtifactPaths) {
     $hash = (Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash.ToLowerInvariant()

@@ -1,16 +1,15 @@
-# FORENSICS_DISCORD — Hướng dẫn nhanh
+# Forensics Suite — Hướng dẫn nhanh
 
-## Bản cài đặt GUI
+## Cài bản GUI
 
-1. Tải `FORENSICS_DISCORD_Setup.exe` từ [GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
-2. Cài đặt theo người dùng hiện tại, mở app từ Start Menu.
-3. Chọn ngôn ngữ, workspace và kích hoạt license trong giao diện.
+1. Tải `ForensicsSuite_Setup.exe` từ [GitHub Releases](https://github.com/Azynora/Forensic-Tools/releases/latest).
+2. Chạy bộ cài; mở Forensics Suite từ Start Menu.
+3. Chọn ngôn ngữ và workspace. Mặc định case được lưu trong `Documents\Forensics Suite`.
+4. Mở **Demo dữ liệu** để xem case mẫu. Demo luôn có dữ liệu tổng hợp và không truy cập máy.
 
-Python và thư viện được đóng gói trong installer. Case mặc định nằm dưới `Documents\FORENSICS_DISCORD`; có thể đổi nơi lưu trong Cài đặt. Thu thập có thể yêu cầu quyền Administrator.
+Discord là adapter duy nhất hiện có. Zalo, Telegram, WhatsApp, Messenger và Signal đang phát triển; ứng dụng sẽ báo trạng thái rồi quay lại Discord nếu chọn mục chưa hỗ trợ.
 
-Trial cục bộ 7 ngày chỉ cho phép xem demo tổng hợp `SAMPLE`. Demo không đọc Discord/Chrome thật, không tạo chứng cứ. License trả phí mở chức năng forensic.
-
-## Source CLI
+## Chạy source qua CLI
 
 Yêu cầu Windows 11 và Python 3.10 trở lên:
 
@@ -34,9 +33,7 @@ Các lệnh thường dùng:
 .\fdctl.cmd case save --case case_001
 ```
 
-Chọn Zalo trong menu sẽ báo đang phát triển rồi quay lại lựa chọn ứng dụng. Không có luồng thu thập Zalo.
-
-Đổi workspace trong một phiên PowerShell:
+Đổi workspace cho phiên PowerShell hiện tại:
 
 ```powershell
 $env:FDCTL_DATA_ROOT = "E:\DFIR_CASES"
@@ -45,26 +42,19 @@ $env:FDCTL_DATA_ROOT = "E:\DFIR_CASES"
 
 ## License
 
-- App tự bắt đầu trial 7 ngày cho email Gmail đầu tiên trên thiết bị; trial chỉ mở demo SAMPLE.
-- Để yêu cầu key trả phí, gửi email và mã thiết bị ở trang License cho chủ dự án. Chủ dự án xác nhận rồi cấp signed key gắn với fingerprint thiết bị.
-- Kích hoạt bằng email Gmail và key trong trang License. Không có thanh toán hoặc cấp key tự động trong app.
-- License lưu tại `%LOCALAPPDATA%\FORENSICS_DISCORD\license`; token được xác minh bằng public key tích hợp trong app.
-- License Ed25519 cũ được chấp nhận trong giai đoạn chuyển đổi.
+- Demo tổng hợp có sẵn, không cần license; nội dung chỉ để xem minh họa.
+- Thu thập thật yêu cầu license có quyền collection, ký số và gắn với fingerprint thiết bị.
+- Gửi Gmail và mã thiết bị từ trang License cho chủ dự án để yêu cầu cấp key. Hiện không có thanh toán hoặc cấp key tự động.
+- License đang được lưu tại `%LOCALAPPDATA%\FORENSICS_DISCORD\license` để tương thích với các key đã cấp trước khi đổi tên giao diện.
 
-## Cấp license thủ công và build Setup
+## Build bộ cài
 
-Giữ private signing key ngoài repo, máy khách và gói phát hành. Người dùng gửi fingerprint qua app; trên máy nguồn riêng, dùng `fdctl.cmd license issue` với email, loại license và fingerprint đó. Trả file key cho người dùng qua email. Trial được cấp cục bộ, không cần private key.
-
-Cần Python trên máy build và Inno Setup 6 để tạo bộ cài:
+Cần Python trên máy build và Inno Setup 6:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-package.ps1
 ```
 
-Đầu ra: `dist\FORENSICS_DISCORD_portable.zip`, thư mục `dist\github-release` và, khi có Inno Setup 6, `FORENSICS_DISCORD_Setup.exe`. Build cần private Ed25519 key ngoài repo để ký manifest integrity. Không commit khóa, dữ liệu case hoặc các thư mục `build`, `dist`, `workspace`, `.venv`.
-
-## Lưu ý
-
-Chỉ thu thập dữ liệu khi được ủy quyền. Case có thể chứa cookie và dữ liệu phiên. Kết quả là triage tự động và cần được xác minh với artifact gốc. Public source vẫn có thể được đọc; đóng gói EXE không thể bảo đảm tuyệt đối chống trích xuất/phân tích ngược.
+Đầu ra gồm `dist\ForensicsSuite_portable.zip`, thư mục `dist\github-release` và `ForensicsSuite_Setup.exe`. Private Ed25519 signing key phải ở ngoài repo và không được đưa vào máy khách hoặc gói phát hành.
 
 **Chủ sở hữu:** Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)

@@ -1,5 +1,15 @@
 # Version Changelog
 
+## 1.3.0 - 2026-11-06
+
+- renamed the desktop product to Forensics Suite to support a multi-application roadmap
+- added an application catalog for Discord and planned Zalo, Telegram, WhatsApp, Messenger, and Signal integrations
+- redesigned the bilingual GUI with a workspace dashboard, license status, settings, case browser, and clearer navigation
+- replaced the empty demo view with a fictional sample case containing a timeline, synthetic accounts, illustrative files, and report summary
+- made the sample preview available without collecting, reading, or exporting real user data
+- renamed the installer, GUI executable, portable bundle, and default Documents workspace
+- retained the internal license storage and product identifier to keep compatibility with existing signed keys
+
 ## 1.2.0 - 2026-11-06
 
 - added bilingual Tkinter app with Discord workflow, synthetic SAMPLE demo, case browser, license and workspace settings

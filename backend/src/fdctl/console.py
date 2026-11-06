@@ -25,7 +25,7 @@ COPYRIGHT_OWNER = "Truong Trieu Vy"
 COPYRIGHT_EMAIL = "trieuvy9198@gmail.com"
 
 
-def setup_terminal(title: str = "FORENSICS_DISCORD Investigator") -> None:
+def setup_terminal(title: str = "Forensics Suite Investigator") -> None:
     global _COLOR_ENABLED
     _configure_console_io()
     _COLOR_ENABLED = _enable_ansi()
