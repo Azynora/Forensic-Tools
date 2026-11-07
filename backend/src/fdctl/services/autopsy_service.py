@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from fdctl.models import CaseContext
@@ -11,6 +12,7 @@ from fdctl.utils import (
     read_json,
     relative_to,
     remove_tree,
+    to_extended_path,
     write_csv,
     write_json,
 )
@@ -53,7 +55,10 @@ RELEVANT_ACQUIRED_TOKENS = {
 
 
 def _copied_entry(case: CaseContext, source: Path, destination: Path, section: str) -> dict:
-    stats = destination.stat()
+    try:
+        stats = destination.stat()
+    except OSError:
+        stats = os.stat(to_extended_path(destination))
     return {
         "section": section,
         "sourcePath": str(source),

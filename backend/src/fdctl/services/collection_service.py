@@ -1,4 +1,5 @@
 from __future__ import annotations
+import sys
 import hashlib
 from pathlib import Path
 import psutil

@@ -35,8 +35,17 @@ def now_iso() -> str:
 def now_stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
 
+def to_extended_path(path: Path | str) -> str:
+    path_str = str(path)
+    if sys.platform == 'win32' and not path_str.startswith('\\\\?\\') and os.path.isabs(path_str):
+        return '\\\\?\\' + os.path.abspath(path_str)
+    return path_str
+
 def ensure_dir(path: Path) -> Path:
-    path.mkdir(parents=True, exist_ok=True)
+    if sys.platform == 'win32':
+        os.makedirs(to_extended_path(path), exist_ok=True)
+    else:
+        path.mkdir(parents=True, exist_ok=True)
     return path
 
 def write_json(path: Path, data: object) -> None:
@@ -131,7 +140,7 @@ def _open_windows_shared_reader(path: Path):
     if sys.platform != "win32" or msvcrt is None:
         return path.open("rb")
     handle = ctypes.windll.kernel32.CreateFileW(
-        str(path),
+        to_extended_path(path),
         GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         None,
@@ -146,12 +155,17 @@ def _open_windows_shared_reader(path: Path):
 
 def copy_file_preserve(source: Path, destination: Path) -> None:
     ensure_dir(destination.parent)
+    src_ext = to_extended_path(source.resolve()) if sys.platform == 'win32' else str(source)
+    dst_ext = to_extended_path(destination.resolve()) if sys.platform == 'win32' else str(destination)
     try:
-        shutil.copy2(source, destination)
+        shutil.copy2(src_ext, dst_ext)
     except OSError:
-        with _open_windows_shared_reader(source) as reader, destination.open("wb") as writer:
+        with _open_windows_shared_reader(source) as reader, open(dst_ext, 'wb') as writer:
             shutil.copyfileobj(reader, writer)
-        shutil.copystat(source, destination)
+        try:
+            shutil.copystat(src_ext, dst_ext)
+        except OSError:
+            pass
 
 def _sqlite_uri(path: Path, immutable: bool = False) -> str:
     uri = f"file:{path.as_posix()}?mode=ro"
@@ -194,7 +208,8 @@ def _rmtree_onerror(function, path: str, excinfo) -> None:
 
 def remove_tree(path: Path) -> None:
     if path.exists():
-        shutil.rmtree(path, onerror=_rmtree_onerror)
+        target = to_extended_path(path) if sys.platform == "win32" else path
+        shutil.rmtree(target, onerror=_rmtree_onerror)
 
 def iter_files(root: Path) -> Iterable[Path]:
     if root.is_file():

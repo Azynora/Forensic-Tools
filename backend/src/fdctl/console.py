@@ -49,6 +49,9 @@ def _configure_console_io() -> None:
                 pass
 
 
+_configure_console_io()
+
+
 def _enable_ansi() -> bool:
     if not hasattr(sys.stdout, "isatty") or not sys.stdout.isatty():
         return False
