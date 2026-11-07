@@ -53,8 +53,23 @@ cd Forensic-Tools
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+
+# Launch interactive CLI menu
 .\fdctl.cmd menu
+
+# Or execute direct investigation commands:
+# 1. Telegram acquisition:
+.\fdctl.cmd case create --app telegram --id case_tele_01
+.\fdctl.cmd collect --case case_tele_01
+.\fdctl.cmd report build --case case_tele_01
+
+# 2. Discord acquisition:
+.\fdctl.cmd case create --app discord --id case_discord_01
+.\fdctl.cmd collect --case case_discord_01
+.\fdctl.cmd report build --case case_discord_01
 ```
+
+> For exhaustive step-by-step commands and workflows, consult [📖 USAGE_GUIDE.md](USAGE_GUIDE.md).
 
 *(Source execution provides the interactive CLI terminal workflow. Compiled standalone desktop binaries are distributed via GitHub Releases).*
 

@@ -53,8 +53,23 @@ cd Forensic-Tools
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+
+# Khởi chạy menu điều tra tương tác
 .\fdctl.cmd menu
+
+# Hoặc chạy lệnh điều tra trực tiếp:
+# 1. Thu thập Telegram:
+.\fdctl.cmd case create --app telegram --id case_tele_01
+.\fdctl.cmd collect --case case_tele_01
+.\fdctl.cmd report build --case case_tele_01
+
+# 2. Thu thập Discord:
+.\fdctl.cmd case create --app discord --id case_discord_01
+.\fdctl.cmd collect --case case_discord_01
+.\fdctl.cmd report build --case case_discord_01
 ```
+
+> Chi tiết các lệnh và hướng dẫn từng bước: xem tại [📖 USAGE_GUIDE.md (Hướng dẫn sử dụng chi tiết)](USAGE_GUIDE.md).
 
 *(Mã nguồn chạy giao diện CLI terminal. Bản ứng dụng Desktop GUI hoàn chỉnh được phân phối độc quyền qua mục GitHub Releases).*
 
