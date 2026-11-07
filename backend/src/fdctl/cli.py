@@ -21,6 +21,7 @@ from fdctl.services.license_service import (
     deactivate_license,
     format_machine_name,
     last_used_email,
+    license_types_summary,
     license_usage_history,
     machine_fingerprint,
     require_bundle_access,
