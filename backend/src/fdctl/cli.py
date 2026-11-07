@@ -456,6 +456,12 @@ def _ensure_interactive_bundle_access(feature: str) -> dict[str, object]:
             f"Official bundle integrity check failed for {feature}: {integrity.get('reason')}. "
             "This build may have been modified or its copyright/integrity markers removed."
         )
+
+    # Developer / Owner source workspace bypass: grant instant access without license prompts
+    current_status = current_license_status()
+    if not current_status.get("enforced") and current_status.get("active"):
+        return current_status
+
     print_section("License Activation")
     remembered_email = last_used_email()
     email_prompt = "Enter your Gmail address"
