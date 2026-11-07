@@ -46,6 +46,9 @@ RELEVANT_ACQUIRED_TOKENS = {
     "logs",
     "service worker",
     "session storage",
+    "tdata",
+    "telegram",
+    "user_data",
 }
 
 

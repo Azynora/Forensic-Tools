@@ -96,10 +96,10 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
         {
             "id": "telegram",
             "name": "Telegram Desktop",
-            "status": "planned",
-            "paths": [roaming / "Telegram Desktop", local / "Telegram Desktop"],
-            "features_vi": "Trích xuất phiên tdata, SQLite local cache (Lộ trình phát triển)",
-            "features_en": "tdata session extraction, SQLite local cache (Roadmap integration)",
+            "status": "available",
+            "paths": [roaming / "Telegram Desktop", local / "Programs" / "Telegram Desktop", home / "Downloads" / "Telegram Desktop"],
+            "features_vi": "Thu thập tdata, giải mã Media Cache (ảnh, voice .ogg, video), bóc tách SĐT & username, xuất Autopsy",
+            "features_en": "tdata session extraction, Media Cache (images, voice .ogg, video), phone numbers & usernames, Autopsy",
         },
         {
             "id": "whatsapp",
@@ -144,17 +144,60 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
 
 def _resolve_menu_choice(choice: str, available: list) -> object:
     normalized = choice.strip().lower()
-    if normalized.isdigit():
-        val = int(normalized)
-        if 1 <= val <= len(available):
-            return available[val - 1]
-        if val in {0, 3, 4, 5, 6, 7, 8, 9}:
-            return str(val)
+
     for detection in available:
         if normalized in {detection.app_id.lower(), detection.display_name.lower()}:
             return detection
-    if normalized in {"demo", "cases", "case", "report", "reports", "apps", "license", "workspace", "settings", "exit", "quit", "q", "lang", "language"}:
-        return normalized
+    if normalized in {"tg", "tele"}:
+        for detection in available:
+            if detection.app_id == "telegram":
+                return detection
+
+    has_telegram = any(d.app_id == "telegram" for d in available)
+
+    if normalized == "1":
+        for d in available:
+            if d.app_id == "discord":
+                return d
+        return available[0] if available else "1"
+
+    if normalized == "2":
+        if has_telegram:
+            for d in available:
+                if d.app_id == "telegram":
+                    return d
+        else:
+            for d in available:
+                if d.app_id == "zalo":
+                    return d
+        return available[1] if len(available) > 1 else "2"
+
+    if normalized == "3":
+        if has_telegram:
+            for d in available:
+                if d.app_id == "zalo":
+                    return d
+            return "demo"
+        else:
+            return "demo"
+
+    if normalized in {"4", "demo", "sample"}:
+        return "demo"
+    if normalized in {"5", "cases", "case"}:
+        return "cases"
+    if normalized in {"6", "report", "reports"}:
+        return "report"
+    if normalized in {"7", "apps", "scan"}:
+        return "apps"
+    if normalized in {"8", "license"}:
+        return "license"
+    if normalized in {"9", "workspace", "settings", "ws"}:
+        return "workspace"
+    if normalized in {"l", "lang", "language", "10"}:
+        return "lang"
+    if normalized in {"0", "exit", "quit", "q"}:
+        return "exit"
+
     raise ValueError(f"Unsupported app selection: {choice}")
 
 
@@ -530,7 +573,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         print_copyright_notice()
         access_status = _ensure_interactive_bundle_access("interactive workflow")
 
-        available = [item for item in detections if item.app_id in {"discord", "zalo"}]
+        available = [item for item in detections if item.app_id in {"discord", "telegram", "zalo"}]
         selected = next((item for item in available if args and args.app == item.app_id), None)
 
         while True:
@@ -549,40 +592,42 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
 
                 if lang == "vi":
                     print("  🎯 ĐIỀU TRA ỨNG DỤNG (APPLICATION FORENSICS):")
-                    print("    [1] Discord  ● ĐÃ HỖ TRỢ (Thu thập Token, SQLite, LevelDB Cache, Autopsy)")
-                    print("    [2] Zalo     ◷ ĐANG PHÁT TRIỂN (Lộ trình tích hợp / Roadmap)")
+                    print("    [1] Discord   ● ĐÃ HỖ TRỢ (LevelDB Carving, Token, Snowflake, Autopsy)")
+                    print("    [2] Telegram  ● ĐÃ HỖ TRỢ (tdata Session, Media Cache Carving, Autopsy)")
+                    print("    [3] Zalo      ◷ ĐANG PHÁT TRIỂN (Lộ trình tích hợp / Roadmap)")
                     print("")
                     print("  🛠️ CÔNG CỤ & QUẢN LÝ DỮ LIỆU (TOOLS & DATA MANAGEMENT):")
-                    print("    [3] 🧪 Chạy Thử nghiệm Dữ liệu Mẫu (Synthetic Sample Walkthrough)")
-                    print("    [4] 📂 Quản lý & Xem Danh sách Hồ sơ (Cases & Evidence Browser)")
-                    print("    [5] 📊 Mở Báo cáo Điều tra Gần nhất (Open Latest Report HTML)")
-                    print("    [6] 🔍 Quét & Kiểm tra Ứng dụng trên Máy (Scan Installed Chat Apps on PC)")
+                    print("    [4] 🧪 Chạy Thử nghiệm Dữ liệu Mẫu (Synthetic Sample Walkthrough)")
+                    print("    [5] 📂 Quản lý & Xem Danh sách Hồ sơ (Cases & Evidence Browser)")
+                    print("    [6] 📊 Mở Báo cáo Điều tra Gần nhất (Open Latest Report HTML)")
+                    print("    [7] 🔍 Quét & Kiểm tra Ứng dụng trên Máy (Scan Installed Chat Apps on PC)")
                     print("")
                     print("  ⚙️ CẤU HÌNH & HỆ THỐNG (SETTINGS & SYSTEM):")
-                    print("    [7] 🔑 Quản lý Bản quyền & Thiết bị (License Status & Hardware Fingerprint)")
-                    print("    [8] 📁 Thư mục Lưu trữ Bằng chứng (Case Storage & Workspace Explorer)")
-                    print("    [9] 🌐 Đổi Ngôn ngữ hiển thị / Switch Language (VI / EN)")
+                    print("    [8] 🔑 Quản lý Bản quyền & Thiết bị (License Status & Hardware Fingerprint)")
+                    print("    [9] 📁 Thư mục Lưu trữ Bằng chứng (Case Storage & Workspace Explorer)")
+                    print("    [L] 🌐 Đổi Ngôn ngữ hiển thị / Switch Language (VI / EN)")
                     print("    [0] 🚪 Thoát Chương trình (Exit)")
                 else:
                     print("  🎯 APPLICATION FORENSICS:")
-                    print("    [1] Discord  ● FULLY SUPPORTED (Token Extraction, SQLite, LevelDB, Autopsy)")
-                    print("    [2] Zalo     ◷ IN DEVELOPMENT (Planned Integration / Roadmap)")
+                    print("    [1] Discord   ● FULLY SUPPORTED (Token Extraction, SQLite, LevelDB, Autopsy)")
+                    print("    [2] Telegram  ● FULLY SUPPORTED (tdata Session, Media Cache Carving, Autopsy)")
+                    print("    [3] Zalo      ◷ IN DEVELOPMENT (Planned Integration / Roadmap)")
                     print("")
                     print("  🛠️ TOOLS & DATA MANAGEMENT:")
-                    print("    [3] 🧪 Synthetic Investigation Demo (Sample Walkthrough Case)")
-                    print("    [4] 📂 Saved Cases & Evidence Browser")
-                    print("    [5] 📊 Open Latest Built Report (HTML)")
-                    print("    [6] 🔍 Scan Installed Messaging Applications on PC")
+                    print("    [4] 🧪 Synthetic Investigation Demo (Sample Walkthrough Case)")
+                    print("    [5] 📂 Saved Cases & Evidence Browser")
+                    print("    [6] 📊 Open Latest Built Report (HTML)")
+                    print("    [7] 🔍 Scan Installed Messaging Applications on PC")
                     print("")
                     print("  ⚙️ SETTINGS & SYSTEM:")
-                    print("    [7] 🔑 License Status & Hardware Fingerprint")
-                    print("    [8] 📁 Case Storage & Workspace Explorer")
-                    print("    [9] 🌐 Switch Language (Tiếng Việt / English)")
+                    print("    [8] 🔑 License Status & Hardware Fingerprint")
+                    print("    [9] 📁 Case Storage & Workspace Explorer")
+                    print("    [L] 🌐 Switch Language (Tiếng Việt / English)")
                     print("    [0] 🚪 Exit Forensics Suite")
 
                 print(" " + "-" * 80)
                 sys.stdout.flush()
-                prompt_text = "Nhập số lựa chọn (1-9, 0 để thoát): " if lang == "vi" else "Enter choice number (1-9, 0 to exit): "
+                prompt_text = "Nhập số lựa chọn (1-9, L đổi ngôn ngữ, 0 để thoát): " if lang == "vi" else "Enter choice number (1-9, L for language, 0 to exit): "
                 choice = _prompt_selection(prompt_text)
                 selected = _resolve_menu_choice(choice, available)
 
@@ -590,19 +635,19 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
                 if selected in {"0", "exit", "quit", "q"}:
                     print_status("info", "Tạm biệt! Đã thoát Forensics Suite." if lang == "vi" else "Exiting Forensics Suite.")
                     return 0
-                if selected in {"3", "demo"}:
+                if selected in {"4", "3", "demo"}:
                     _cli_show_demo()
-                elif selected in {"4", "cases", "case"}:
+                elif selected in {"5", "cases", "case"}:
                     _cli_show_cases()
-                elif selected in {"5", "report", "reports"}:
+                elif selected in {"6", "report", "reports"}:
                     _cli_show_reports()
-                elif selected in {"6", "apps"}:
+                elif selected in {"7", "apps", "scan"}:
                     _cli_show_apps(lang)
-                elif selected in {"7", "license"}:
+                elif selected in {"8", "license"}:
                     _cli_show_license(access_status)
-                elif selected in {"8", "workspace", "settings"}:
+                elif selected in {"9", "workspace", "settings", "ws"}:
                     _cli_show_workspace(lang)
-                elif selected in {"9", "lang", "language"}:
+                elif selected in {"l", "lang", "language", "10"}:
                     new_l = _toggle_cli_language()
                     print_status("ok", f"Ngôn ngữ hiển thị đã đổi sang: {'Tiếng Việt' if new_l == 'vi' else 'English'}")
                 selected = None
@@ -618,14 +663,15 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
         adapter = adapters[selected.app_id] # type: ignore
 
         print_section("Investigation Scope")
-        channel_url = (args.channel_url if args else None) or input("Enter Discord channel link to investigate (optional): ").strip()
-        target_user = (args.target_user if args else None) or input("Enter a Discord username or user id to focus on (optional): ").strip()
+        app_disp = getattr(selected, "display_name", "Target App")
+        channel_url = (args.channel_url if args else None) or input(f"Enter {app_disp} channel/chat link to investigate (optional): ").strip()
+        target_user = (args.target_user if args else None) or input(f"Enter a target {app_disp} username or ID (optional): ").strip()
         sys.stdout.flush()
 
-        open_choice = "n" if args and args.skip_open_discord else input("Open Discord with administrator permission before collection? [Y/n]: ").strip().lower()
+        open_choice = "n" if args and args.skip_open_discord else input(f"Open {app_disp} with administrator permission before collection? [Y/n]: ").strip().lower()
         if open_choice not in {"n", "no"}:
-            print_status("step", "Launching Discord with administrator permission...")
-            launch_result = open_application("discord", as_admin=True)
+            print_status("step", f"Launching {app_disp} with administrator permission...")
+            launch_result = open_application(selected.app_id, as_admin=True)
             print(json.dumps({"appLaunch": launch_result}, ensure_ascii=False, indent=2))
             sys.stdout.flush()
 
@@ -762,6 +808,90 @@ def main(argv: list[str] | None = None) -> int:
                     "machineFingerprint": machine_fingerprint(),
                 }
             )
+            return 0
+
+        if args.command not in {"menu", "apps"}:
+            require_bundle_access(args.command)
+
+        if args.command == "apps" and args.apps_command == "detect":
+            rows = []
+            for adapter in adapters.values():
+                detection = adapter.detect()  # type: ignore
+                rows.append(
+                    {
+                        "appId": detection.app_id,
+                        "displayName": detection.display_name,
+                        "detected": detection.detected,
+                        "supportLevel": detection.support_level,
+                        "installPaths": detection.install_paths,
+                        "notes": detection.notes,
+                    }
+                )
+            _print(rows)
+            return 0
+
+        if args.command == "app" and args.app_command == "open":
+            result = open_application(args.app, as_admin=args.admin)
+            _print(result)
+            return 0
+
+        if args.command == "case" and args.case_command == "create":
+            context = create_case(
+                args.app,
+                args.case_id,
+                channel_url=args.channel_url,
+                target_user=args.target_user,
+            )
+            _print({"caseId": context.case_id, "appId": context.app_id, "root": str(context.root), "status": "runtime"})
+            return 0
+
+        if args.command == "case" and args.case_command == "save":
+            context = save_case(args.case_id)
+            _print({"caseId": context.case_id, "root": str(context.root), "status": "saved"})
+            return 0
+
+        if args.command == "case" and args.case_command == "discard":
+            discard_case(args.case_id)
+            _print({"caseId": args.case_id, "status": "discarded"})
+            return 0
+
+        if args.command == "collect":
+            context = load_case(args.case_id)
+            result = collect_case(context, elevated=args.elevated)
+            _print({"caseId": context.case_id, "status": "collected", "result": result})
+            return 0
+
+        if args.command == "analyze":
+            context = load_case(args.case_id)
+            result = analyze_case(context)
+            _print({"caseId": context.case_id, "status": "analyzed", "result": result})
+            return 0
+
+        if args.command == "supplement":
+            context = load_case(args.case_id)
+            result = run_supplemental_checks(context)
+            result["reportValidation"] = validate_report_bundle(context)
+            _print({"caseId": context.case_id, "status": "supplemented", "result": result})
+            return 0
+
+        if args.command == "report" and args.report_command == "build":
+            context = load_case(args.case_id)
+            index_path = build_report(context)
+            if not context.saved:
+                print_status("step", "Auto-saving case after report build...", context.case_id)
+                saved = save_case(context.case_id)
+                index_path = open_report(saved)
+                print_status("ok", "Terminal report summary ready.", str(index_path))
+                _print({"caseId": saved.case_id, "status": "saved", "root": str(saved.root), "indexPath": str(index_path)})
+            else:
+                print_status("ok", "Terminal report bundle ready.", str(index_path))
+                _print({"caseId": context.case_id, "status": "report-built", "indexPath": str(index_path)})
+            return 0
+
+        if args.command == "report" and args.report_command == "open":
+            context = load_case(args.case_id)
+            index_path = open_report(context)
+            _print({"caseId": context.case_id, "status": "report-summarized", "indexPath": str(index_path)})
             return 0
 
         if args.command == "ide" and args.ide_command == "open":

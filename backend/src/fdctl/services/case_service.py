@@ -50,13 +50,15 @@ def _infer_app_id(root: Path) -> str:
             return "discord"
         if app_name == "zalo":
             return "zalo"
+        if app_name == "telegram":
+            return "telegram"
 
     exports_dir = _first_existing(root, *LEGACY_DIR_ALIASES["exports"])
     analysis_summary_path = exports_dir / "analysis_summary.json" if exports_dir else None
     if analysis_summary_path and analysis_summary_path.exists():
         summary = read_json(analysis_summary_path)
         app_id = str(summary.get("appId", "") or "").strip().lower()
-        if app_id in {"discord", "zalo"}:
+        if app_id in {"discord", "zalo", "telegram"}:
             return app_id
 
     acquired_dir = _first_existing(root, *LEGACY_DIR_ALIASES["acquired"])
@@ -64,6 +66,8 @@ def _infer_app_id(root: Path) -> str:
         return "discord"
     if acquired_dir and (acquired_dir / "Zalo").exists():
         return "zalo"
+    if acquired_dir and (acquired_dir / "TelegramTdata").exists():
+        return "telegram"
     return "discord"
 
 def _recover_scope(root: Path) -> dict:

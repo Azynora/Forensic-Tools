@@ -31,6 +31,10 @@ EXPORT_FILES = [
     "target_user_fulltext.txt",
     "deleted_message_candidate_fulltext.txt",
     "zalo_file_inventory.csv",
+    "telegram_carved_entities.csv",
+    "telegram_media_cache.csv",
+    "telegram_browser_history.csv",
+    "telegram_account_summary.json",
 ]
 
 

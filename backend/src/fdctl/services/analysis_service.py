@@ -753,6 +753,197 @@ def analyze_zalo(case: CaseContext) -> dict:
     write_json(case.exports_dir / "analysis_summary.json", summary)
     return summary
 
+
+def analyze_telegram(case: CaseContext) -> dict:
+    import hashlib
+    import re
+    from datetime import datetime
+
+    print_section("Telegram Forensic Analyzer", f"Case {case.case_id} | Artifacts root {case.acquired_dir}")
+    progress = StageProgress(5)
+
+    acquired_root = case.acquired_dir
+    telegram_tdata = acquired_root / "TelegramTdata"
+    
+    has_key_datas = False
+    has_settingss = False
+    key_datas_size = 0
+    tdata_files: list[dict] = []
+    
+    PHONE_PATTERN = re.compile(r"(?:\+?84|0)[3|5|7|8|9][0-9]{8}\b|\+?[1-9][0-9]{9,14}\b")
+    USERNAME_PATTERN = re.compile(r"@[a-zA-Z0-9_]{5,32}\b")
+    LINK_PATTERN = re.compile(r"https?://(?:t\.me|telegram\.me)/\S+", re.IGNORECASE)
+    
+    carved_phones: set[str] = set()
+    carved_usernames: set[str] = set()
+    carved_links: set[str] = set()
+    session_dirs: list[str] = []
+
+    if telegram_tdata.exists():
+        for file_path in iter_files(telegram_tdata):
+            try:
+                rel = str(file_path.relative_to(telegram_tdata))
+                sz = file_path.stat().st_size
+                tdata_files.append({"file": rel, "size": sz})
+                if file_path.name == "key_datas":
+                    has_key_datas = True
+                    key_datas_size = sz
+                elif file_path.name == "settingss":
+                    has_settingss = True
+
+                parts = file_path.parts
+                for p_item in parts:
+                    if len(p_item) == 16 and all(c in "0123456789ABCDEFabcdef" for c in p_item):
+                        session_dirs.append(p_item)
+
+                if sz < 15 * 1024 * 1024:
+                    data = file_path.read_bytes()
+                    text = data.decode("utf-8", errors="ignore")
+                    for match in PHONE_PATTERN.finditer(text):
+                        carved_phones.add(match.group(0))
+                    for match in USERNAME_PATTERN.finditer(text):
+                        carved_usernames.add(match.group(0))
+                    for match in LINK_PATTERN.finditer(text):
+                        carved_links.add(match.group(0))
+            except Exception:
+                continue
+
+    progress.advance("Session files inspected", f"Files: {len(tdata_files)} | KeyDatas: {has_key_datas}")
+
+    MAGIC_MAP = [
+        (b"\xFF\xD8\xFF", "image/jpeg", ".jpg"),
+        (b"\x89PNG\r\n\x1a\n", "image/png", ".png"),
+        (b"GIF87a", "image/gif", ".gif"),
+        (b"GIF89a", "image/gif", ".gif"),
+        (b"OggS", "audio/ogg", ".ogg"),
+        (b"%PDF-", "application/pdf", ".pdf"),
+        (b"PK\x03\x04", "application/zip", ".zip"),
+    ]
+
+    media_items: list[dict] = []
+    cache_root = telegram_tdata / "user_data" / "cache" if telegram_tdata.exists() else None
+    if cache_root and cache_root.exists():
+        for file_path in iter_files(cache_root):
+            try:
+                raw = file_path.read_bytes()
+                sz = len(raw)
+                detected_mime = "application/octet-stream"
+                ext = ".bin"
+                for magic, mime, def_ext in MAGIC_MAP:
+                    if raw.startswith(magic):
+                        detected_mime = mime
+                        ext = def_ext
+                        break
+                if len(raw) > 8 and raw[4:8] == b"ftyp":
+                    detected_mime = "video/mp4"
+                    ext = ".mp4"
+                elif len(raw) > 12 and raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
+                    detected_mime = "image/webp"
+                    ext = ".webp"
+
+                sha = hashlib.sha256(raw).hexdigest()
+                media_items.append({
+                    "fileName": file_path.name,
+                    "fileSize": sz,
+                    "mimeType": detected_mime,
+                    "suggestedExt": ext,
+                    "sha256": sha,
+                    "modifiedTime": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
+                    "sourcePath": str(file_path),
+                })
+            except Exception:
+                continue
+
+    progress.advance("Media cache carved", f"Recovered media items: {len(media_items)}")
+
+    browser_rows: list[dict] = []
+    chrome_history_db = case.browser_dir / "Chrome" / "History"
+    if chrome_history_db.exists():
+        try:
+            query = "SELECT url, title, visit_count, last_visit_time FROM urls WHERE url LIKE '%telegram%' OR url LIKE '%t.me%'"
+            browser_rows = query_sqlite_rows(chrome_history_db, query)
+        except Exception:
+            pass
+
+    progress.advance("Browser correlation parsed", f"Web visits: {len(browser_rows)}")
+
+    entities_rows: list[dict] = []
+    for u in sorted(carved_usernames):
+        entities_rows.append({"type": "username", "value": u, "confidence": "0.90"})
+    for p in sorted(carved_phones):
+        entities_rows.append({"type": "phone_number", "value": p, "confidence": "0.85"})
+    for l in sorted(carved_links):
+        entities_rows.append({"type": "telegram_link", "value": l, "confidence": "0.95"})
+    write_csv(case.exports_dir / "telegram_carved_entities.csv", entities_rows, ["type", "value", "confidence"])
+
+    write_csv(
+        case.exports_dir / "telegram_media_cache.csv",
+        media_items,
+        ["fileName", "fileSize", "mimeType", "suggestedExt", "sha256", "modifiedTime", "sourcePath"],
+    )
+
+    if browser_rows:
+        write_csv(case.exports_dir / "telegram_browser_history.csv", browser_rows, ["url", "title", "visit_count", "last_visit_time"])
+
+    summary_data = {
+        "appId": "telegram",
+        "caseId": case.case_id,
+        "hasKeyDatas": has_key_datas,
+        "keyDatasSizeBytes": key_datas_size,
+        "hasSettings": has_settingss,
+        "activeSessionsCount": len(set(session_dirs)),
+        "mediaCacheCount": len(media_items),
+        "carvedUsernamesCount": len(carved_usernames),
+        "carvedPhoneNumbersCount": len(carved_phones),
+        "carvedLinksCount": len(carved_links),
+        "browserTelegramVisits": len(browser_rows),
+        "analyzedAt": datetime.now().isoformat(),
+    }
+    write_json(case.exports_dir / "telegram_account_summary.json", summary_data)
+
+    message_rows: list[dict] = []
+    for idx, item in enumerate(media_items):
+        message_rows.append({
+            "messageId": f"tg_media_{idx+1}",
+            "channelId": "TelegramMediaCache",
+            "guildId": "TelegramDesktop",
+            "authorUsername": "TelegramClientCache",
+            "content": f"Carved {item['mimeType']} [{item['suggestedExt']}] - Size: {item['fileSize']} bytes",
+            "timestamp": item["modifiedTime"],
+            "attachmentNames": item["fileName"],
+            "sourcePath": item["sourcePath"],
+        })
+    write_csv(case.exports_dir / "messages.csv", message_rows, ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"])
+    write_csv(case.exports_dir / "timeline.csv", message_rows, ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"])
+
+    progress.advance("Outputs exported to 07_Exports", f"Entities: {len(entities_rows)} | Media: {len(media_items)}")
+    progress.finish("Telegram analysis complete", str(case.exports_dir))
+
+    print("")
+    print("[*] THỐNG KÊ GIÁM ĐỊNH TELEGRAM DESKTOP")
+    print(f"    - Tệp phiên tdata phát hiện:  {len(tdata_files):8} tệp (files)")
+    print(f"    - KeyDatas mã hóa (tệp muối):  {'TÌM THẤY (Found)' if has_key_datas else 'KHÔNG TÌM THẤY'}")
+    print(f"    - Tệp Media khôi phục (Cache):{len(media_items):8} | 07_Exports/telegram_media_cache.csv")
+    print(f"    - Usernames (@) bóc tách:    {len(carved_usernames):8} | 07_Exports/telegram_carved_entities.csv")
+    print(f"    - Số điện thoại phát hiện:   {len(carved_phones):8} | 07_Exports/telegram_carved_entities.csv")
+    print(f"    - Đường dẫn t.me thu thập:   {len(carved_links):8} | 07_Exports/telegram_carved_entities.csv")
+    print(f"    - Lịch sử duyệt Telegram Web: {len(browser_rows):8} | 07_Exports/telegram_browser_history.csv")
+    print("")
+
+    return {
+        "appId": "telegram",
+        "caseId": case.case_id,
+        "tdataFilesCount": len(tdata_files),
+        "mediaCacheCount": len(media_items),
+        "recoveredMessageRows": len(message_rows),
+        "timelineRows": len(message_rows),
+        "carvedUsernamesCount": len(carved_usernames),
+        "carvedPhoneNumbersCount": len(carved_phones),
+        "carvedLinksCount": len(carved_links),
+        "hasKeyDatas": has_key_datas,
+    }
+
+
 def analyze_case(case: CaseContext) -> dict:
     from fdctl.services.license_service import require_bundle_access
     require_bundle_access("analysis")
@@ -761,6 +952,8 @@ def analyze_case(case: CaseContext) -> dict:
     defaults = adapter.build_analysis_defaults(case) # type: ignore
     if case.app_id == "discord":
         results = analyze_discord(case)
+    elif case.app_id == "telegram":
+        results = analyze_telegram(case)
     elif case.app_id == "zalo":
         results = analyze_zalo(case)
         return results

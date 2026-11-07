@@ -5,8 +5,8 @@ from __future__ import annotations
 
 APP_CATALOG: tuple[dict[str, str], ...] = (
     {"id": "discord", "name": "Discord", "name_vi": "Discord", "status": "available"},
+    {"id": "telegram", "name": "Telegram Desktop", "name_vi": "Telegram Desktop", "status": "available"},
     {"id": "zalo", "name": "Zalo", "name_vi": "Zalo", "status": "planned"},
-    {"id": "telegram", "name": "Telegram", "name_vi": "Telegram", "status": "planned"},
     {"id": "whatsapp", "name": "WhatsApp", "name_vi": "WhatsApp", "status": "planned"},
     {"id": "messenger", "name": "Facebook Messenger", "name_vi": "Facebook Messenger", "status": "planned"},
     {"id": "signal", "name": "Signal", "name_vi": "Signal", "status": "planned"},
