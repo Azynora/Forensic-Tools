@@ -7,6 +7,12 @@
 <a name="english"></a>
 ## ENGLISH
 
+### 1.4.0 - 2026-11-07
+- **Telegram Forensic Acquisition:** Integrated deep forensics support for Telegram Desktop, parsing active sessions, accounts, and portable tdata storage.
+- **Sustainable Licensing Architecture:** Upgraded licensing subsystem with watermarking, usage auditing, and tamper verification.
+- **Isolated Author Secrets:** Completely purged developer machine fingerprints and author credentials from public repository. Author bypass operates dynamically through external local secrets.
+- **Bilingual CLI Experience:** Enhanced terminal workflow supporting seamless switching between Vietnamese and English.
+
 ### 1.3.0 - 2026-11-06
 - **Architecture separation:** Open-core model with pure CLI toolkit published on GitHub and proprietary GUI packaged as binary releases.
 - **Enhanced Security:** Private key issuance and author machine fingerprints completely removed from the public client repository.
@@ -27,6 +33,12 @@
 
 <a name="tiếng-việt"></a>
 ## TIẾNG VIỆT
+
+### 1.4.0 - 2026-11-07
+- **Thu thập chứng cứ Telegram Desktop:** Bổ sung module điều tra trích xuất dữ liệu tài khoản Telegram Desktop, phiên đăng nhập và thư mục tdata (kể cả bản Portable).
+- **Kiến trúc bản quyền bền vững & Chống giả mạo:** Nâng cấp hệ thống chứng thực bản quyền 3 lớp với cơ chế đóng dấu bản quyền, nhật ký sử dụng và kiểm tra toàn vẹn tệp.
+- **Cách ly bí mật tác giả tuyệt đối:** Xóa sạch toàn bộ mã băm phần cứng và danh tính máy nhà phát triển khỏi Git; cơ chế mở khóa tác giả hoạt động độc lập qua tệp cấu hình cục bộ bảo mật.
+- **Nâng cấp CLI Song ngữ:** Tối ưu hóa trải nghiệm dòng lệnh mượt mà giữa Tiếng Việt và Tiếng Anh.
 
 ### 1.3.0 - 2026-11-06
 - **Tách bạch kiến trúc an toàn:** Mô hình mã nguồn mở cho bộ công cụ CLI Terminal trên GitHub, ứng dụng đồ họa GUI được đóng gói độc quyền dưới dạng file cài đặt `.exe`.
