@@ -26,10 +26,8 @@ from fdctl.utils import ensure_dir, now_iso, read_json, write_json
 PRODUCT_NAME = "FORENSICS_DISCORD"
 OWNER_NAME = "Truong Trieu Vy"
 OWNER_EMAIL = "trieuvy9198@gmail.com"
-OWNER_MACHINE_FINGERPRINTS: set[str] = {
-    "[REDACTED_MACHINE_HASH]",
-    "[REDACTED_MACHINE_HASH]",
-}
+# Machine allowlist loaded dynamically from private author environment (~/.fdctl-secrets)
+OWNER_MACHINE_FINGERPRINTS: set[str] = set()
 LICENSE_SCHEMA_VERSION = 3
 INTEGRITY_MANIFEST_NAME = "BUILD_PROVENANCE.json"
 ACTIVATION_FILE_NAME = "active_license.json"
