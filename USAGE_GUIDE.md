@@ -7,7 +7,7 @@
 <a name="tiếng-việt"></a>
 ## TIẾNG VIỆT
 
-Forensics Suite là bộ công cụ điều tra kỹ thuật số và phản ứng sự cố (DFIR) chuyên nghiệp dành cho Windows, hỗ trợ thu thập dấu vết, phục hồi tin nhắn cache, trích xuất khóa phiên/token và xuất báo cáo giám định theo chuẩn quốc tế ISO/IEC 27037:2012.
+Forensics Suite là bộ công cụ phần mềm hỗ trợ nghiên cứu và điều tra kỹ thuật số (DFIR) trên Windows, hỗ trợ thu thập dấu vết, bóc tách tin nhắn bộ nhớ đệm, trích xuất khóa phiên và xuất báo cáo với quy trình được thiết kế định hướng theo các nguyên tắc của tiêu chuẩn ISO/IEC 27037 & TCVN ISO/IEC 27037:2019.
 
 ---
 
@@ -114,7 +114,6 @@ Forensics Suite áp dụng công nghệ chữ ký số mật mã Ed25519 quân s
   * Tác giả: **Trương Triệu Vỹ** (`Truong Trieu Vy`)
   * Email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
   * Telegram: [@azynora](https://t.me/azynora)
-  * Zalo: [https://zalo.me/0364228378](https://zalo.me/0364228378)
   * Facebook: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
@@ -123,7 +122,7 @@ Forensics Suite áp dụng công nghệ chữ ký số mật mã Ed25519 quân s
 <a name="english"></a>
 ## ENGLISH
 
-Forensics Suite is an enterprise-grade Windows digital forensics and incident response (DFIR) platform designed to acquire artifacts, recover cached chat messages, extract session tokens, and generate court-ready reports adhering to ISO/IEC 27037:2012 standards.
+Forensics Suite is a specialized Windows digital forensics and incident response (DFIR) research toolkit designed to acquire artifacts, parse cached chat messages, extract session tokens, and generate standardized investigation reports designed with reference to ISO/IEC 27037 principles.
 
 ---
 
@@ -230,11 +229,13 @@ Forensics Suite employs asymmetric Ed25519 digital signatures:
   * Author: **Trương Triệu Vỹ** (`Truong Trieu Vy`)
   * Email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
   * Telegram: [@azynora](https://t.me/azynora)
-  * Zalo: [https://zalo.me/0364228378](https://zalo.me/0364228378)
   * Facebook: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
 
 **Author / Tác giả:** Trương Triệu Vỹ (Truong Trieu Vy)
 * Email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
-* Telegram: [@azynora](https://t.me/azynora) · Zalo: [0364.228.378](https://zalo.me/0364228378) · Facebook: [azynora.vn](https://www.facebook.com/azynora.vn)
+* Telegram: [@azynora](https://t.me/azynora) · Facebook: [azynora.vn](https://www.facebook.com/azynora.vn)
+
+> ⚠️ **Khuyến cáo Pháp lý / Legal Disclaimer**:
+> Phần mềm được phát triển cho mục đích học tập, nghiên cứu khoa học, kiểm thử an toàn thông tin và phục vụ công tác điều tra số (DFIR) của các cá nhân, tổ chức có thẩm quyền. Người sử dụng tự chịu hoàn toàn trách nhiệm pháp lý khi vận hành công cụ, bảo đảm tuân thủ nghiêm ngặt Luật An toàn thông tin mạng 2015, Luật An ninh mạng 2018 và các quy định pháp luật hiện hành. Dự án không đưa ra bất kỳ cam kết hay tuyên bố mang tính tuyệt đối nào theo quy định của Luật Quảng cáo 2012.

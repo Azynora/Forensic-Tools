@@ -2,10 +2,10 @@
 
 [![Author](https://img.shields.io/badge/Author-Trương%20Triệu%20Vỹ-blue?style=for-the-badge)](mailto:trieuvy9198@gmail.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE_PROPRIETARY.md)
-[![Standard](https://img.shields.io/badge/Standard-ISO%2FIEC%2027037-orange?style=for-the-badge)](#forensic-integrity--iso-27037)
+[![Design Reference](https://img.shields.io/badge/Reference-ISO%2FIEC%2027037-blue?style=for-the-badge)](#)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-brightgreen?style=for-the-badge)](#)
 
-> An extensible, enterprise-grade Windows workspace for digital forensics and live incident response across messaging applications.
+> Specialized digital forensics and incident response (DFIR) research toolkit for messaging applications on Windows.
 
 ```c
 // When I wrote this code, only God and I understood what it did.
@@ -30,16 +30,16 @@ The official compiled Windows release bundles Python, dependencies, and native m
 
 | Application | Support Level | Forensic Artifacts Acquired & Analyzed |
 | :--- | :--- | :--- |
-| **Discord Desktop** | **Full Production** | LevelDB messages, user tokens, localStorage, cache, GPUCache, Chrome correlation, live TCP triage |
-| **Telegram Desktop** | **Full Production** | `tdata` session keys, maps, user_data media cache, voice notes, stickers, DC socket connections |
+| **Discord Desktop** | **Supported** | LevelDB messages, user tokens, localStorage, cache, GPUCache, Chrome correlation, live TCP triage |
+| **Telegram Desktop** | **Supported** | `tdata` session keys, maps, user_data media cache, voice notes, stickers, DC socket connections |
 | **Zalo** | *Roadmap* | Architecture mapped; reserved for upcoming release pass |
 | **WhatsApp / Signal** | *Roadmap* | Planned cross-platform triage modules |
 
-### Key Architectural Capabilities:
-* **ISO/IEC 27037:2012 Compliance**: Non-invasive, zero-footprint live acquisition ensuring digital evidence integrity.
+### Key Technical Capabilities:
+* **Designed with Reference to ISO/IEC 27037 Principles**: Non-invasive, zero-footprint live acquisition workflow with SHA-256 integrity verification hashes.
 * **Target Window Screen Capture**: Isolates and captures only the target application window, eliminating desktop background privacy concerns.
-* **Carved Media Evidence Gallery**: Automated contact sheet visual gallery with SHA-256 hashes and file sizes for media carved from encrypted caches.
-* **Autopsy Ingest Ready**: Generates Autopsy-compatible CSV schemas and structured case folders for court presentation.
+* **Carved Media Gallery**: Automated contact sheet visual gallery with SHA-256 hashes and file sizes for media carved from local caches.
+* **Autopsy-Compatible Evidence Export**: Generates structured case folders and standardized CSV schemas designed for ingest into Autopsy for in-depth lab examination.
 
 ---
 
@@ -87,7 +87,6 @@ Forensics Suite utilizes cryptographic Ed25519 asymmetric verification for softw
 > Contact author **Trương Triệu Vỹ** via:
 > * 📧 **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
 > * 💬 **Telegram**: [@azynora](https://t.me/azynora)
-> * 📱 **Zalo**: [0364.228.378](https://zalo.me/0364228378)
 > * 🌐 **Facebook**: [facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
@@ -99,9 +98,11 @@ Copyright (c) 2026 **Trương Triệu Vỹ** (`Truong Trieu Vy`). All rights res
 * **Author & Copyright Owner**: Trương Triệu Vỹ (`Truong Trieu Vy`)
 * **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
 * **Telegram**: [@azynora](https://t.me/azynora)
-* **Zalo**: [https://zalo.me/0364228378](https://zalo.me/0364228378)
 * **Facebook**: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 * **License**: [LICENSE_PROPRIETARY.md](LICENSE_PROPRIETARY.md)
 * **Terms of Use**: [EULA.md](EULA.md) · [COPYRIGHT_NOTICE.md](COPYRIGHT_NOTICE.md)
 
-*This software is proprietary. Digital evidence and case data contain sensitive user artifacts. Use this toolkit only with proper legal authorization and protect all acquired case workspaces in compliance with applicable law.*
+> ⚠️ **Legal Disclaimer & Limitations**:
+> 1. This software is developed for research, educational, security testing, and authorized incident response (DFIR) purposes only.
+> 2. Users bear full responsibility for complying with all applicable cybersecurity, data privacy, and criminal procedure laws in their jurisdiction.
+> 3. The project makes no absolute claims regarding evidentiary completeness. Extracted artifacts should always be cross-validated against independent evidence sources.
