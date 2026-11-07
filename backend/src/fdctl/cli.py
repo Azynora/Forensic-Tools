@@ -35,38 +35,44 @@ def _print(data: object) -> None:
     print(json.dumps(data, ensure_ascii=False, indent=2))
 
 def _styled_banner() -> None:
-    print_banner("FORENSICS SUITE", "Extensible digital forensics workspace for Windows")
+    print_banner("FORENSICS SUITE", "Cross-platform extensible digital forensics workspace")
     sys.stdout.flush()
 
-def _get_cli_language() -> str:
+def _settings_file_path() -> Path:
     local_appdata = os.environ.get("LOCALAPPDATA", "")
     if local_appdata:
-        p = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
-        if p.exists():
-            try:
-                import json
-                return json.loads(p.read_text(encoding="utf-8")).get("language", "vi")
-            except Exception:
-                pass
+        return Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
+    xdg_config = os.environ.get("XDG_CONFIG_HOME", "")
+    if xdg_config:
+        return Path(xdg_config) / "FORENSICS_DISCORD" / "settings.json"
+    return Path.home() / ".config" / "FORENSICS_DISCORD" / "settings.json"
+
+
+def _get_cli_language() -> str:
+    p = _settings_file_path()
+    if p.exists():
+        try:
+            import json
+            return json.loads(p.read_text(encoding="utf-8")).get("language", "vi")
+        except Exception:
+            pass
     return "vi"
 
 
 def _toggle_cli_language() -> str:
     cur = _get_cli_language()
     new_lang = "en" if cur == "vi" else "vi"
-    local_appdata = os.environ.get("LOCALAPPDATA", "")
-    if local_appdata:
-        p = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
-        p.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            import json
-            data = {}
-            if p.exists():
-                data = json.loads(p.read_text(encoding="utf-8"))
-            data["language"] = new_lang
-            p.write_text(json.dumps(data, indent=2), encoding="utf-8")
-        except Exception:
-            pass
+    p = _settings_file_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        import json
+        data = {}
+        if p.exists():
+            data = json.loads(p.read_text(encoding="utf-8"))
+        data["language"] = new_lang
+        p.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except Exception:
+        pass
     return new_lang
 
 
@@ -77,12 +83,52 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
     local = appdata / "Local"
     programs = local / "Programs"
 
+    discord_paths = [
+        roaming / "discord",
+        local / "Discord",
+        home / ".config" / "discord",
+        home / ".var" / "app" / "com.discordapp.Discord" / "config" / "discord",
+        home / "snap" / "discord" / "current" / ".config" / "discord",
+    ]
+    telegram_paths = [
+        roaming / "Telegram Desktop",
+        local / "Programs" / "Telegram Desktop",
+        home / "Downloads" / "Telegram Desktop",
+        home / ".local" / "share" / "TelegramDesktop",
+        home / ".local" / "share" / "Telegram Desktop",
+        home / ".var" / "app" / "org.telegram.desktop" / "data" / "TelegramDesktop",
+        home / "snap" / "telegram-desktop" / "current" / ".local" / "share" / "TelegramDesktop",
+    ]
+    signal_paths = [
+        programs / "signal-desktop",
+        roaming / "Signal",
+        home / ".config" / "Signal",
+        home / ".var" / "app" / "org.signal.Signal",
+    ]
+    whatsapp_paths = [
+        local / "WhatsApp",
+        roaming / "WhatsApp",
+        home / ".config" / "whatsapp",
+    ]
+    messenger_paths = [
+        programs / "Messenger",
+        roaming / "Messenger",
+        home / ".config" / "Messenger",
+    ]
+    zalo_paths = [
+        programs / "Zalo",
+        roaming / "ZaloData",
+        roaming / "Zalo",
+        local / "ZaloPC",
+        home / ".wine" / "drive_c" / "Program Files" / "Zalo",
+    ]
+
     targets = [
         {
             "id": "discord",
             "name": "Discord Desktop",
             "status": "available",
-            "paths": [roaming / "discord", local / "Discord"],
+            "paths": discord_paths,
             "features_vi": "Thu thập đầy đủ (LevelDB, SQLite, Session Tokens, Cache tin nhắn, Chuẩn hóa Autopsy)",
             "features_en": "Full Artifact Acquisition (LevelDB, SQLite, Session Tokens, Message Cache, Autopsy Export)",
         },
@@ -90,7 +136,7 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
             "id": "zalo",
             "name": "Zalo PC",
             "status": "planned",
-            "paths": [programs / "Zalo", roaming / "ZaloData", roaming / "Zalo", local / "ZaloPC"],
+            "paths": zalo_paths,
             "features_vi": "ZaloData, IndexedDB cache, cơ sở dữ liệu tin nhắn mã hóa (Lộ trình phát triển)",
             "features_en": "ZaloData, IndexedDB cache, encrypted chat database (Roadmap integration)",
         },
@@ -98,7 +144,7 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
             "id": "telegram",
             "name": "Telegram Desktop",
             "status": "available",
-            "paths": [roaming / "Telegram Desktop", local / "Programs" / "Telegram Desktop", home / "Downloads" / "Telegram Desktop"],
+            "paths": telegram_paths,
             "features_vi": "Thu thập tdata, giải mã Media Cache (ảnh, voice .ogg, video), bóc tách SĐT & username, xuất Autopsy",
             "features_en": "tdata session extraction, Media Cache (images, voice .ogg, video), phone numbers & usernames, Autopsy",
         },
@@ -106,7 +152,7 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
             "id": "whatsapp",
             "name": "WhatsApp",
             "status": "planned",
-            "paths": [local / "WhatsApp", roaming / "WhatsApp"],
+            "paths": whatsapp_paths,
             "features_vi": "IndexedDB, tin nhắn đa phương tiện và cơ sở dữ liệu cục bộ (Lộ trình phát triển)",
             "features_en": "IndexedDB, local chat databases and media cache (Roadmap integration)",
         },
@@ -114,7 +160,7 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
             "id": "messenger",
             "name": "Facebook Messenger",
             "status": "planned",
-            "paths": [programs / "Messenger", roaming / "Messenger"],
+            "paths": messenger_paths,
             "features_vi": "Cookie phiên đăng nhập, cache tin nhắn tạm (Lộ trình phát triển)",
             "features_en": "Session cookies, temporary message cache (Roadmap integration)",
         },
@@ -122,7 +168,7 @@ def _scan_all_installed_apps() -> list[dict[str, Any]]:
             "id": "signal",
             "name": "Signal Desktop",
             "status": "planned",
-            "paths": [programs / "signal-desktop", roaming / "Signal"],
+            "paths": signal_paths,
             "features_vi": "Cơ sở dữ liệu mã hóa SQLite SQLCipher (Lộ trình phát triển)",
             "features_en": "SQLCipher encrypted database (Roadmap integration)",
         },

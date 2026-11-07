@@ -3,9 +3,9 @@
 [![Tác giả](https://img.shields.io/badge/Tác%20giả-Trương%20Triệu%20Vỹ-blue?style=for-the-badge)](mailto:trieuvy9198@gmail.com)
 [![Bản quyền](https://img.shields.io/badge/Bản%20quyền-Độc%20quyền-red?style=for-the-badge)](LICENSE_PROPRIETARY.md)
 [![Định hướng kỹ thuật](https://img.shields.io/badge/Định%20hướng-ISO%2FIEC%2027037-blue?style=for-the-badge)](#)
-[![Hệ điều hành](https://img.shields.io/badge/Nền%20tảng-Windows%2010%20%7C%2011-brightgreen?style=for-the-badge)](#)
+[![Hệ điều hành](https://img.shields.io/badge/Nền%20tảng-Windows%20%7C%20Linux-brightgreen?style=for-the-badge)](#)
 
-> Bộ công cụ phần mềm hỗ trợ nghiên cứu và điều tra kỹ thuật số (DFIR) trên các ứng dụng nhắn tin cho hệ điều hành Windows.
+> Bộ công cụ phần mềm hỗ trợ nghiên cứu và điều tra kỹ thuật số (DFIR) trên các ứng dụng nhắn tin cho hệ điều hành Windows và Linux.
 
 ```c
 // When I wrote this code, only God and I understood what it did.
@@ -45,8 +45,9 @@ Bản phát hành chính thức đã được đóng gói sẵn toàn bộ môi 
 
 ## 💻 Chạy Từ Mã Nguồn (Giao Diện CLI Terminal)
 
-Điều tra viên và lập trình viên có thể khởi chạy giao diện dòng lệnh tương tác từ mã nguồn:
+Điều tra viên và lập trình viên có thể khởi chạy giao diện dòng lệnh tương tác từ mã nguồn trên Windows hoặc Linux:
 
+### 1. Trên Windows:
 ```powershell
 git clone https://github.com/Azynora/Forensic-Tools.git
 cd Forensic-Tools
@@ -58,20 +59,33 @@ python -m pip install -r requirements.txt
 .\fdctl.cmd menu
 
 # Hoặc chạy lệnh điều tra trực tiếp:
-# 1. Thu thập Telegram:
 .\fdctl.cmd case create --app telegram --id case_tele_01
 .\fdctl.cmd collect --case case_tele_01
 .\fdctl.cmd report build --case case_tele_01
+```
 
-# 2. Thu thập Discord:
-.\fdctl.cmd case create --app discord --id case_discord_01
-.\fdctl.cmd collect --case case_discord_01
-.\fdctl.cmd report build --case case_discord_01
+### 2. Trên Linux (Ubuntu, Debian, Fedora, Arch, Kali Linux):
+```bash
+git clone https://github.com/Azynora/Forensic-Tools.git
+cd Forensic-Tools
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Cấp quyền thực thi và khởi chạy menu:
+chmod +x fdctl fdctl.sh
+./fdctl menu
+
+# Hoặc chạy lệnh trực tiếp:
+./fdctl apps detect
+./fdctl case create --app discord --id case_discord_01
+./fdctl collect --case case_discord_01
+./fdctl report build --case case_discord_01
 ```
 
 > Chi tiết các lệnh và hướng dẫn từng bước: xem tại [📖 USAGE_GUIDE.md (Hướng dẫn sử dụng chi tiết)](USAGE_GUIDE.md).
 
-*(Mã nguồn chạy giao diện CLI terminal. Bản ứng dụng Desktop GUI hoàn chỉnh được phân phối độc quyền qua mục GitHub Releases).*
+*(Mã nguồn chạy giao diện CLI terminal đa nền tảng. Bản ứng dụng Desktop GUI hoàn chỉnh được phân phối độc quyền qua mục GitHub Releases).*
 
 ---
 

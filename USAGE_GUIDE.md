@@ -25,8 +25,9 @@ Không cần cài đặt Python, không cần cấu hình dòng lệnh phức t�
 ---
 
 #### Cách 2: Chạy Từ Mã Nguồn CLI (Terminal) — *Dành cho chuyên gia DFIR & Developer*
-Yêu cầu: Máy tính cài **Windows 10/11** và **Python 3.10** trở lên.
+Yêu cầu: Máy tính cài **Windows 10/11** hoặc **Linux (Ubuntu, Debian, Fedora, Arch, Kali)** và **Python 3.10** trở lên.
 
+##### Trên Windows:
 1. Mở PowerShell hoặc Command Prompt, tải mã nguồn về:
    ```powershell
    git clone https://github.com/Azynora/Forensic-Tools.git
@@ -43,6 +44,25 @@ Yêu cầu: Máy tính cài **Windows 10/11** và **Python 3.10** trở lên.
    .\fdctl.cmd menu
    ```
    *(Hoặc: `python -m fdctl menu`)*
+
+##### Trên Linux (Ubuntu, Debian, Fedora, Arch, Kali Linux):
+1. Mở Terminal và clone repository:
+   ```bash
+   git clone https://github.com/Azynora/Forensic-Tools.git
+   cd Forensic-Tools
+   ```
+2. Khởi tạo môi trường ảo Python:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. Cấp quyền thực thi và mở Menu Điều tra Tương tác:
+   ```bash
+   chmod +x fdctl fdctl.sh
+   ./fdctl menu
+   ```
+   *(Hoặc: `python3 -m fdctl menu`)*
 
 ---
 
@@ -140,8 +160,9 @@ No Python installation or command-line configuration required.
 ---
 
 #### Option 2: Run from Source CLI (Terminal) — *For Developers & DFIR Engineers*
-Requirements: **Windows 10/11** and **Python 3.10+**.
+Requirements: **Windows 10/11** or **Linux (Ubuntu, Debian, Fedora, Arch, Kali)** and **Python 3.10+**.
 
+##### On Windows:
 1. Clone repository from GitHub:
    ```powershell
    git clone https://github.com/Azynora/Forensic-Tools.git
@@ -158,6 +179,25 @@ Requirements: **Windows 10/11** and **Python 3.10+**.
    .\fdctl.cmd menu
    ```
    *(Or: `python -m fdctl menu`)*
+
+##### On Linux (Ubuntu, Debian, Fedora, Arch, Kali Linux):
+1. Clone repository from GitHub:
+   ```bash
+   git clone https://github.com/Azynora/Forensic-Tools.git
+   cd Forensic-Tools
+   ```
+2. Create virtual environment and install dependencies:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. Make launchers executable and launch the Interactive CLI Menu:
+   ```bash
+   chmod +x fdctl fdctl.sh
+   ./fdctl menu
+   ```
+   *(Or: `python3 -m fdctl menu`)*
 
 ---
 

@@ -3,9 +3,9 @@
 [![Author](https://img.shields.io/badge/Author-Trương%20Triệu%20Vỹ-blue?style=for-the-badge)](mailto:trieuvy9198@gmail.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE_PROPRIETARY.md)
 [![Design Reference](https://img.shields.io/badge/Reference-ISO%2FIEC%2027037-blue?style=for-the-badge)](#)
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-brightgreen?style=for-the-badge)](#)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-brightgreen?style=for-the-badge)](#)
 
-> Specialized digital forensics and incident response (DFIR) research toolkit for messaging applications on Windows.
+> Specialized digital forensics and incident response (DFIR) research toolkit for messaging applications across Windows and Linux.
 
 ```c
 // When I wrote this code, only God and I understood what it did.
@@ -45,8 +45,9 @@ The official compiled Windows release bundles Python, dependencies, and native m
 
 ## 💻 Run from Source (CLI Terminal)
 
-Developers and security researchers can run the CLI terminal workflow from source:
+Developers and security researchers can run the CLI terminal workflow from source on Windows or Linux:
 
+### 1. On Windows:
 ```powershell
 git clone https://github.com/Azynora/Forensic-Tools.git
 cd Forensic-Tools
@@ -58,51 +59,64 @@ python -m pip install -r requirements.txt
 .\fdctl.cmd menu
 
 # Or execute direct investigation commands:
-# 1. Telegram acquisition:
 .\fdctl.cmd case create --app telegram --id case_tele_01
 .\fdctl.cmd collect --case case_tele_01
 .\fdctl.cmd report build --case case_tele_01
-
-# 2. Discord acquisition:
-.\fdctl.cmd case create --app discord --id case_discord_01
-.\fdctl.cmd collect --case case_discord_01
-.\fdctl.cmd report build --case case_discord_01
 ```
 
-> For exhaustive step-by-step commands and workflows, consult [📖 USAGE_GUIDE.md](USAGE_GUIDE.md).
+### 2. On Linux (Ubuntu, Debian, Fedora, Arch, Kali Linux):
+```bash
+git clone https://github.com/Azynora/Forensic-Tools.git
+cd Forensic-Tools
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-*(Source execution provides the interactive CLI terminal workflow. Compiled standalone desktop binaries are distributed via GitHub Releases).*
+# Make executable and launch menu:
+chmod +x fdctl fdctl.sh
+./fdctl menu
+
+# Or execute direct commands:
+./fdctl apps detect
+./fdctl case create --app discord --id case_discord_01
+./fdctl collect --case case_discord_01
+./fdctl report build --case case_discord_01
+```
+
+> For step-by-step guidance and complete command documentation, see [📖 USAGE_GUIDE.md](USAGE_GUIDE.md).
+
+*(Source code runs the cross-platform CLI terminal interface. Compiled GUI releases are distributed exclusively via GitHub Releases).*
 
 ---
 
-## 🔑 Licensing & Deployment Models
+## 🔑 Licensing & Architecture Integrity
 
-Forensics Suite utilizes cryptographic Ed25519 asymmetric verification for software licensing:
+Forensics Suite utilizes asymmetric Ed25519 digital cryptography for tamper-resistant licensing:
 
-1. **Free Community Trial**: 7-day built-in synthetic evaluation mode with populated timeline and demo cases.
-2. **Portable USB / Field Triage (Recommended)**: Drop-in `license.key` placed directly on a triage USB drive. Runs 100% offline on any suspect PC without machine locking or leaving traces.
-3. **Enterprise Multi-Seat**: Domain-bound licensing with forensic report watermarking for law enforcement, SOC, and IR teams.
+1. **Trial License (7 Days)**: Bundled with simulated demo cases for zero-risk workflow evaluation.
+2. **Portable USB License (Recommended)**: Drop the `license.key` file onto a USB drive; executes offline on target machines without hardware locking.
+3. **Enterprise License**: Cryptographically signed against corporate domains with institutional watermarking on generated evidence reports.
 
-> **To obtain an official license key**:
-> Contact author **Trương Triệu Vỹ** via:
+> **Licensing Inquiries**:
+> Contact the author directly:
 > * 📧 **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
 > * 💬 **Telegram**: [@azynora](https://t.me/azynora)
 > * 🌐 **Facebook**: [facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
 
-## ⚖️ Ownership, Copyright & Legal Notice
+## ⚖️ Intellectual Property & Legal Notice
 
 Copyright (c) 2026 **Trương Triệu Vỹ** (`Truong Trieu Vy`). All rights reserved.
 
-* **Author & Copyright Owner**: Trương Triệu Vỹ (`Truong Trieu Vy`)
+* **Owner & Author**: **Trương Triệu Vỹ** (`Truong Trieu Vy`)
 * **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
 * **Telegram**: [@azynora](https://t.me/azynora)
 * **Facebook**: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
-* **License**: [LICENSE_PROPRIETARY.md](LICENSE_PROPRIETARY.md)
-* **Terms of Use**: [EULA.md](EULA.md) · [COPYRIGHT_NOTICE.md](COPYRIGHT_NOTICE.md)
+* **License Agreement**: [LICENSE_PROPRIETARY.md](LICENSE_PROPRIETARY.md)
+* **User Terms**: [EULA.md](EULA.md) · [COPYRIGHT_NOTICE.md](COPYRIGHT_NOTICE.md)
 
-> ⚠️ **Legal Disclaimer & Limitations**:
-> 1. This software is developed for research, educational, security testing, and authorized incident response (DFIR) purposes only.
-> 2. Users bear full responsibility for complying with all applicable cybersecurity, data privacy, and criminal procedure laws in their jurisdiction.
-> 3. The project makes no absolute claims regarding evidentiary completeness. Extracted artifacts should always be cross-validated against independent evidence sources.
+> ⚠️ **Legal Disclaimer & Limitations of Liability**:
+> 1. This software is developed strictly for scientific research, academic education, authorized cybersecurity testing, and legitimate DFIR workflows.
+> 2. Users bear full legal responsibility for operating this tool on target systems in compliance with applicable cybersecurity, privacy, and penal procedural legislation.
+> 3. In accordance with consumer protection and advertising standards, no superlative or absolute claims are asserted. All forensic findings should be corroborated with independent evidence before drawing legal conclusions.

@@ -100,9 +100,13 @@ def _snapshot_processes(case: CaseContext, process_names: tuple[str, ...]) -> tu
 
 def _capture_window_by_process_names(process_names: tuple[str, ...], output_path: Path) -> bool:
     """Capture only the target application window, preserving user desktop privacy."""
+    if sys.platform != "win32":
+        return False
     try:
         import ctypes
         from ctypes import wintypes
+        if not hasattr(ctypes, "windll"):
+            return False
         user32 = ctypes.windll.user32
 
         target_pids = set()

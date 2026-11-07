@@ -3,7 +3,10 @@ import csv
 import ctypes
 import getpass
 import json
-import msvcrt
+try:
+    import msvcrt
+except ImportError:
+    msvcrt = None  # type: ignore[assignment]
 import os
 import sqlite3
 import stat
@@ -58,9 +61,14 @@ def read_csv(path: Path) -> list[dict]:
         return list(csv.DictReader(handle))
 
 def is_admin() -> bool:
+    if sys.platform == "win32":
+        try:
+            return bool(ctypes.windll.shell32.IsUserAnAdmin())
+        except Exception:
+            return False
     try:
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except Exception:
+        return os.geteuid() == 0
+    except AttributeError:
         return False
 
 def _elevation_command(arguments: list[str] | None = None) -> tuple[str, str]:
@@ -71,6 +79,14 @@ def _elevation_command(arguments: list[str] | None = None) -> tuple[str, str]:
     return sys.executable, subprocess.list2cmdline(command)
 
 def rerun_as_admin(arguments: list[str] | None = None) -> None:
+    if sys.platform != "win32":
+        arg_list = arguments if arguments is not None else sys.argv[1:]
+        cmd = ["sudo", sys.executable]
+        if not getattr(sys, "frozen", False):
+            cmd.extend(["-m", "fdctl"])
+        cmd.extend(arg_list)
+        ret = subprocess.call(cmd)
+        raise SystemExit(ret)
     executable, params = _elevation_command(arguments)
     result = ctypes.windll.shell32.ShellExecuteW(None, "runas", executable, params, None, 1)
     if result <= 32:
@@ -78,15 +94,29 @@ def rerun_as_admin(arguments: list[str] | None = None) -> None:
     raise SystemExit(0)
 
 def launch_executable(path: Path, as_admin: bool = False) -> None:
-    if as_admin:
-        result = ctypes.windll.shell32.ShellExecuteW(None, "runas", str(path), None, str(path.parent), 1)
-        if result <= 32:
-            raise RuntimeError(f"Windows failed to launch {path} as administrator.")
+    if sys.platform == "win32":
+        if as_admin:
+            result = ctypes.windll.shell32.ShellExecuteW(None, "runas", str(path), None, str(path.parent), 1)
+            if result <= 32:
+                raise RuntimeError(f"Windows failed to launch {path} as administrator.")
+            return
+        os.startfile(str(path))
         return
-    os.startfile(str(path))
+    cmd: list[str] = []
+    if as_admin:
+        cmd = ["sudo", str(path)]
+    elif shutil.which("xdg-open"):
+        cmd = ["xdg-open", str(path)]
+    else:
+        cmd = [str(path)]
+    subprocess.Popen(cmd)
 
 def open_path(path: Path) -> None:
-    os.startfile(str(path))
+    if sys.platform == "win32":
+        os.startfile(str(path))
+    else:
+        cmd = ["xdg-open", str(path)] if shutil.which("xdg-open") else ["open", str(path)]
+        subprocess.Popen(cmd)
 
 def run_command(command: list[str], cwd: Path | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -98,6 +128,8 @@ def run_command(command: list[str], cwd: Path | None = None, check: bool = True)
     )
 
 def _open_windows_shared_reader(path: Path):
+    if sys.platform != "win32" or msvcrt is None:
+        return path.open("rb")
     handle = ctypes.windll.kernel32.CreateFileW(
         str(path),
         GENERIC_READ,

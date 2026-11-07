@@ -29,19 +29,35 @@ def workspace_root() -> Path:
     configured_root = _optional_env_path("FDCTL_DATA_ROOT")
     if configured_root:
         return configured_root
+    settings_candidates: list[Path] = []
     local_appdata = str(os.environ.get("LOCALAPPDATA", "") or "").strip()
     if local_appdata:
-        settings = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
-        try:
-            import json
-            data = json.loads(settings.read_text(encoding="utf-8"))
-            workspace = str(data.get("workspace", "") or "").strip()
-            if workspace:
-                return Path(workspace).expanduser().resolve()
-        except Exception:
-            pass
+        settings_candidates.append(Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json")
+    xdg_config = str(os.environ.get("XDG_CONFIG_HOME", "") or "").strip()
+    if xdg_config:
+        settings_candidates.append(Path(xdg_config) / "FORENSICS_DISCORD" / "settings.json")
+    else:
+        settings_candidates.append(Path.home() / ".config" / "FORENSICS_DISCORD" / "settings.json")
+
+    for settings in settings_candidates:
+        if settings.is_file():
+            try:
+                import json
+                data = json.loads(settings.read_text(encoding="utf-8"))
+                workspace = str(data.get("workspace", "") or "").strip()
+                if workspace:
+                    return Path(workspace).expanduser().resolve()
+            except Exception:
+                pass
     if getattr(sys, "frozen", False):
-        documents = Path.home() / "Documents" / "Forensics Suite"
+        if sys.platform == "win32":
+            documents = Path.home() / "Documents" / "Forensics Suite"
+        else:
+            xdg_data = str(os.environ.get("XDG_DATA_HOME", "") or "").strip()
+            if xdg_data:
+                documents = Path(xdg_data) / "ForensicsSuite"
+            else:
+                documents = Path.home() / ".local" / "share" / "ForensicsSuite"
         return documents
     return project_root() / "workspace"
 
