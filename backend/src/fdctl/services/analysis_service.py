@@ -821,8 +821,23 @@ def analyze_telegram(case: CaseContext) -> dict:
     ]
 
     media_items: list[dict] = []
-    cache_root = telegram_tdata / "user_data" / "cache" if telegram_tdata.exists() else None
-    if cache_root and cache_root.exists():
+    tdata_dirs = [p for p in acquired_root.glob("TelegramTdata*") if p.is_dir()]
+    if not tdata_dirs and telegram_tdata.exists():
+        tdata_dirs = [telegram_tdata]
+
+    cache_roots: list[Path] = []
+    for td_dir in tdata_dirs:
+        u_data = td_dir / "user_data"
+        if u_data.exists():
+            for sub in ("cache", "media_cache", "wvbots"):
+                sub_p = u_data / sub
+                if sub_p.exists():
+                    cache_roots.append(sub_p)
+        direct_cache = td_dir / "cache"
+        if direct_cache.exists():
+            cache_roots.append(direct_cache)
+
+    for cache_root in cache_roots:
         for file_path in iter_files(cache_root):
             try:
                 raw = file_path.read_bytes()

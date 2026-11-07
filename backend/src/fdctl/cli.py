@@ -670,14 +670,21 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
 
         open_choice = "n" if args and args.skip_open_discord else input(f"Open {app_disp} with administrator permission before collection? [Y/n]: ").strip().lower()
         if open_choice not in {"n", "no"}:
-            print_status("step", f"Launching {app_disp} with administrator permission...")
-            launch_result = open_application(selected.app_id, as_admin=True)
-            print(json.dumps({"appLaunch": launch_result}, ensure_ascii=False, indent=2))
+            print_status("step", f"Checking / Launching {app_disp} with administrator permission...")
+            try:
+                launch_result = open_application(selected.app_id, as_admin=True)
+                if launch_result.get("alreadyRunning"):
+                    print_status("ok", f"{app_disp} is already active on this system.", launch_result.get("executablePath", ""))
+                else:
+                    print_status("ok", f"{app_disp} launched successfully.", launch_result.get("executablePath", ""))
+                print(json.dumps({"appLaunch": launch_result}, ensure_ascii=False, indent=2))
+            except Exception as exc:
+                print_status("warn", f"Could not launch {app_disp}: {exc}. Proceeding with artifact collection...")
             sys.stdout.flush()
 
         if adapter.requires_admin_for_collection() and not is_admin(): # type: ignore
             print_status("warn", "Elevation is required for this collection. Relaunching terminal workflow as administrator...")
-            print_status("warn", "Windows will ask the user to allow administrator access so Discord artifacts can be collected.")
+            print_status("warn", f"Windows will ask the user to allow administrator access so {app_disp} artifacts can be collected.")
             sys.stdout.flush()
             rerun_arguments = ["menu", "--app", selected.app_id, "--skip-open-discord"] # type: ignore
             if channel_url:

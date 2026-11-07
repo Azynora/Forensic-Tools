@@ -1,26 +1,110 @@
 from __future__ import annotations
+
 import os
+import shutil
+import string
 from pathlib import Path
 from fdctl.adapters.base import BaseAdapter
 from fdctl.models import AppDetection, ArtifactTarget, CaseContext
+
 
 class TelegramAdapter(BaseAdapter):
     app_id = "telegram"
     display_name = "Telegram Desktop"
     support_level = "full"
-    process_names = ("telegram.exe",)
+    process_names = ("telegram.exe", "telegram")
+
+    def find_launch_executable(self) -> Path | None:
+        """Find the Telegram Desktop executable from running processes, portable dirs, or standard installs."""
+        # 1. From running process (fast & 100% accurate if user has Telegram open)
+        try:
+            import psutil
+            for p in psutil.process_iter(["name", "exe"]):
+                p_name = (p.info["name"] or "").lower()
+                if p_name in {"telegram.exe", "telegram"}:
+                    exe_str = p.info.get("exe")
+                    if exe_str and Path(exe_str).exists():
+                        return Path(exe_str)
+        except Exception:
+            pass
+
+        # 2. Candidate paths in user profile and program files
+        home = Path.home()
+        candidates: list[Path] = [
+            home / "AppData" / "Roaming" / "Telegram Desktop" / "Telegram.exe",
+            home / "AppData" / "Local" / "Programs" / "Telegram Desktop" / "Telegram.exe",
+            home / "Downloads" / "Telegram Desktop" / "Telegram.exe",
+            home / "AppData" / "Local" / "Microsoft" / "WindowsApps" / "Telegram.exe",
+        ]
+
+        # 3. Check common logical drives for portable or custom installations
+        for letter in ("C", "D", "E", "F", "G"):
+            drive_path = Path(f"{letter}:\\")
+            if drive_path.exists():
+                candidates.extend([
+                    drive_path / "Telegram Desktop" / "Telegram.exe",
+                    drive_path / "Telegram" / "Telegram.exe",
+                    drive_path / "Program Files" / "Telegram Desktop" / "Telegram.exe",
+                    drive_path / "Program Files (x86)" / "Telegram Desktop" / "Telegram.exe",
+                ])
+
+        for candidate in candidates:
+            if candidate.exists():
+                return candidate
+
+        # 4. PATH lookup
+        which_path = shutil.which("Telegram.exe") or shutil.which("Telegram")
+        if which_path and Path(which_path).exists():
+            return Path(which_path)
+
+        return None
+
+    def find_tdata_roots(self) -> list[Path]:
+        """Find all valid tdata directory locations (portable, AppData, custom drive installs)."""
+        found: list[Path] = []
+        seen: set[str] = set()
+
+        def _add_if_valid(p: Path) -> None:
+            norm = str(p.resolve() if p.exists() else p).lower()
+            if p.exists() and norm not in seen:
+                # Must be a dir and ideally contain key_datas or session maps
+                if p.is_dir():
+                    found.append(p)
+                    seen.add(norm)
+
+        # 1. From executable parent directory (Telegram Portable puts tdata right next to Telegram.exe)
+        exe = self.find_launch_executable()
+        if exe:
+            _add_if_valid(exe.parent / "tdata")
+
+        # 2. Standard user profile paths
+        home = Path.home()
+        _add_if_valid(home / "AppData" / "Roaming" / "Telegram Desktop" / "tdata")
+        _add_if_valid(home / "AppData" / "Local" / "Telegram Desktop" / "tdata")
+        _add_if_valid(home / "Downloads" / "Telegram Desktop" / "tdata")
+
+        # 3. Drive roots
+        for letter in ("C", "D", "E", "F", "G"):
+            drive_path = Path(f"{letter}:\\")
+            if drive_path.exists():
+                _add_if_valid(drive_path / "Telegram Desktop" / "tdata")
+                _add_if_valid(drive_path / "Telegram" / "tdata")
+
+        return found
 
     def detect(self) -> AppDetection:
-        home = Path.home()
-        roaming_tdata = home / "AppData" / "Roaming" / "Telegram Desktop" / "tdata"
-        local_install = home / "AppData" / "Local" / "Programs" / "Telegram Desktop"
-        roaming_install = home / "AppData" / "Roaming" / "Telegram Desktop"
-        downloads_td = home / "Downloads" / "Telegram Desktop"
+        tdata_roots = self.find_tdata_roots()
+        exe = self.find_launch_executable()
 
-        install_paths = [
-            str(p) for p in (roaming_install, local_install, downloads_td) if p.exists()
-        ]
-        detected = roaming_tdata.exists() or bool(install_paths)
+        install_paths: list[str] = []
+        if exe:
+            install_paths.append(str(exe.parent))
+        for root in tdata_roots:
+            p_str = str(root)
+            if p_str not in install_paths:
+                install_paths.append(p_str)
+
+        detected = bool(tdata_roots) or exe is not None
         notes = [
             "Collects Telegram Desktop tdata session keys, maps, user_data media cache, and settings.",
             "Captures active Telegram.exe memory triage and TCP socket connections to Telegram Data Centers.",
@@ -37,19 +121,20 @@ class TelegramAdapter(BaseAdapter):
 
     def get_artifact_targets(self, case: CaseContext) -> list[ArtifactTarget]:
         home = Path.home()
-        tdata_root = home / "AppData" / "Roaming" / "Telegram Desktop" / "tdata"
+        tdata_roots = self.find_tdata_roots()
         chrome_default = home / "AppData" / "Local" / "Google" / "Chrome" / "User Data" / "Default"
 
         targets: list[ArtifactTarget] = []
 
-        if tdata_root.exists():
+        for idx, tdata_root in enumerate(tdata_roots):
+            dest_prefix = case.acquired_dir / "TelegramTdata" if idx == 0 else case.acquired_dir / f"TelegramTdata_{idx}"
             # 1. Core tdata root files (key_datas, settingss, usertag, maps...)
             for item in tdata_root.glob("*"):
                 if item.is_file():
                     targets.append(
                         ArtifactTarget(
                             source=item,
-                            destination=case.acquired_dir / "TelegramTdata" / item.name,
+                            destination=dest_prefix / item.name,
                             category="telegram",
                         )
                     )
@@ -58,21 +143,24 @@ class TelegramAdapter(BaseAdapter):
                     targets.append(
                         ArtifactTarget(
                             source=item,
-                            destination=case.acquired_dir / "TelegramTdata" / item.name,
+                            destination=dest_prefix / item.name,
                             category="telegram",
                         )
                     )
 
-            # 2. Media cache (images, voice notes, stickers, cached documents)
-            cache_dir = tdata_root / "user_data" / "cache"
-            if cache_dir.exists():
-                targets.append(
-                    ArtifactTarget(
-                        source=cache_dir,
-                        destination=case.acquired_dir / "TelegramTdata" / "user_data" / "cache",
-                        category="telegram_cache",
-                    )
-                )
+            # 2. Media cache & user data (images, voice notes, stickers, cached documents)
+            user_data_dir = tdata_root / "user_data"
+            if user_data_dir.exists():
+                for sub in ("cache", "media_cache", "wvbots"):
+                    sub_dir = user_data_dir / sub
+                    if sub_dir.exists():
+                        targets.append(
+                            ArtifactTarget(
+                                source=sub_dir,
+                                destination=dest_prefix / "user_data" / sub,
+                                category="telegram_cache",
+                            )
+                        )
 
         # 3. Downloads folder if exists
         downloads_td = home / "Downloads" / "Telegram Desktop"
@@ -111,7 +199,7 @@ class TelegramAdapter(BaseAdapter):
 
     def get_collection_scope(self) -> list[str]:
         return [
-            "Telegram Desktop session artifacts from %APPDATA%\\Telegram Desktop\\tdata",
+            "Telegram Desktop session artifacts from %APPDATA%\\Telegram Desktop\\tdata and portable directories",
             "Telegram media cache and downloaded files",
             "Chrome default profile history and cookies related to web.telegram.org",
             "Live process and TCP snapshots for Telegram.exe processes",
@@ -119,14 +207,3 @@ class TelegramAdapter(BaseAdapter):
 
     def requires_admin_for_collection(self) -> bool:
         return True
-
-    def find_launch_executable(self) -> Path | None:
-        home = Path.home()
-        candidates = [
-            home / "AppData" / "Roaming" / "Telegram Desktop" / "Telegram.exe",
-            home / "AppData" / "Local" / "Programs" / "Telegram Desktop" / "Telegram.exe",
-        ]
-        for candidate in candidates:
-            if candidate.exists():
-                return candidate
-        return None

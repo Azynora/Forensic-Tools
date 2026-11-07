@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -6,7 +7,9 @@ from unittest.mock import patch
 from fdctl.adapters.telegram import TelegramAdapter
 from fdctl.app_catalog import get_app
 from fdctl.models import CaseContext
+from fdctl.services.app_service import open_application
 import fdctl.cli as cli
+
 
 class TelegramAdapterTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -33,6 +36,16 @@ class TelegramAdapterTests(unittest.TestCase):
         available = [detection]
         resolved = cli._resolve_menu_choice("telegram", available)
         self.assertEqual(getattr(resolved, "app_id", ""), "telegram")
+
+    def test_find_tdata_roots(self) -> None:
+        roots = self.adapter.find_tdata_roots()
+        self.assertIsInstance(roots, list)
+
+    def test_open_application_for_telegram(self) -> None:
+        res = open_application("telegram", as_admin=False)
+        self.assertEqual(res.get("appId"), "telegram")
+        self.assertIn(res.get("status"), {"launched", "already_active"})
+
 
 if __name__ == "__main__":
     unittest.main()
