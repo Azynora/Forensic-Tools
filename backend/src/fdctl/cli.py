@@ -457,14 +457,20 @@ def _ensure_interactive_bundle_access(feature: str) -> dict[str, object]:
             "This build may have been modified or its copyright/integrity markers removed."
         )
 
-    # Developer / Owner source workspace bypass: grant instant access without license prompts
     current_status = current_license_status()
     if not current_status.get("enforced") and current_status.get("active"):
+        return current_status
+    if current_status.get("active"):
+        label = current_status.get("licenseLabel") or "Active License"
+        mode_str = f" [{current_status.get('licenseMode', 'workstation').upper()}]" if current_status.get("licenseMode") else ""
+        lid = current_status.get("licenseId", "")
+        id_str = f" | ID: #{lid[:8].upper()}" if lid else ""
+        print_status("ok", f"License verified: {label}{mode_str}{id_str}", current_status.get("issuedToEmail", ""))
         return current_status
 
     print_section("License Activation")
     remembered_email = last_used_email()
-    email_prompt = "Enter your Gmail address"
+    email_prompt = "Enter your email address (Gmail or Corporate)"
     if remembered_email:
         email_prompt += f" [{remembered_email}]"
     email_prompt += ": "
@@ -484,7 +490,7 @@ def _ensure_interactive_bundle_access(feature: str) -> dict[str, object]:
         license_key = input("Paste the matching license key (leave blank to cancel): ").strip()
         if not license_key:
             raise PermissionError(
-                "A valid Gmail address and owner-issued signed license key are required when no active trial or license exists. "
+                "A valid email address and owner-issued signed license key are required when no active trial or license exists. "
                 f"Current status: {activated.get('reason', '')}. "
                 "The local 7-day trial is limited to the synthetic demo."
             )

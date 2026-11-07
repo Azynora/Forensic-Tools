@@ -22,7 +22,7 @@ This EULA applies to Forensics Suite, its runtime artifacts, portable bundles, a
 
 Thỏa thuận này áp dụng cho phần mềm Forensics Suite, bộ công cụ dòng lệnh, ứng dụng đồ họa và các báo cáo điều tra được khởi tạo. Bằng việc tải về hoặc sử dụng phần mềm, bạn đồng ý với các điều khoản sau:
 
-1. **Quyền sở hữu:** Forensics Suite thuộc quyền sở hữu trí tuệ duy nhất của Trương Triều Vỹ (`trieuvy9198@gmail.com`). Bản quyền (c) 2026. Mọi quyền được bảo lưu.
+1. **Quyền sở hữu:** Forensics Suite thuộc quyền sở hữu trí tuệ duy nhất của Trương Triệu Vỹ (`trieuvy9198@gmail.com`). Bản quyền (c) 2026. Mọi quyền được bảo lưu.
 2. **Mục đích sử dụng hợp pháp:** Phần mềm chỉ được phục vụ cho công tác điều tra số hợp pháp, xử lý sự cố an toàn thông tin, kiểm thử bảo mật và nghiên cứu khoa học có ủy quyền.
 3. **Giới hạn sử dụng:** Người dùng không được phép tự ý phân phối lại, bán thương mại, thay đổi thông tin tác quyền hoặc bẻ khóa phần mềm khi chưa có sự chấp thuận bằng văn bản của tác giả.
 4. **Trách nhiệm pháp lý:** Kỹ thuật viên/người vận hành hoàn toàn chịu trách nhiệm về thẩm quyền thu thập chứng cứ và tính tuân thủ pháp luật khi trích xuất dữ liệu trên thiết bị mục tiêu.

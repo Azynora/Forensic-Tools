@@ -26,17 +26,17 @@ All rights, title, and intellectual property in the software, algorithms, data p
 ## TIẾNG VIỆT
 
 Forensics Suite được phân phối dưới hình thức phần mềm bản quyền độc quyền.  
-Bản quyền (c) 2026 Trương Triều Vỹ. Mọi quyền được bảo lưu.
+Bản quyền (c) 2026 Trương Triệu Vỹ. Mọi quyền được bảo lưu.
 
 ### Điều khoản và Giới hạn
-Nếu không có sự đồng ý bằng văn bản từ tác giả Trương Triều Vỹ, nghiêm cấm:
+Nếu không có sự đồng ý bằng văn bản từ tác giả Trương Triệu Vỹ, nghiêm cấm:
 - Sao chép, buôn bán, cấp phép lại hoặc tái phân phối mã nguồn và file cài đặt nhị phân.
 - Đăng tải các phiên bản chỉnh sửa hoặc phân nhánh (fork) của phần mềm.
 - Xóa bỏ hoặc sửa đổi thông tin quyền tác giả và nhãn thương hiệu.
 - Dịch ngược (reverse engineer) các gói phần mềm đã đóng gói.
 
 ### Quyền sở hữu Trí tuệ
-Toàn bộ quyền tác giả, giải pháp công nghệ và cấu trúc báo cáo pháp chứng thuộc quyền sở hữu duy nhất của Trương Triều Vỹ (`trieuvy9198@gmail.com`).
+Toàn bộ quyền tác giả, giải pháp công nghệ và cấu trúc báo cáo pháp chứng thuộc quyền sở hữu duy nhất của Trương Triệu Vỹ (`trieuvy9198@gmail.com`).
 
 ---
 

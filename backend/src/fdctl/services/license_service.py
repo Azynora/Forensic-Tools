@@ -42,6 +42,16 @@ COMPACT_LICENSE_SCHEMA_VERSION = 2
 COMPACT_EMAIL_HASH_BYTES = 12
 COMPACT_LICENSE_ID_BYTES = 8
 COMPACT_MACHINE_HASH_BYTES = 12
+WILDCARD_MACHINE_HASHES: set[str] = {
+    "0" * (COMPACT_MACHINE_HASH_BYTES * 2),
+    "f" * (COMPACT_MACHINE_HASH_BYTES * 2),
+    "",
+}
+
+
+def is_wildcard_machine_hash(machine_hash_hex: str) -> bool:
+    cleaned = str(machine_hash_hex or "").strip().lower()
+    return cleaned in WILDCARD_MACHINE_HASHES
 TRIAL_REGISTRY_NAME = "trial_registry.json"
 MAX_COMPACT_UNIX_TIMESTAMP = 0xFFFFFFFF
 PUBLIC_KEY_PEM = """-----BEGIN PUBLIC KEY-----
@@ -209,13 +219,14 @@ def canonicalize_gmail_address(value: str) -> str:
 
 def validate_supported_email(value: str, field_name: str = "email") -> str:
     normalized = normalize_email(value)
-    if not normalized or normalized.count("@") != 1 or not normalized.endswith("@gmail.com"):
-        raise ValueError(f"{field_name} must be a valid Gmail address ending with @gmail.com.")
-    canonical = canonicalize_gmail_address(normalized)
-    local_part = canonical[:-10]
-    if not local_part:
-        raise ValueError(f"{field_name} must be a valid Gmail address ending with @gmail.com.")
-    return canonical
+    if not normalized or normalized.count("@") != 1:
+        raise ValueError(f"{field_name} must be a valid email address containing an '@'.")
+    local_part, domain = normalized.split("@", 1)
+    if not local_part or not domain or "." not in domain:
+        raise ValueError(f"{field_name} must contain a valid domain (e.g. user@domain.com).")
+    if domain == "gmail.com":
+        return canonicalize_gmail_address(normalized)
+    return normalized
 
 
 def is_owner_email(email: str) -> bool:
@@ -454,13 +465,16 @@ def _load_license_history() -> dict[str, Any]:
 
 
 def _save_license_history(data: dict[str, Any]) -> None:
-    data["schemaVersion"] = 1
-    data["product"] = PRODUCT_NAME
-    data["ownerName"] = OWNER_NAME
-    data["ownerEmail"] = OWNER_EMAIL
-    data["machineFingerprint"] = machine_fingerprint()
-    data["machineName"] = format_machine_name()
-    write_json(license_history_path(), data)
+    try:
+        data["schemaVersion"] = 1
+        data["product"] = PRODUCT_NAME
+        data["ownerName"] = OWNER_NAME
+        data["ownerEmail"] = OWNER_EMAIL
+        data["machineFingerprint"] = machine_fingerprint()
+        data["machineName"] = format_machine_name()
+        write_json(license_history_path(), data)
+    except Exception:
+        pass
 
 
 def remember_email_usage(
@@ -621,7 +635,15 @@ def verify_license_token(token: str) -> dict[str, Any]:
     not_before = unpacked["issuedAt"]
     expires_at = unpacked["expiresAt"]
     current = now_utc()
-    active = not_before <= current <= expires_at
+    # Handle CMOS battery clock reset on offline suspect devices (e.g. clock reset to 2010/2015)
+    if current < not_before and current.year < 2024:
+        active = True
+        cmos_skew = True
+    else:
+        active = not_before <= current <= expires_at
+        cmos_skew = False
+    expected_machine_hash = str(unpacked.get("issuedToMachineHash", "") or "").strip().lower()
+    is_portable = is_wildcard_machine_hash(expected_machine_hash)
     payload = {
         "schemaVersion": LICENSE_SCHEMA_VERSION,
         "product": PRODUCT_NAME,
@@ -631,6 +653,7 @@ def verify_license_token(token: str) -> dict[str, Any]:
         "licenseId": unpacked["licenseId"],
         "licenseType": unpacked["licenseType"],
         "licenseLabel": profile["label"],
+        "licenseMode": "portable" if is_portable else "workstation",
         "issuedToEmail": "",
         "issuedToName": "",
         "issuedToEmailHash": unpacked["issuedToEmailHash"],
@@ -666,6 +689,8 @@ def _validated_activation_email(payload: dict[str, Any], activation_email: str) 
             raise ValueError("Activation email does not match the email encoded in this license key.")
         return claimed_email
     if issued_email_hash:
+        if issued_email_hash in {"0" * (COMPACT_EMAIL_HASH_BYTES * 2), "f" * (COMPACT_EMAIL_HASH_BYTES * 2)}:
+            return claimed_email
         if email_fingerprint(claimed_email).hex() != issued_email_hash:
             raise ValueError("Activation email does not match the email encoded in this license key.")
         return claimed_email
@@ -682,8 +707,9 @@ def activate_license_token(token: str, activation_email: str) -> dict[str, Any]:
     claimed_email = _validated_activation_email(payload, claimed_email)
     expected_machine_hash = str(payload.get("issuedToMachineHash", "") or "").strip().lower()
     current_machine_hashes = current_machine_binding_hashes()
-    if expected_machine_hash and expected_machine_hash not in current_machine_hashes:
-        raise ValueError("This license key was not issued for the current device.")
+    if expected_machine_hash and not is_wildcard_machine_hash(expected_machine_hash):
+        if expected_machine_hash not in current_machine_hashes:
+            raise ValueError("This license key was not issued for the current device.")
     activation_record = {
         "product": PRODUCT_NAME,
         "ownerName": OWNER_NAME,
@@ -751,13 +777,16 @@ def _load_trial_registry() -> dict[str, Any]:
 
 
 def _save_trial_registry(data: dict[str, Any]) -> None:
-    data["schemaVersion"] = 1
-    data["product"] = PRODUCT_NAME
-    data["ownerName"] = OWNER_NAME
-    data["ownerEmail"] = OWNER_EMAIL
-    data["machineFingerprint"] = machine_fingerprint()
-    data["machineName"] = format_machine_name()
-    write_json(trial_registry_path(), data)
+    try:
+        data["schemaVersion"] = 1
+        data["product"] = PRODUCT_NAME
+        data["ownerName"] = OWNER_NAME
+        data["ownerEmail"] = OWNER_EMAIL
+        data["machineFingerprint"] = machine_fingerprint()
+        data["machineName"] = format_machine_name()
+        write_json(trial_registry_path(), data)
+    except Exception:
+        pass
 
 
 def _trial_registry_key(email: str) -> str:
@@ -929,6 +958,27 @@ def _trial_status(record: dict[str, Any], selected_email: str) -> dict[str, Any]
     }
 
 
+def find_dropin_license_file(root: Path | None = None) -> Path | None:
+    """Discover drop-in license.key or license.lic files placed in the project root or USB directory."""
+    base = root or project_root()
+    candidates = [
+        base / "license.key",
+        base / "license.lic",
+        base / "forensics_license.key",
+        support_root() / "license" / "license.key",
+        support_root() / "license" / "license.lic",
+    ]
+    for candidate in candidates:
+        try:
+            if candidate.exists() and candidate.is_file():
+                content = candidate.read_text(encoding="utf-8").strip()
+                if content:
+                    return candidate
+        except Exception:
+            continue
+    return None
+
+
 def current_license_status(root: Path | None = None, selected_email: str = "", force_enforced: bool = False) -> dict[str, Any]:
     enforced = force_enforced or license_enforcement_required(root)
     if not enforced:
@@ -941,6 +991,7 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
             "ownerEmail": OWNER_EMAIL,
             "licenseLabel": "Owner Source Workspace",
             "licenseType": "owner_source",
+            "licenseMode": "owner",
             "features": ["cli", "report", "collection", "analysis", "autopsy", "owner"],
             "issuedToEmail": OWNER_EMAIL,
             "issuedToName": OWNER_NAME,
@@ -949,6 +1000,58 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
             "activationPath": str(activation_path()),
             "requestPath": str(license_request_path()),
         }
+
+    # 1. Priority check: Check for drop-in license.key in project root / USB drive (Zero-footprint portable execution)
+    dropin_path = find_dropin_license_file(root)
+    if dropin_path is not None:
+        try:
+            raw_content = dropin_path.read_text(encoding="utf-8").strip()
+            stored_email = ""
+            if raw_content.startswith("{") and raw_content.endswith("}"):
+                dropin_data = json.loads(raw_content)
+                token_to_verify = str(dropin_data.get("token", "") or "").strip()
+                stored_email = str(dropin_data.get("activatedForEmail", "") or dropin_data.get("email", "") or "").strip()
+            else:
+                token_to_verify = raw_content
+
+            if token_to_verify:
+                verified = verify_license_token(token_to_verify)
+                payload = verified.get("payload", {})
+                expected_machine_hash = str(payload.get("issuedToMachineHash", "") or "").strip().lower()
+                current_machine_hashes = current_machine_binding_hashes()
+                if expected_machine_hash and not is_wildcard_machine_hash(expected_machine_hash):
+                    if expected_machine_hash not in current_machine_hashes:
+                        raise ValueError("The drop-in license file is bound to a different hardware device.")
+
+                effective_email = selected_email or stored_email or str(payload.get("issuedToEmail", "") or "")
+                license_mode = str(payload.get("licenseMode", "portable" if is_wildcard_machine_hash(expected_machine_hash) else "workstation"))
+                return {
+                    "active": bool(verified.get("active")),
+                    "reason": "dropin-license-ok" if verified.get("active") else str(verified.get("reason", "expired")),
+                    "enforced": True,
+                    "product": PRODUCT_NAME,
+                    "ownerName": OWNER_NAME,
+                    "ownerEmail": OWNER_EMAIL,
+                    "licenseId": str(payload.get("licenseId", "")),
+                    "licenseLabel": str(payload.get("licenseLabel", "")),
+                    "licenseType": str(payload.get("licenseType", "")),
+                    "licenseMode": license_mode,
+                    "issuedToEmail": effective_email,
+                    "issuedToName": str(payload.get("issuedToName", "")),
+                    "issuedAt": str(payload.get("issuedAt", "")),
+                    "expiresAt": str(payload.get("expiresAt", "")),
+                    "daysValid": int(payload.get("daysValid", 0) or 0),
+                    "features": list(payload.get("features", []) or []),
+                    "releaseChannel": str(payload.get("releaseChannel", "")),
+                    "activationPath": str(dropin_path),
+                    "requestPath": str(license_request_path()),
+                    "activatedForEmail": effective_email,
+                    "machineName": format_machine_name(),
+                    "secondsRemaining": int(verified.get("secondsRemaining", 0) or 0),
+                    "source": "dropin_license",
+                }
+        except Exception:
+            pass  # Fall back to standard activation_path
 
     path = activation_path()
     normalized_email = ""
@@ -1035,8 +1138,9 @@ def current_license_status(root: Path | None = None, selected_email: str = "", f
         issued_to_email = normalize_email(str(payload.get("issuedToEmail", "") or ""))
         expected_machine_hash = str(payload.get("issuedToMachineHash", "") or "").strip().lower()
         current_machine_hashes = current_machine_binding_hashes()
-        if expected_machine_hash and expected_machine_hash not in current_machine_hashes:
-            raise ValueError("The stored license is bound to a different device.")
+        if expected_machine_hash and not is_wildcard_machine_hash(expected_machine_hash):
+            if expected_machine_hash not in current_machine_hashes:
+                raise ValueError("The stored license is bound to a different device.")
         effective_email = normalized_email or activated_for_email or issued_to_email
         if normalized_email and effective_email and normalized_email != effective_email:
             return {
@@ -1210,4 +1314,115 @@ def report_license_state(root: Path | None = None) -> dict[str, Any]:
         "machineName": str(status.get("machineName", "")),
         "expiresAt": str(status.get("expiresAt", "")),
         "requestPath": str(status.get("requestPath", "")),
+    }
+
+
+
+def get_license_watermark(status: dict[str, Any] | None = None) -> dict[str, str]:
+    """Generates authoritative, tamper-evident forensic watermark metadata."""
+    curr = status or current_license_status()
+    holder_email = str(curr.get("issuedToEmail") or curr.get("activatedForEmail") or "").strip()
+    holder_name = str(curr.get("issuedToName") or "").strip()
+    license_id = str(curr.get("licenseId") or "").strip()
+    license_type = str(curr.get("licenseLabel") or curr.get("licenseType") or "").strip()
+    mode = str(curr.get("licenseMode") or "workstation").upper()
+
+    identity = holder_name or holder_email or "Licensed Entity"
+    if holder_name and holder_email and holder_name != holder_email:
+        identity = f"{holder_name} ({holder_email})"
+
+    short_id = f"#{license_id[:8].upper()}" if license_id else "#OEM"
+    return {
+        "identity": identity,
+        "licenseId": license_id,
+        "shortId": short_id,
+        "mode": mode,
+        "label": license_type,
+        "footerText": f"Forensics Suite (c) {OWNER_NAME} | Licensed to: {identity} | ID: {short_id}",
+        "reportWatermark": f"OFFICIAL FORENSIC EXAMINATION REPORT — LICENSED TO: {identity.upper()} — ID: {short_id}",
+    }
+
+
+def load_author_private_key(private_key_pem: str | None = None) -> Any:
+    """Loads the author Ed25519 private key from pem string, env var, or user secrets directory."""
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    if private_key_pem:
+        return serialization.load_pem_private_key(private_key_pem.encode("utf-8"), password=None)
+
+    env_pem = str(os.environ.get("FDCTL_LICENSE_PRIVATE_KEY", "") or "").strip()
+    if env_pem:
+        return serialization.load_pem_private_key(env_pem.encode("utf-8"), password=None)
+
+    candidates: list[Path] = []
+    path_override = str(os.environ.get("FDCTL_LICENSE_PRIVATE_KEY_PATH", "") or "").strip()
+    if path_override:
+        candidates.append(Path(path_override).expanduser().resolve())
+    candidates.extend([
+        Path.home() / ".fdctl-secrets" / "forensics_license_private_key.pem",
+        project_root() / ".secrets" / "forensics_license_private_key.pem",
+    ])
+    for p in candidates:
+        if p.exists() and p.is_file():
+            try:
+                data = p.read_bytes()
+                return serialization.load_pem_private_key(data, password=None)
+            except Exception:
+                continue
+    raise FileNotFoundError("Author Ed25519 private key was not found. Cannot issue new license keys.")
+
+
+def issue_compact_license_token(
+    email: str,
+    license_type: str = "issued_365d",
+    *,
+    days: int | None = None,
+    machine_fingerprint_str: str | None = None,
+    is_portable: bool = True,
+    max_seats: int = 1,
+    private_key_pem: str | None = None,
+) -> dict[str, Any]:
+    """Issue a cryptographically signed compact license token using the author private key."""
+    normalized_email = validate_supported_email(email, "Issued email")
+    priv_key = load_author_private_key(private_key_pem)
+
+    profile = _default_profile(license_type)
+    issued_at = now_utc()
+    valid_days = int(days if days is not None else profile.get("defaultDays", 365) or 365)
+    expires_at = issued_at + timedelta(days=valid_days) if valid_days > 0 else issued_at + timedelta(days=3650)
+
+    license_id = os.urandom(COMPACT_LICENSE_ID_BYTES)
+    email_hash = email_fingerprint(normalized_email)
+
+    if is_portable or not machine_fingerprint_str:
+        machine_hash = b"\x00" * COMPACT_MACHINE_HASH_BYTES
+    else:
+        machine_hash = machine_binding_hash(machine_fingerprint_str)
+
+    payload_bytes = _pack_compact_license_payload(
+        license_type=license_type,
+        issued_at=issued_at,
+        expires_at=expires_at,
+        max_seats=max_seats,
+        license_id=license_id,
+        email_hash=email_hash,
+        machine_hash=machine_hash,
+    )
+    signature = priv_key.sign(payload_bytes)
+    signed_blob = payload_bytes + signature
+    token = _encode_letters_only(signed_blob)
+
+    return {
+        "token": token,
+        "licenseId": license_id.hex(),
+        "licenseType": license_type,
+        "licenseLabel": profile["label"],
+        "email": normalized_email,
+        "issuedAt": issued_at.isoformat(),
+        "expiresAt": expires_at.isoformat(),
+        "daysValid": valid_days,
+        "maxSeats": max_seats,
+        "isPortable": is_portable,
+        "licenseMode": "portable" if is_portable else "workstation",
+        "machineHash": machine_hash.hex(),
     }

@@ -35,16 +35,16 @@ Do not publish, redistribute, repackage, or sublicense confidential or proprieta
 ## TIẾNG VIỆT
 
 **Forensics Suite**
-- **Chủ sở hữu bản quyền:** Trương Triều Vỹ
+- **Chủ sở hữu bản quyền:** Trương Triệu Vỹ
 - **Email liên hệ:** trieuvy9198@gmail.com
 - **Năm xác lập:** 2026
 
 ### Tuyên bố Quyền sở hữu
 
-Bản quyền (c) 2026 Trương Triều Vỹ. Mọi quyền được bảo lưu.
+Bản quyền (c) 2026 Trương Triệu Vỹ. Mọi quyền được bảo lưu.
 
 Toàn bộ mã nguồn, quy trình làm việc dòng lệnh, thuật toán phân tích pháp chứng, cấu trúc hồ sơ vụ việc, bản đóng gói phát hành và tài liệu hướng dẫn thuộc quyền sở hữu trí tuệ duy nhất của:
-- **Trương Triều Vỹ** (`trieuvy9198@gmail.com`)
+- **Trương Triệu Vỹ** (`trieuvy9198@gmail.com`)
 
 ### Tài sản được bảo hộ
 
