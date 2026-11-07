@@ -45,3 +45,6 @@ backend/src/fdctl/gui.py
 
 # Private tools (never commit to git)
 tools/
+
+# Documentation drafts and evaluation reports
+*.docx

@@ -7,6 +7,11 @@
 <a name="english"></a>
 ## ENGLISH
 
+### 1.4.1 - 2026-11-07
+- **Project Standardization:** Standardized brand and repository identity to **FORENSIC_SUITE**.
+- **Telegram Live Process Memory Carving:** Built dedicated volatile memory carver (`TelegramMemoryCarver`) querying committed heap buffers (`MEM_COMMIT`) via Win32 API (`VirtualQueryEx`, `ReadProcessMemory`), recovering real-time chats, dialogue titles, @usernames, phone numbers, and bot interactions.
+- **Streamlined UAC Permissions:** Removed forced elevation prompts for user-owned artifact extraction, preventing unexpected terminal window relaunches.
+
 ### 1.4.0 - 2026-11-07
 - **Telegram Forensic Acquisition:** Integrated deep forensics support for Telegram Desktop, parsing active sessions, accounts, and portable tdata storage.
 - **Sustainable Licensing Architecture:** Upgraded licensing subsystem with watermarking, usage auditing, and tamper verification.
@@ -33,6 +38,11 @@
 
 <a name="tiếng-việt"></a>
 ## TIẾNG VIỆT
+
+### 1.4.1 - 2026-11-07
+- **Chuẩn hóa nhận diện dự án:** Đổi tên và chuẩn hóa nhận diện toàn diện sang **FORENSIC_SUITE**.
+- **Trích xuất bộ nhớ tiến trình sống Telegram (Live Memory Carving):** Triển khai module bóc tách bộ nhớ RAM tiến trình `Telegram.exe` (Win32 API `VirtualQueryEx`, `ReadProcessMemory`), trích xuất trực tiếp hội thoại, tên nhóm, tin nhắn bot, @username và số điện thoại từ bộ nhớ đệm.
+- **Tối ưu hóa phân quyền UAC:** Loại bỏ thông báo nâng quyền bắt buộc không cần thiết đối với các chứng cứ thuộc sở hữu phiên người dùng, giúp terminal chạy mượt mà liên tục.
 
 ### 1.4.0 - 2026-11-07
 - **Thu thập chứng cứ Telegram Desktop:** Bổ sung module điều tra trích xuất dữ liệu tài khoản Telegram Desktop, phiên đăng nhập và thư mục tdata (kể cả bản Portable).

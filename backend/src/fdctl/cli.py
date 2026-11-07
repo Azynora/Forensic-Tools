@@ -35,17 +35,23 @@ def _print(data: object) -> None:
     print(json.dumps(data, ensure_ascii=False, indent=2))
 
 def _styled_banner() -> None:
-    print_banner("FORENSICS SUITE", "Cross-platform extensible digital forensics workspace")
+    print_banner("FORENSIC SUITE", "Cross-platform extensible digital forensics workspace")
     sys.stdout.flush()
 
 def _settings_file_path() -> Path:
     local_appdata = os.environ.get("LOCALAPPDATA", "")
     if local_appdata:
-        return Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
+        p_suite = Path(local_appdata) / "FORENSIC_SUITE" / "settings.json"
+        p_disc = Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json"
+        return p_suite if p_suite.exists() or not p_disc.exists() else p_disc
     xdg_config = os.environ.get("XDG_CONFIG_HOME", "")
     if xdg_config:
-        return Path(xdg_config) / "FORENSICS_DISCORD" / "settings.json"
-    return Path.home() / ".config" / "FORENSICS_DISCORD" / "settings.json"
+        p_suite = Path(xdg_config) / "FORENSIC_SUITE" / "settings.json"
+        p_disc = Path(xdg_config) / "FORENSICS_DISCORD" / "settings.json"
+        return p_suite if p_suite.exists() or not p_disc.exists() else p_disc
+    p_suite = Path.home() / ".config" / "FORENSIC_SUITE" / "settings.json"
+    p_disc = Path.home() / ".config" / "FORENSICS_DISCORD" / "settings.json"
+    return p_suite if p_suite.exists() or not p_disc.exists() else p_disc
 
 
 def _get_cli_language() -> str:
@@ -868,7 +874,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "license" and args.license_command == "machine":
             _print(
                 {
-                    "product": "FORENSICS_DISCORD",
+                    "product": "FORENSIC_SUITE",
                     "toolVersion": f"Release {__release__}",
                     "deviceName": format_machine_name(),
                     "machineFingerprint": machine_fingerprint(),

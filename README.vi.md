@@ -1,4 +1,4 @@
-# Forensics Suite — Tiếng Việt
+# FORENSIC_SUITE — Tiếng Việt
 
 [![Tác giả](https://img.shields.io/badge/Tác%20giả-Trương%20Triệu%20Vỹ-blue?style=for-the-badge)](mailto:trieuvy9198@gmail.com)
 [![Bản quyền](https://img.shields.io/badge/Bản%20quyền-Độc%20quyền-red?style=for-the-badge)](LICENSE_PROPRIETARY.md)
@@ -31,7 +31,7 @@ Bản phát hành chính thức đã được đóng gói sẵn toàn bộ môi 
 | Ứng dụng | Cấp độ hỗ trợ | Dữ liệu chứng cứ thu thập & phân tích |
 | :--- | :--- | :--- |
 | **Discord Desktop** | **Hỗ trợ đầy đủ** | Tin nhắn LevelDB, user token, localStorage, cache, GPUCache, đối chiếu lịch sử Chrome, snapshot socket TCP |
-| **Telegram Desktop** | **Hỗ trợ đầy đủ** | Khóa phiên `tdata`, bản đồ hex, bộ nhớ đệm hình ảnh/voice/sticker `user_data`, socket kết nối Data Center |
+| **Telegram Desktop** | **Hỗ trợ đầy đủ** | **Trích xuất RAM tiến trình sống (Live Memory Carving)**, khóa phiên `tdata`, bản đồ hex, bộ nhớ đệm media, đối chiếu Chrome, socket TCP |
 | **Zalo** | *Lộ trình kế tiếp* | Đã định vị cấu trúc, nằm trong bản cập nhật kế tiếp |
 | **WhatsApp / Signal** | *Lộ trình kế tiếp* | Module trích xuất cơ động đa nền tảng |
 

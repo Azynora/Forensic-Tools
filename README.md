@@ -1,4 +1,4 @@
-# Forensics Suite
+# FORENSIC_SUITE
 
 [![Author](https://img.shields.io/badge/Author-Trương%20Triệu%20Vỹ-blue?style=for-the-badge)](mailto:trieuvy9198@gmail.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE_PROPRIETARY.md)
@@ -31,7 +31,7 @@ The official compiled Windows release bundles Python, dependencies, and native m
 | Application | Support Level | Forensic Artifacts Acquired & Analyzed |
 | :--- | :--- | :--- |
 | **Discord Desktop** | **Supported** | LevelDB messages, user tokens, localStorage, cache, GPUCache, Chrome correlation, live TCP triage |
-| **Telegram Desktop** | **Supported** | `tdata` session keys, maps, user_data media cache, voice notes, stickers, DC socket connections |
+| **Telegram Desktop** | **Supported** | **Live Process Memory Carving (RAM heap dialogues & messages)**, `tdata` session keys, maps, media cache, stickers, Chrome correlation, DC socket triage |
 | **Zalo** | *Roadmap* | Architecture mapped; reserved for upcoming release pass |
 | **WhatsApp / Signal** | *Roadmap* | Planned cross-platform triage modules |
 

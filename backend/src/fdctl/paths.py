@@ -32,11 +32,14 @@ def workspace_root() -> Path:
     settings_candidates: list[Path] = []
     local_appdata = str(os.environ.get("LOCALAPPDATA", "") or "").strip()
     if local_appdata:
+        settings_candidates.append(Path(local_appdata) / "FORENSIC_SUITE" / "settings.json")
         settings_candidates.append(Path(local_appdata) / "FORENSICS_DISCORD" / "settings.json")
     xdg_config = str(os.environ.get("XDG_CONFIG_HOME", "") or "").strip()
     if xdg_config:
+        settings_candidates.append(Path(xdg_config) / "FORENSIC_SUITE" / "settings.json")
         settings_candidates.append(Path(xdg_config) / "FORENSICS_DISCORD" / "settings.json")
     else:
+        settings_candidates.append(Path.home() / ".config" / "FORENSIC_SUITE" / "settings.json")
         settings_candidates.append(Path.home() / ".config" / "FORENSICS_DISCORD" / "settings.json")
 
     for settings in settings_candidates:
