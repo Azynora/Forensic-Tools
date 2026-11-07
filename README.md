@@ -81,7 +81,7 @@ Forensics Suite utilizes cryptographic Ed25519 asymmetric verification for softw
 
 1. **Free Community Trial**: 7-day built-in synthetic evaluation mode with populated timeline and demo cases.
 2. **Portable USB / Field Triage (Recommended)**: Drop-in `license.key` placed directly on a triage USB drive. Runs 100% offline on any suspect PC without machine locking or leaving traces.
-3. **Enterprise Multi-Seat**: Domain-bound licensing (`@company.com`) with forensic report watermarking for law enforcement, SOC, and IR teams.
+3. **Enterprise Multi-Seat**: Domain-bound licensing with forensic report watermarking for law enforcement, SOC, and IR teams.
 
 > **To obtain an official license key**:
 > Contact author **Trương Triệu Vỹ** via email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com).

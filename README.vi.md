@@ -81,7 +81,7 @@ Forensics Suite ứng dụng chữ ký số mật mã bất đối xứng Ed2551
 
 1. **Bản dùng thử (Trial 7 ngày)**: Đi kèm chế độ demo dữ liệu vụ án giả lập để trải nghiệm quy trình.
 2. **Bản Portable USB Hiện trường (Khuyên dùng)**: Thả trực tiếp file `license.key` vào USB. Cắm chạy trên bất kỳ máy tính nghi phạm nào mà không bị khóa phần cứng hay đòi lại key.
-3. **Bản Doanh nghiệp (Enterprise Multi-Seat)**: Ký số theo tên miền công ty (`@viettel.com.vn`, `@fpt.com`, `@bca.gov.vn`...) kèm cơ chế đóng dấu Watermark danh tính pháp lý trên mọi báo cáo chứng cứ.
+3. **Bản Doanh nghiệp**: Ký số theo tên miền công ty kèm cơ chế đóng dấu Watermark danh tính pháp lý trên mọi báo cáo chứng cứ.
 
 > **Liên hệ cấp bản quyền thương mại**:
 > Liên hệ trực tiếp tác giả **Trương Triệu Vỹ** qua email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com).
