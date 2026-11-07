@@ -1249,6 +1249,12 @@ def build_integrity_message(manifest: dict[str, Any]) -> bytes:
         rows.append(f"{item.get('path', '')}|{item.get('sha256', '')}|{item.get('sizeBytes', 0)}")
     return "\n".join(header + rows).encode("utf-8")
 
+def integrity_signature_for_manifest(manifest: dict[str, Any], private_key_pem: str | None = None) -> str:
+    msg = build_integrity_message(manifest)
+    priv = load_author_private_key(private_key_pem)
+    return _url_b64encode(priv.sign(msg))
+
+
 
 def verify_bundle_integrity(root: Path | None = None) -> dict[str, Any]:
     bundle_root = root or project_root()
