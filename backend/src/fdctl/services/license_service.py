@@ -128,8 +128,8 @@ def owner_source_bypass_allowed(root: Path | None = None) -> bool:
         return False
     if getattr(sys, "frozen", False):
         return False
-    if _source_checkout_present(root):
-        return True
+    if not _source_checkout_present(root):
+        return False
     fingerprints = {machine_fingerprint().lower(), legacy_machine_fingerprint().lower()}
     return any(item in _owner_machine_allowlist() for item in fingerprints if item)
 
