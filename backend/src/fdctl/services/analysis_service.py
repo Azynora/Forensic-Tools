@@ -891,6 +891,13 @@ def analyze_telegram(case: CaseContext) -> dict:
         entities_rows.append({"type": "telegram_link", "value": l, "confidence": "0.95"})
     write_csv(case.exports_dir / "telegram_carved_entities.csv", entities_rows, ["type", "value", "confidence"])
 
+    # Xuat rieng 2 tep danh ba ro rang de giam dinh vien tra cuu tuc thi
+    username_rows = [{"username": u, "confidence": "0.90"} for u in sorted(carved_usernames)]
+    write_csv(case.exports_dir / "telegram_usernames.csv", username_rows, ["username", "confidence"])
+
+    phone_rows = [{"phoneNumber": p, "confidence": "0.85"} for p in sorted(carved_phones)]
+    write_csv(case.exports_dir / "telegram_phone_numbers.csv", phone_rows, ["phoneNumber", "confidence"])
+
     write_csv(
         case.exports_dir / "telegram_media_cache.csv",
         media_items,
@@ -939,8 +946,8 @@ def analyze_telegram(case: CaseContext) -> dict:
     print(f"    - Tệp phiên tdata phát hiện:  {len(tdata_files):8} tệp (files)")
     print(f"    - KeyDatas mã hóa (tệp muối):  {'TÌM THẤY (Found)' if has_key_datas else 'KHÔNG TÌM THẤY'}")
     print(f"    - Tệp Media khôi phục (Cache):{len(media_items):8} | 07_Exports/telegram_media_cache.csv")
-    print(f"    - Usernames (@) bóc tách:    {len(carved_usernames):8} | 07_Exports/telegram_carved_entities.csv")
-    print(f"    - Số điện thoại phát hiện:   {len(carved_phones):8} | 07_Exports/telegram_carved_entities.csv")
+    print(f"    - Usernames (@) bóc tách:    {len(carved_usernames):8} | 07_Exports/telegram_usernames.csv")
+    print(f"    - Số điện thoại phát hiện:   {len(carved_phones):8} | 07_Exports/telegram_phone_numbers.csv")
     print(f"    - Đường dẫn t.me thu thập:   {len(carved_links):8} | 07_Exports/telegram_carved_entities.csv")
     print(f"    - Lịch sử duyệt Telegram Web: {len(browser_rows):8} | 07_Exports/telegram_browser_history.csv")
     print("")
