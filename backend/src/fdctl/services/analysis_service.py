@@ -796,14 +796,19 @@ def analyze_telegram(case: CaseContext) -> dict:
                     if len(p_item) == 16 and all(c in "0123456789ABCDEFabcdef" for c in p_item):
                         session_dirs.append(p_item)
 
-                if sz < 15 * 1024 * 1024:
-                    data = file_path.read_bytes()
-                    text = data.decode("utf-8", errors="ignore")
-                    for match in PHONE_PATTERN.finditer(text):
+                # Chi quet text tren cac tep tin cau hinh thuc su, bo qua toan bo emoji atlas, shader cache va du lieu ma hoa AES
+                ignore_dirs = {"emoji", "grshadercache", "shadercache", "dawngraphitecache", "smartscreen", "user_data"}
+                is_ignored = any(d in [part.lower() for part in file_path.parts] for d in ignore_dirs)
+                is_text_target = file_path.suffix.lower() in {".json", ".txt", ".ini", ".log"} or file_path.name in {"shortcuts-custom.json", "settingss"}
+                
+                if not is_ignored and is_text_target and sz < 5 * 1024 * 1024:
+                    raw_data = file_path.read_bytes()
+                    decoded_text = raw_data.decode("utf-8", errors="ignore")
+                    for match in PHONE_PATTERN.finditer(decoded_text):
                         carved_phones.add(match.group(0))
-                    for match in USERNAME_PATTERN.finditer(text):
+                    for match in USERNAME_PATTERN.finditer(decoded_text):
                         carved_usernames.add(match.group(0))
-                    for match in LINK_PATTERN.finditer(text):
+                    for match in LINK_PATTERN.finditer(decoded_text):
                         carved_links.add(match.group(0))
             except Exception:
                 continue
@@ -877,6 +882,22 @@ def analyze_telegram(case: CaseContext) -> dict:
         try:
             query = "SELECT url, title, visit_count, last_visit_time FROM urls WHERE url LIKE '%telegram%' OR url LIKE '%t.me%'"
             browser_rows = query_sqlite_rows(chrome_history_db, query)
+            # Trich xuat thuc the that 100% tu lich su trinh duyet
+            for b_row in browser_rows:
+                u_str = b_row.get("url", "")
+                if "@" in u_str:
+                    for token in u_str.split("/"):
+                        if token.startswith("@"):
+                            clean_u = token.split("?")[0].split("#")[0].strip()
+                            if len(clean_u) > 1:
+                                carved_usernames.add(clean_u)
+                if "t.me/" in u_str:
+                    carved_links.add(u_str)
+                    target_val = u_str.split("t.me/")[-1].split("?")[0].split("#")[0].strip()
+                    if target_val.isdigit() and len(target_val) >= 9:
+                        carved_phones.add(target_val)
+                    elif target_val.startswith("@") or (target_val and not target_val.startswith("+")):
+                        carved_usernames.add("@" + target_val.lstrip("@"))
         except Exception:
             pass
 
@@ -923,18 +944,9 @@ def analyze_telegram(case: CaseContext) -> dict:
     }
     write_json(case.exports_dir / "telegram_account_summary.json", summary_data)
 
+    # Ghi chu trung thuc: Telegram Desktop ma hoa AES-IGE cuc bo. 
+    # Khong duoc phep bien tep cache rong thanh tin nhan gia.
     message_rows: list[dict] = []
-    for idx, item in enumerate(media_items):
-        message_rows.append({
-            "messageId": f"tg_media_{idx+1}",
-            "channelId": "TelegramMediaCache",
-            "guildId": "TelegramDesktop",
-            "authorUsername": "TelegramClientCache",
-            "content": f"Carved {item['mimeType']} [{item['suggestedExt']}] - Size: {item['fileSize']} bytes",
-            "timestamp": item["modifiedTime"],
-            "attachmentNames": item["fileName"],
-            "sourcePath": item["sourcePath"],
-        })
     write_csv(case.exports_dir / "messages.csv", message_rows, ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"])
     write_csv(case.exports_dir / "timeline.csv", message_rows, ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"])
 
