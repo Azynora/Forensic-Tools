@@ -903,6 +903,20 @@ def analyze_telegram(case: CaseContext) -> dict:
 
     progress.advance("Browser correlation parsed", f"Web visits: {len(browser_rows)}")
 
+    # Nap du lieu thuc the tu RAM da carve
+    ram_carved_json = case.live_dir / "telegram_ram_carved.json"
+    if ram_carved_json.exists():
+        try:
+            ram_data = read_json(ram_carved_json)
+            for link in ram_data.get("tmeLinks", []):
+                carved_links.add(link)
+            for u in ram_data.get("usernames", []):
+                carved_usernames.add(u)
+            for p in ram_data.get("phoneNumbers", []):
+                carved_phones.add(p)
+        except Exception:
+            pass
+
     entities_rows: list[dict] = []
     for u in sorted(carved_usernames):
         entities_rows.append({"type": "username", "value": u, "confidence": "0.90"})
@@ -928,6 +942,93 @@ def analyze_telegram(case: CaseContext) -> dict:
     if browser_rows:
         write_csv(case.exports_dir / "telegram_browser_history.csv", browser_rows, ["url", "title", "visit_count", "last_visit_time"])
 
+
+
+    # Tich hop Phuong phap 1: Live Process Memory Carving
+    # Trich xuat hoi thoai, tin nhan, bot dialogs truc tiep tu RAM tien trinh Telegram.exe
+    ram_carved_json = case.live_dir / "telegram_ram_carved.json"
+    ram_messages_csv = case.live_dir / "telegram_ram_messages.csv"
+    message_rows: list[dict] = []
+
+    if ram_carved_json.exists():
+        try:
+            ram_data = read_json(ram_carved_json)
+            for link in ram_data.get("tmeLinks", []):
+                carved_links.add(link)
+            for u in ram_data.get("usernames", []):
+                carved_usernames.add(u)
+            for p in ram_data.get("phoneNumbers", []):
+                carved_phones.add(p)
+        except Exception:
+            pass
+
+    if ram_messages_csv.exists():
+        try:
+            message_rows = read_csv(ram_messages_csv)
+        except Exception:
+            pass
+
+    # Xuat tep tin nhan thu thap tu RAM
+    if message_rows:
+        write_csv(
+            case.exports_dir / "telegram_live_memory_messages.csv",
+            message_rows,
+            ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"],
+        )
+
+    # Dong bo vao he thong bao cao Forensics Suite (recovered_messages.csv, timeline.csv, messages.csv)
+    recovered_rows: list[dict] = []
+    timeline_rows: list[dict] = []
+    for msg in message_rows:
+        recovered_rows.append({
+            "messageId": msg.get("messageId", ""),
+            "guildId": msg.get("guildId", "Telegram Desktop"),
+            "channelId": msg.get("channelId", "Live RAM"),
+            "authorId": "",
+            "authorUsername": msg.get("authorUsername", "telegram_peer"),
+            "authorDisplayName": msg.get("authorUsername", "telegram_peer"),
+            "content": msg.get("content", ""),
+            "timestamp": msg.get("timestamp", ""),
+            "editedTimestamp": "",
+            "firstSeen": msg.get("timestamp", ""),
+            "lastSeen": msg.get("timestamp", ""),
+            "attachmentNames": msg.get("attachmentNames", ""),
+            "contentVersionCount": 1,
+            "sourceHitCount": 1,
+            "scopeMatched": True,
+            "targetMatched": True,
+            "messageLink": "",
+            "messageType": "ram_carved_message",
+            "sourcePath": msg.get("sourcePath", ""),
+        })
+        timeline_rows.append({
+            "timeLocal": msg.get("timestamp", ""),
+            "eventType": "ram_message",
+            "actor": msg.get("authorUsername", "telegram_peer"),
+            "channelId": msg.get("channelId", "Live RAM"),
+            "messageId": msg.get("messageId", ""),
+            "detail": msg.get("content", ""),
+            "source": "RAM",
+            "path": msg.get("sourcePath", ""),
+            "messageType": "chat_message",
+        })
+
+    write_csv(
+        case.exports_dir / "recovered_messages.csv",
+        recovered_rows,
+        ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"]
+    )
+    write_csv(
+        case.exports_dir / "timeline.csv",
+        timeline_rows,
+        ["timeLocal", "eventType", "actor", "channelId", "messageId", "detail", "source", "path", "messageType"]
+    )
+    write_csv(
+        case.exports_dir / "messages.csv",
+        message_rows,
+        ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"]
+    )
+
     summary_data = {
         "appId": "telegram",
         "caseId": case.case_id,
@@ -940,15 +1041,10 @@ def analyze_telegram(case: CaseContext) -> dict:
         "carvedPhoneNumbersCount": len(carved_phones),
         "carvedLinksCount": len(carved_links),
         "browserTelegramVisits": len(browser_rows),
+        "recoveredMessageRows": len(message_rows),
         "analyzedAt": datetime.now().isoformat(),
     }
     write_json(case.exports_dir / "telegram_account_summary.json", summary_data)
-
-    # Ghi chu trung thuc: Telegram Desktop ma hoa AES-IGE cuc bo. 
-    # Khong duoc phep bien tep cache rong thanh tin nhan gia.
-    message_rows: list[dict] = []
-    write_csv(case.exports_dir / "messages.csv", message_rows, ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"])
-    write_csv(case.exports_dir / "timeline.csv", message_rows, ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"])
 
     progress.advance("Outputs exported to 07_Exports", f"Entities: {len(entities_rows)} | Media: {len(media_items)}")
     progress.finish("Telegram analysis complete", str(case.exports_dir))
@@ -962,6 +1058,7 @@ def analyze_telegram(case: CaseContext) -> dict:
     print(f"    - Số điện thoại phát hiện:   {len(carved_phones):8} | 07_Exports/telegram_phone_numbers.csv")
     print(f"    - Đường dẫn t.me thu thập:   {len(carved_links):8} | 07_Exports/telegram_carved_entities.csv")
     print(f"    - Lịch sử duyệt Telegram Web: {len(browser_rows):8} | 07_Exports/telegram_browser_history.csv")
+    print(f"    - Tin nhắn/Hội thoại RAM (Live):{len(message_rows):7} | 07_Exports/telegram_live_memory_messages.csv")
     print("")
 
     return {

@@ -329,6 +329,11 @@ def collect_case(case: CaseContext, elevated: bool = False) -> dict:
     print_status("step", "Snapshotting running processes and TCP connections...")
     process_rows, tcp_rows = _snapshot_processes(case, adapter.process_names) # type: ignore
     progress.advance("Live response captured", f"Processes: {len(process_rows)} | TCP rows: {len(tcp_rows)}")
+
+    if case.app_id == "telegram":
+        print_status("step", "Executing volatile live process memory carving (Method 1: Live RAM Carving)...")
+        from fdctl.services.memory_carver import execute_telegram_memory_carving
+        execute_telegram_memory_carving(case)
     
     print_status("step", f"Preparing to copy artifacts for {len(targets)} targets...")
     for index, target in enumerate(targets, start=1):

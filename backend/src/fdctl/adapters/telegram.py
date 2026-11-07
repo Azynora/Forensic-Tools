@@ -256,4 +256,6 @@ class TelegramAdapter(BaseAdapter):
         ]
 
     def requires_admin_for_collection(self) -> bool:
-        return sys.platform == "win32"
+        # Telegram Desktop artifacts, browser history and live user processes
+        # are fully accessible within the user session without forcing UAC elevation.
+        return False
