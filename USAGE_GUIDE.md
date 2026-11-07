@@ -111,7 +111,11 @@ Forensics Suite áp dụng công nghệ chữ ký số mật mã Ed25519 quân s
 * **Kích hoạt tự động trên USB Hiện trường (Portable Triage):**
   * Chỉ cần chép file `license.key` được cấp vào thư mục gốc của tool (hoặc trên USB). Phần mềm sẽ tự động nhận diện và mở khóa 100% tính năng mà không cần gõ lệnh.
 * **Liên hệ cấp bản quyền:**
-  * Gửi mã máy và email của bạn tới tác giả **Trương Triệu Vỹ**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com).
+  * Tác giả: **Trương Triệu Vỹ** (`Truong Trieu Vy`)
+  * Email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+  * Telegram: [@azynora](https://t.me/azynora)
+  * Zalo: [https://zalo.me/0364228378](https://zalo.me/0364228378)
+  * Facebook: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
 ---
@@ -223,8 +227,14 @@ Forensics Suite employs asymmetric Ed25519 digital signatures:
 * **Drop-in Portable License (Field USB Triage):**
   * Simply place `license.key` into the root directory of Forensics Suite on your USB drive. The application detects and validates it automatically on any suspect workstation.
 * **Request an Official License:**
-  * Contact author **Trương Triệu Vỹ**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com).
+  * Author: **Trương Triệu Vỹ** (`Truong Trieu Vy`)
+  * Email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+  * Telegram: [@azynora](https://t.me/azynora)
+  * Zalo: [https://zalo.me/0364228378](https://zalo.me/0364228378)
+  * Facebook: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
 
-**Author / Tác giả:** Trương Triệu Vỹ (Truong Trieu Vy · [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com))
+**Author / Tác giả:** Trương Triệu Vỹ (Truong Trieu Vy)
+* Email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+* Telegram: [@azynora](https://t.me/azynora) · Zalo: [0364.228.378](https://zalo.me/0364228378) · Facebook: [azynora.vn](https://www.facebook.com/azynora.vn)

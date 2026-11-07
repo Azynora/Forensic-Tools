@@ -84,7 +84,11 @@ Forensics Suite ứng dụng chữ ký số mật mã bất đối xứng Ed2551
 3. **Bản Doanh nghiệp**: Ký số theo tên miền công ty kèm cơ chế đóng dấu Watermark danh tính pháp lý trên mọi báo cáo chứng cứ.
 
 > **Liên hệ cấp bản quyền thương mại**:
-> Liên hệ trực tiếp tác giả **Trương Triệu Vỹ** qua email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com).
+> Liên hệ trực tiếp tác giả **Trương Triệu Vỹ**:
+> * 📧 **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+> * 💬 **Telegram**: [@azynora](https://t.me/azynora)
+> * 📱 **Zalo**: [0364.228.378](https://zalo.me/0364228378)
+> * 🌐 **Facebook**: [facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
 
@@ -92,8 +96,11 @@ Forensics Suite ứng dụng chữ ký số mật mã bất đối xứng Ed2551
 
 Bản quyền (c) 2026 **Trương Triệu Vỹ** (`Truong Trieu Vy`). Mọi quyền được bảo lưu.
 
-* **Chủ sở hữu & Tác giả duy nhất**: **Trương Triệu Vỹ**
+* **Chủ sở hữu & Tác giả duy nhất**: **Trương Triệu Vỹ** (`Truong Trieu Vy`)
 * **Email liên hệ**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+* **Telegram**: [@azynora](https://t.me/azynora)
+* **Zalo**: [https://zalo.me/0364228378](https://zalo.me/0364228378)
+* **Facebook**: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 * **Quy chế cấp phép**: [LICENSE_PROPRIETARY.md](LICENSE_PROPRIETARY.md)
 * **Thỏa thuận người dùng**: [EULA.md](EULA.md) · [COPYRIGHT_NOTICE.md](COPYRIGHT_NOTICE.md)
 

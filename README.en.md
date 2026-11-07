@@ -84,7 +84,11 @@ Forensics Suite utilizes cryptographic Ed25519 asymmetric verification for softw
 3. **Enterprise Multi-Seat**: Domain-bound licensing with forensic report watermarking for law enforcement, SOC, and IR teams.
 
 > **To obtain an official license key**:
-> Contact author **Trương Triệu Vỹ** via email: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com).
+> Contact author **Trương Triệu Vỹ** via:
+> * 📧 **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+> * 💬 **Telegram**: [@azynora](https://t.me/azynora)
+> * 📱 **Zalo**: [0364.228.378](https://zalo.me/0364228378)
+> * 🌐 **Facebook**: [facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 
 ---
 
@@ -92,8 +96,11 @@ Forensics Suite utilizes cryptographic Ed25519 asymmetric verification for softw
 
 Copyright (c) 2026 **Trương Triệu Vỹ** (`Truong Trieu Vy`). All rights reserved.
 
-* **Author & Copyright Owner**: Trương Triệu Vỹ
+* **Author & Copyright Owner**: Trương Triệu Vỹ (`Truong Trieu Vy`)
 * **Email**: [trieuvy9198@gmail.com](mailto:trieuvy9198@gmail.com)
+* **Telegram**: [@azynora](https://t.me/azynora)
+* **Zalo**: [https://zalo.me/0364228378](https://zalo.me/0364228378)
+* **Facebook**: [https://www.facebook.com/azynora.vn](https://www.facebook.com/azynora.vn)
 * **License**: [LICENSE_PROPRIETARY.md](LICENSE_PROPRIETARY.md)
 * **Terms of Use**: [EULA.md](EULA.md) · [COPYRIGHT_NOTICE.md](COPYRIGHT_NOTICE.md)
 
