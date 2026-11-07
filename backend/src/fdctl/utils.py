@@ -88,7 +88,7 @@ def rerun_as_admin(arguments: list[str] | None = None) -> None:
         ret = subprocess.call(cmd)
         raise SystemExit(ret)
     executable, params = _elevation_command(arguments)
-    result = ctypes.windll.shell32.ShellExecuteW(None, "runas", executable, params, None, 1)
+    result = ctypes.windll.shell32.ShellExecuteW(None, "runas", executable, params, str(Path.cwd()), 1)
     if result <= 32:
         raise RuntimeError("User declined elevation or Windows failed to relaunch the command.")
     raise SystemExit(0)
