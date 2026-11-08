@@ -577,6 +577,7 @@ def build_parser() -> argparse.ArgumentParser:
     case_create.add_argument("--id", dest="case_id")
     case_create.add_argument("--channel-url", dest="channel_url")
     case_create.add_argument("--target-user", dest="target_user")
+    case_create.add_argument("--scope-type", dest="scope_type", choices=["all", "dm", "group", "user"], default=None, help="Scope of investigation: all, dm, group, user")
 
     case_save = case_sub.add_parser("save", help="Save a runtime case")
     case_save.add_argument("--case", required=True, dest="case_id")
@@ -610,6 +611,7 @@ def build_parser() -> argparse.ArgumentParser:
     menu.add_argument("--app", choices=sorted(get_adapters().keys()))
     menu.add_argument("--channel-url", dest="channel_url")
     menu.add_argument("--target-user", dest="target_user")
+    menu.add_argument("--scope-type", dest="scope_type", choices=["all", "dm", "group", "user"], default=None, help="Scope of investigation: all, dm, group, user")
     menu.add_argument("--skip-open-discord", action="store_true")
 
     license_cmd = subparsers.add_parser("license", help="License activation and issuance commands")
@@ -727,10 +729,77 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
 
         adapter = adapters[selected.app_id] # type: ignore
 
-        print_section("Investigation Scope")
+        print_section("Investigation Scope" if lang != "vi" else "Phạm vi điều tra")
         app_disp = getattr(selected, "display_name", "Target App")
-        channel_url = (args.channel_url if args else None) or input(f"Enter {app_disp} channel/chat link to investigate (optional): ").strip()
-        target_user = (args.target_user if args else None) or input(f"Enter a target {app_disp} username or ID (optional): ").strip()
+        scope_type = (getattr(args, "scope_type", None) if args else None)
+        channel_url = (getattr(args, "channel_url", None) if args else None)
+        target_user = (getattr(args, "target_user", None) if args else None)
+
+        if not scope_type and not channel_url and not target_user:
+            if lang == "vi":
+                print(f"  Chọn phạm vi điều tra đối với {app_disp}:")
+                print("  [1] 💬 Đoạn chat riêng 1-1 (Direct Message / Chat riêng tư)")
+                print("      -> Điều tra hội thoại riêng tư với một người dùng hoặc bot cụ thể")
+                print("  [2] 👥 Kênh / Nhóm trò chuyện (Group Chat / Channel)")
+                print("      -> Điều tra theo link hoặc ID nhóm/kênh trò chuyện")
+                print("  [3] 🎯 Truy vết theo định danh đối tượng (Target User UID / Phone / Username)")
+                print("      -> Lọc và trích xuất mọi tin nhắn gửi đến, gửi đi hoặc nhắc tới UID/SĐT")
+                print("  [4] 🌐 Toàn bộ ứng dụng (Comprehensive / Toàn diện)")
+                print("      -> Thu thập toàn bộ lịch sử, cache, tiến trình và dữ liệu chat có thể phục hồi")
+                scope_choice = input("\n  Nhập lựa chọn phạm vi [1/2/3/4] (Mặc định: 4 - Toàn bộ): ").strip()
+            else:
+                print(f"  Select investigation scope for {app_disp}:")
+                print("  [1] 💬 Direct 1-on-1 Chat (Direct Message / 1-on-1 Private Chat)")
+                print("      -> Investigate private conversation with a specific user or bot")
+                print("  [2] 👥 Group / Channel (Group Chat / Channel)")
+                print("      -> Investigate messages and activity inside a suspect group/channel")
+                print("  [3] 🎯 Target User Tracing (UID / Phone / Username Tracing)")
+                print("      -> Filter all messages sent by, to, or mentioning a target user/UID")
+                print("  [4] 🌐 Comprehensive / Full Application Triage")
+                print("      -> Collect and carve all available history, cache, processes, and chat data")
+                scope_choice = input("\n  Enter scope choice [1/2/3/4] (Default: 4 - All): ").strip()
+
+            if scope_choice == "1":
+                scope_type = "dm"
+                prompt_text = (
+                    f"Nhập username, tên hoặc UID đối tượng chat riêng (VD: @azynorabot, 123456789): "
+                    if lang == "vi"
+                    else f"Enter target username or UID for 1-on-1 private chat: "
+                )
+                target_user = input(prompt_text).strip()
+            elif scope_choice == "2":
+                scope_type = "group"
+                prompt_text = (
+                    f"Nhập link hoặc ID nhóm/kênh cần điều tra (VD: https://t.me/group_name hoặc group ID): "
+                    if lang == "vi"
+                    else f"Enter {app_disp} group/channel link or ID to investigate: "
+                )
+                channel_url = input(prompt_text).strip()
+            elif scope_choice == "3":
+                scope_type = "user"
+                prompt_text = (
+                    f"Nhập UID, Username hoặc Số điện thoại đối tượng cần truy vết: "
+                    if lang == "vi"
+                    else f"Enter target UID, Username, or Phone number to trace: "
+                )
+                target_user = input(prompt_text).strip()
+            else:
+                scope_type = "all"
+                prompt_text = (
+                    f"Tùy chọn: Nhập UID/username đối tượng lọc bổ sung nếu có (nhấn Enter để quét toàn bộ): "
+                    if lang == "vi"
+                    else f"Optional: Enter target UID/username to prioritize (press Enter for all): "
+                )
+                extra_filter = input(prompt_text).strip()
+                if extra_filter:
+                    if extra_filter.startswith("http") or "/t.me/" in extra_filter or "discord.com/channels" in extra_filter:
+                        channel_url = extra_filter
+                    else:
+                        target_user = extra_filter
+        else:
+            if not channel_url and not target_user:
+                channel_url = input(f"Enter {app_disp} channel/chat link to investigate (optional): ").strip()
+                target_user = input(f"Enter a target {app_disp} username or ID (optional): ").strip()
         sys.stdout.flush()
 
         open_choice = "n" if args and args.skip_open_discord else input(f"Open {app_disp} with administrator permission before collection? [Y/n]: ").strip().lower()
@@ -752,6 +821,8 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
             print_status("warn", f"Windows will ask the user to allow administrator access so {app_disp} artifacts can be collected.")
             sys.stdout.flush()
             rerun_arguments = ["menu", "--app", selected.app_id, "--skip-open-discord"] # type: ignore
+            if scope_type:
+                rerun_arguments.extend(["--scope-type", scope_type])
             if channel_url:
                 rerun_arguments.extend(["--channel-url", channel_url])
             if target_user:
@@ -762,6 +833,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
             selected.app_id, # type: ignore
             channel_url=channel_url or None,
             target_user=target_user or None,
+            scope_type=scope_type or None,
         )
         workflow_progress.advance("Case created", f"{context.case_id} -> {context.root}")
         print_status("ok", f"Created case: {context.case_id}")
@@ -913,6 +985,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.case_id,
                 channel_url=args.channel_url,
                 target_user=args.target_user,
+                scope_type=getattr(args, "scope_type", None),
             )
             _print({"caseId": context.case_id, "appId": context.app_id, "root": str(context.root), "status": "runtime"})
             return 0

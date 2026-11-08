@@ -86,9 +86,16 @@ def find_telegram_processes() -> list[dict[str, Any]]:
     return procs
 
 
-def carve_telegram_process_memory(pid: int, max_region_size: int = 8 * 1024 * 1024) -> dict[str, Any]:
+def carve_telegram_process_memory(
+    pid: int,
+    max_region_size: int = 8 * 1024 * 1024,
+    target_user: str = "",
+    channel_url: str = "",
+    scope_type: str = "all",
+) -> dict[str, Any]:
     """
     Scans the virtual address space of a Telegram process and carves live artifacts.
+    Supports flexible scoping: Direct Message (DM), Group / Channel, or Target User UID Tracing.
     """
     if sys.platform != "win32":
         return {"error": "Live RAM carving via Win32 API is only supported on Windows"}
@@ -142,6 +149,14 @@ def carve_telegram_process_memory(pid: int, max_region_size: int = 8 * 1024 * 10
         "request", "link", "share", "phone", "hello", "hi", "welcome", "please", "help",
         "doctruyen", "movie", "phim", "zone", "azynora"
     ]
+    norm_target = str(target_user or "").strip().lstrip("@").lower()
+    if norm_target and norm_target not in conversational_triggers:
+        conversational_triggers.append(norm_target)
+    if channel_url:
+        for token in channel_url.split("/"):
+            t_clean = token.split("?")[0].lstrip("@").lower()
+            if len(t_clean) >= 3 and t_clean not in conversational_triggers:
+                conversational_triggers.append(t_clean)
 
     try:
         while virtual_query_ex(handle, ctypes.c_void_p(address), ctypes.byref(mbi), mbi_size) == mbi_size:
@@ -180,13 +195,20 @@ def carve_telegram_process_memory(pid: int, max_region_size: int = 8 * 1024 * 10
                             if len(txt) >= 4 and not any(bad in txt for bad in ["http://", "https://", "{", "}", "\\x"]):
                                 if txt not in seen_messages:
                                     seen_messages.add(txt)
+                                    txt_lower = txt.lower()
+                                    is_grp = any(g in txt_lower for g in ["group", "channel", "broadcast", "members", "admin in the group", "nhóm", "kênh"])
+                                    ch_type = "group" if is_grp else "direct_message"
+                                    is_tgt = bool(norm_target and (norm_target in txt_lower))
+                                    ch_name = "Telegram Group / Channel" if is_grp else (f"Private Chat: @{norm_target}" if (norm_target and is_tgt) else "Telegram Direct Message")
                                     carved_messages.append({
                                         "messageId": f"RAM-{len(carved_messages)+1:05d}",
-                                        "channelId": "Telegram Live Dialog",
+                                        "channelId": ch_name,
+                                        "channelType": ch_type,
                                         "guildId": "Telegram Desktop",
-                                        "authorUsername": "telegram_peer",
+                                        "authorUsername": target_user if (norm_target and is_tgt) else "telegram_peer",
                                         "content": txt,
                                         "timestamp": datetime.now().isoformat(),
+                                        "targetMatched": "yes" if is_tgt else "no",
                                         "attachmentNames": "",
                                         "sourcePath": f"RAM:PID_{pid}:0x{mbi.BaseAddress:012X}",
                                     })
@@ -253,8 +275,20 @@ def execute_telegram_memory_carving(case_context: Any) -> dict[str, Any]:
 
     print_status("step", f"Targeting active Telegram process (PID: {procs[0]['pid']}) for Live Memory Carving...")
     
+    from fdctl.utils import read_json
+    case_meta = read_json(case_context.root / "case.json") if (case_context.root / "case.json").exists() else {}
+    scope = case_meta.get("scope", {}) if isinstance(case_meta, dict) else {}
+    t_user = str(scope.get("targetUser", "") or "").strip()
+    c_url = str(scope.get("channelUrl", "") or "").strip()
+    s_type = str(scope.get("scopeType", "all") or "all").strip().lower()
+
     target_pid = procs[0]["pid"]
-    carve_result = carve_telegram_process_memory(target_pid)
+    carve_result = carve_telegram_process_memory(
+        target_pid,
+        target_user=t_user,
+        channel_url=c_url,
+        scope_type=s_type,
+    )
 
     if "error" in carve_result:
         print_status("warn", f"Live memory carving encountered an issue: {carve_result['error']}")
@@ -268,11 +302,11 @@ def execute_telegram_memory_carving(case_context: Any) -> dict[str, Any]:
     # Write volatile dump JSON
     write_json(live_dir / "telegram_ram_carved.json", carve_result)
 
-    # Write live memory messages
+    # Write live memory messages with enriched scope fields
     write_csv(
         live_dir / "telegram_ram_messages.csv",
         carve_result["messages"],
-        ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"],
+        ["messageId", "channelId", "channelType", "guildId", "authorUsername", "content", "timestamp", "targetMatched", "attachmentNames", "sourcePath"],
     )
 
     print_status(

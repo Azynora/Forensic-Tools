@@ -14,6 +14,8 @@ EXPORT_FILES = [
     "timeline.csv",
     "target_user_messages.csv",
     "target_user_timeline.csv",
+    "direct_messages.csv",
+    "group_messages.csv",
     "cache_inventory.csv",
     "discord_desktop_cookies_metadata.csv",
     "chrome_discord_history.csv",
@@ -236,6 +238,8 @@ def build_case_schema(case: CaseContext) -> dict:
     timeline = _load_csv(case, "timeline.csv")
     target_user_messages = _load_csv(case, "target_user_messages.csv")
     target_user_timeline = _load_csv(case, "target_user_timeline.csv")
+    direct_messages = _load_csv(case, "direct_messages.csv")
+    group_messages = _load_csv(case, "group_messages.csv")
     cache_inventory = _load_csv(case, "cache_inventory.csv")
     chrome_history = _load_csv(case, "chrome_discord_history.csv")
     chrome_cookies = _load_csv(case, "chrome_discord_cookies_metadata.csv")
@@ -271,6 +275,8 @@ def build_case_schema(case: CaseContext) -> dict:
             "recoveredMessages": len(recovered),
             "timelineRows": len(timeline),
             "targetUserRows": len(target_user_messages),
+            "directMessages": len(direct_messages),
+            "groupMessages": len(group_messages),
             "attachments": len(attachments),
             "cacheArtifacts": len(cache_inventory),
             "topAuthors": len(top_authors),

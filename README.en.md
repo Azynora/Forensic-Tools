@@ -36,6 +36,7 @@ The official compiled Windows release bundles Python, dependencies, and native m
 | **WhatsApp / Signal** | *Roadmap* | Planned cross-platform triage modules |
 
 ### Key Technical Capabilities:
+* **Flexible Multi-Scope Investigation**: Supports targeted direct 1-on-1 private chat acquisition (--scope-type dm), group/channel triage (--scope-type group), and target user UID/phone tracing (--scope-type user) without enforcing group links.
 * **Designed with Reference to ISO/IEC 27037 Principles**: Non-invasive, zero-footprint live acquisition workflow with SHA-256 integrity verification hashes.
 * **Target Window Screen Capture**: Isolates and captures only the target application window, eliminating desktop background privacy concerns.
 * **Carved Media Gallery**: Automated contact sheet visual gallery with SHA-256 hashes and file sizes for media carved from local caches.

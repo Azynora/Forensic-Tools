@@ -107,6 +107,7 @@ def create_case(
     case_id: str | None = None,
     channel_url: str | None = None,
     target_user: str | None = None,
+    scope_type: str | None = None,
 ) -> CaseContext:
     runtime = ensure_dir(runtime_root())
     resolved_case_id = _validate_case_id(case_id or f"{app_id}_analysis_{now_stamp()}")
@@ -118,6 +119,18 @@ def create_case(
     for name in WORK_DIR_NAMES:
         ensure_dir(root / name)
 
+    # Auto-resolve scope_type if not explicitly set
+    resolved_scope_type = str(scope_type or "").strip().lower()
+    if not resolved_scope_type:
+        if target_user and not channel_url:
+            resolved_scope_type = "user"
+        elif channel_url and any(x in channel_url.lower() for x in ["/@me", "/me/", "direct", "dm"]):
+            resolved_scope_type = "dm"
+        elif channel_url:
+            resolved_scope_type = "group"
+        else:
+            resolved_scope_type = "all"
+
     context = CaseContext(case_id=resolved_case_id, app_id=app_id, root=root, saved=False)
     write_json(
         case_file(root),
@@ -128,6 +141,7 @@ def create_case(
             "status": "runtime",
             "saved": False,
             "scope": {
+                "scopeType": resolved_scope_type,
                 "channelUrl": channel_url or "",
                 "targetUser": target_user or "",
             },

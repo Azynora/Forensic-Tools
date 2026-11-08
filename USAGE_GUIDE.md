@@ -77,7 +77,17 @@ Khi chạy lệnh `.\fdctl.cmd menu`, hệ thống sẽ hiển thị bảng đi�
 
 ---
 
-#### 2. Quy trình Điều tra Dòng lệnh (CLI Commands)
+#### 2. Tùy Chọn Khoanh Vùng Phạm Vi Điều Tra (Investigation Scope Modes)
+Forensics Suite cho phép điều tra viên linh hoạt khoanh vùng phạm vi thu thập, không bắt buộc phải có link nhóm:
+
+| Chế độ điều tra | Tham số CLI | Ý nghĩa & Mục đích sử dụng |
+| :--- | :--- | :--- |
+| 💬 **Đoạn chat riêng 1-1** | --scope-type dm --target-user <username/UID> | Thu thập & trích xuất hội thoại riêng tư với người dùng hoặc bot cụ thể. Xuất direct_messages.csv. |
+| 👥 **Kênh / Nhóm trò chuyện** | --scope-type group --channel-url <link/ID nhóm> | Điều tra các tin nhắn, tệp đính kèm trong nhóm hoặc kênh nghi vấn. Xuất group_messages.csv. |
+| 🎯 **Truy vết định danh UID** | --scope-type user --target-user <UID/SĐT/username> | Rà soát toàn bộ tin nhắn gửi đến, gửi đi hoặc nhắc tên UID/SĐT đối tượng. Xuất 	arget_user_messages.csv. |
+| 🌐 **Toàn bộ ứng dụng** | --scope-type all | Rà soát toàn bộ bộ nhớ RAM, tệp đệm, lịch sử và nhật ký có thể phục hồi. |
+
+#### 3. Quy trình Điều tra Dòng lệnh (CLI Commands)
 
 ##### A. Điều tra Telegram Desktop:
 ```powershell
@@ -212,7 +222,17 @@ Running `.\fdctl.cmd menu` launches an intuitive guided triage console:
 
 ---
 
-#### 2. Direct CLI Commands
+#### 2. Multi-Scope Investigation Modes
+Forensics Suite allows investigators to flexibly target evidence acquisition without enforcing group links:
+
+| Scope Mode | CLI Arguments | Purpose & Outputs |
+| :--- | :--- | :--- |
+| 💬 **Direct 1-on-1 Chat** | --scope-type dm --target-user <username/UID> | Investigates private conversation with a specific user or bot. Exports direct_messages.csv. |
+| 👥 **Group / Channel** | --scope-type group --channel-url <link/channel_id> | Concentrates on suspect group or channel messages. Exports group_messages.csv. |
+| 🎯 **Target User UID Tracing** | --scope-type user --target-user <UID/phone/username> | Filters all messages sent to, from, or mentioning a specific target entity. Exports 	arget_user_messages.csv. |
+| 🌐 **Full Application Triage** | --scope-type all | Sweeps all volatile RAM, cache, history, and carved records. |
+
+#### 3. Direct CLI Commands
 
 ##### A. Telegram Desktop Forensics:
 ```powershell

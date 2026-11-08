@@ -653,6 +653,10 @@ def analyze_discord(case: CaseContext) -> dict:
     write_json(case.exports_dir / "target_user_summary.json", target_summary)
     write_csv(case.exports_dir / "chrome_discord_history.csv", chrome_history, ["visitTimeLocal", "url", "title", "visitCount", "typedCount"])
     write_csv(case.exports_dir / "chrome_discord_cookies_metadata.csv", chrome_cookies, ["hostKey", "name", "path", "isSecure", "isHttpOnly", "hasExpires", "expiresUtc", "lastAccessUtc"])
+    discord_dms = [r for r in recovered if str(r.get("guildId", "")).strip() in {"", "@me"} or "/@me/" in str(r.get("messageLink", ""))]
+    discord_groups = [r for r in recovered if r not in discord_dms]
+    write_csv(case.exports_dir / "direct_messages.csv", discord_dms, ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"])
+    write_csv(case.exports_dir / "group_messages.csv", discord_groups, ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"])
     write_csv(case.exports_dir / "recovered_messages.csv", recovered, ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"])
     write_csv(case.exports_dir / "browser_scope_summary.csv", scope_rows, ["url", "host", "path", "count"])
     write_csv(case.exports_dir / "string_hits.csv", browser_hits, ["path", "match"])
@@ -968,6 +972,13 @@ def analyze_telegram(case: CaseContext) -> dict:
         except Exception:
             pass
 
+    case_meta = read_json(case.root / "case.json") if (case.root / "case.json").exists() else {}
+    scope = case_meta.get("scope", {}) if isinstance(case_meta, dict) else {}
+    target_user = str(scope.get("targetUser", "") or "").strip()
+    channel_url = str(scope.get("channelUrl", "") or "").strip()
+    scope_type = str(scope.get("scopeType", "all") or "all").strip().lower()
+    norm_target = target_user.lower().lstrip("@")
+
     # Xuat tep tin nhan thu thap tu RAM
     if message_rows:
         write_csv(
@@ -976,18 +987,54 @@ def analyze_telegram(case: CaseContext) -> dict:
             ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"],
         )
 
-    # Dong bo vao he thong bao cao Forensics Suite (recovered_messages.csv, timeline.csv, messages.csv)
+    # Dong bo vao he thong bao cao Forensics Suite (recovered_messages.csv, timeline.csv, messages.csv, direct_messages.csv, group_messages.csv)
     recovered_rows: list[dict] = []
     timeline_rows: list[dict] = []
+    direct_message_rows: list[dict] = []
+    group_message_rows: list[dict] = []
+    target_rows: list[dict] = []
+    target_timeline_rows: list[dict] = []
+
     for msg in message_rows:
-        recovered_rows.append({
+        c_text = str(msg.get("content", "") or "")
+        c_text_lower = c_text.lower()
+        a_user = str(msg.get("authorUsername", "") or "telegram_peer")
+        ch_id = str(msg.get("channelId", "") or "Telegram Direct Message")
+
+        # Phan loai chat rieng 1-1 (DM) vs Nhom/Kenh
+        ch_type = str(msg.get("channelType", "") or "")
+        if not ch_type:
+            is_grp = any(g in c_text_lower for g in ["group", "channel", "broadcast", "members", "admin in the group", "nhóm", "kênh"]) or any(g in ch_id.lower() for g in ["group", "channel", "nhóm", "kênh"])
+            ch_type = "group" if is_grp else "direct_message"
+
+        # Kiem tra khop doi tuong muc tieu (target match)
+        target_matched = False
+        if norm_target:
+            target_matched = (
+                norm_target in c_text_lower or
+                norm_target in a_user.lower() or
+                norm_target in ch_id.lower() or
+                (target_user in c_text)
+            )
+
+        # Kiem tra khop pham vi (scope match)
+        if scope_type == "dm":
+            scope_matched = (ch_type == "direct_message")
+        elif scope_type == "group":
+            scope_matched = (ch_type == "group")
+        elif scope_type == "user":
+            scope_matched = target_matched
+        else:
+            scope_matched = True
+
+        rec_item = {
             "messageId": msg.get("messageId", ""),
             "guildId": msg.get("guildId", "Telegram Desktop"),
-            "channelId": msg.get("channelId", "Live RAM"),
+            "channelId": ch_id,
             "authorId": "",
-            "authorUsername": msg.get("authorUsername", "telegram_peer"),
-            "authorDisplayName": msg.get("authorUsername", "telegram_peer"),
-            "content": msg.get("content", ""),
+            "authorUsername": a_user,
+            "authorDisplayName": a_user,
+            "content": c_text,
             "timestamp": msg.get("timestamp", ""),
             "editedTimestamp": "",
             "firstSeen": msg.get("timestamp", ""),
@@ -995,23 +1042,35 @@ def analyze_telegram(case: CaseContext) -> dict:
             "attachmentNames": msg.get("attachmentNames", ""),
             "contentVersionCount": 1,
             "sourceHitCount": 1,
-            "scopeMatched": True,
-            "targetMatched": True,
+            "scopeMatched": "yes" if scope_matched else "no",
+            "targetMatched": "yes" if target_matched else "no",
             "messageLink": "",
             "messageType": "ram_carved_message",
             "sourcePath": msg.get("sourcePath", ""),
-        })
-        timeline_rows.append({
+        }
+        recovered_rows.append(rec_item)
+
+        tl_item = {
             "timeLocal": msg.get("timestamp", ""),
             "eventType": "ram_message",
-            "actor": msg.get("authorUsername", "telegram_peer"),
-            "channelId": msg.get("channelId", "Live RAM"),
+            "actor": a_user,
+            "channelId": ch_id,
             "messageId": msg.get("messageId", ""),
-            "detail": msg.get("content", ""),
+            "detail": c_text,
             "source": "RAM",
             "path": msg.get("sourcePath", ""),
             "messageType": "chat_message",
-        })
+        }
+        timeline_rows.append(tl_item)
+
+        if ch_type == "direct_message":
+            direct_message_rows.append(rec_item)
+        else:
+            group_message_rows.append(rec_item)
+
+        if target_matched:
+            target_rows.append(rec_item)
+            target_timeline_rows.append(tl_item)
 
     write_csv(
         case.exports_dir / "recovered_messages.csv",
@@ -1028,6 +1087,38 @@ def analyze_telegram(case: CaseContext) -> dict:
         message_rows,
         ["messageId", "channelId", "guildId", "authorUsername", "content", "timestamp", "attachmentNames", "sourcePath"]
     )
+    write_csv(
+        case.exports_dir / "direct_messages.csv",
+        direct_message_rows,
+        ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"]
+    )
+    write_csv(
+        case.exports_dir / "group_messages.csv",
+        group_message_rows,
+        ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"]
+    )
+
+    if target_user:
+        write_csv(
+            case.exports_dir / "target_user_messages.csv",
+            target_rows,
+            ["messageId", "guildId", "channelId", "authorId", "authorUsername", "authorDisplayName", "content", "timestamp", "editedTimestamp", "firstSeen", "lastSeen", "attachmentNames", "contentVersionCount", "sourceHitCount", "scopeMatched", "targetMatched", "messageLink", "messageType", "sourcePath"]
+        )
+        write_csv(
+            case.exports_dir / "target_user_timeline.csv",
+            target_timeline_rows,
+            ["timeLocal", "eventType", "actor", "channelId", "messageId", "detail", "source", "path", "messageType"]
+        )
+        write_json(
+            case.exports_dir / "target_user_summary.json",
+            {
+                "targetUser": target_user,
+                "messageCount": len(target_rows),
+                "scopeType": scope_type,
+                "analyzedAt": datetime.now().isoformat(),
+            }
+        )
+        (case.exports_dir / "target_user_fulltext.txt").write_text(_fulltext_lines(f"Recovered target user messages for {target_user}", target_rows), encoding="utf-8")
 
     summary_data = {
         "appId": "telegram",
@@ -1059,6 +1150,10 @@ def analyze_telegram(case: CaseContext) -> dict:
     print(f"    - Đường dẫn t.me thu thập:   {len(carved_links):8} | 07_Exports/telegram_carved_entities.csv")
     print(f"    - Lịch sử duyệt Telegram Web: {len(browser_rows):8} | 07_Exports/telegram_browser_history.csv")
     print(f"    - Tin nhắn/Hội thoại RAM (Live):{len(message_rows):7} | 07_Exports/telegram_live_memory_messages.csv")
+    print(f"    - Tin nhắn riêng 1-1 (Direct):  {len(direct_message_rows):7} | 07_Exports/direct_messages.csv")
+    print(f"    - Tin nhắn nhóm/kênh (Group):   {len(group_message_rows):7} | 07_Exports/group_messages.csv")
+    if target_user:
+        print(f"    - Khớp đối tượng ({target_user}):   {len(target_rows):7} | 07_Exports/target_user_messages.csv")
     print("")
 
     return {

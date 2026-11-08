@@ -36,6 +36,7 @@ Bản phát hành chính thức đã được đóng gói sẵn toàn bộ môi 
 | **WhatsApp / Signal** | *Lộ trình kế tiếp* | Module trích xuất cơ động đa nền tảng |
 
 ### Các Năng Lực Kỹ Thuật:
+* **Khoanh vùng điều tra linh hoạt (Multi-Scope Investigation)**: Cho phép điều tra linh hoạt từ đoạn chat riêng 1-1 (--scope-type dm), kênh/nhóm (--scope-type group), hoặc truy vết theo UID/SĐT người dùng (--scope-type user), không ép buộc phải có link nhóm.
 * **Định hướng theo nguyên tắc ISO/IEC 27037 & TCVN ISO/IEC 27037:2019**: Thiết kế quy trình thu thập dữ liệu hướng tới giảm thiểu can thiệp hệ thống (Zero-footprint), tính toán mã băm SHA-256 đối chiếu tính toàn vẹn của tệp sao chép.
 * **Chụp màn hình cửa sổ ứng dụng mục tiêu**: Tự động nhận diện và chỉ chụp cửa sổ Telegram/Discord, bảo vệ quyền riêng tư hình nền desktop của người dùng.
 * **Bảng tổng hợp hình ảnh phục hồi (Carved Media Gallery)**: Hỗ trợ trích xuất các tệp hình ảnh từ bộ nhớ đệm, tạo bảng danh mục ảnh kèm mã băm SHA-256 phục vụ rà soát đối chiếu.

@@ -7,6 +7,15 @@
 <a name="english"></a>
 ## ENGLISH
 
+### 1.4.2 - 2026-11-08
+- **Multi-Scope Investigation Architecture:** Introduced 4 flexible investigation scope modes across chat applications (Telegram & Discord):
+  1. 💬 **Direct 1-on-1 Messages (DMs):** Targeted acquisition and analysis of private chats and bot conversations without enforcing group links.
+  2. 👥 **Group / Channel Investigation:** Focused analysis of suspected group and channel interactions by URL or channel ID.
+  3. 🎯 **Target User UID / Phone / Username Tracing:** Targeted filtering that extracts all messages sent by, to, or mentioning a specific target entity across the platform.
+  4. 🌐 **Comprehensive Application Triage:** Full forensic sweep of all volatile RAM, cache, databases, and logs.
+- **Dedicated Forensic Deliverables:** Added `07_Exports/direct_messages.csv`, `07_Exports/group_messages.csv`, and `07_Exports/target_user_messages.csv` to Autopsy-compatible schema and chain-of-custody handover documentation.
+- **Interactive Scope Selector:** Enhanced both CLI (`--scope-type [all|dm|group|user]`) and Desktop GUI with intuitive scope selection prompts.
+
 ### 1.4.1 - 2026-11-07
 - **Project Standardization:** Standardized brand and repository identity to **FORENSIC_SUITE**.
 - **Telegram Live Process Memory Carving:** Built dedicated volatile memory carver (`TelegramMemoryCarver`) querying committed heap buffers (`MEM_COMMIT`) via Win32 API (`VirtualQueryEx`, `ReadProcessMemory`), recovering real-time chats, dialogue titles, @usernames, phone numbers, and bot interactions.
@@ -39,6 +48,15 @@
 <a name="tiếng-việt"></a>
 ## TIẾNG VIỆT
 
+### 1.4.2 - 2026-11-08
+- **Kiến trúc phân vùng phạm vi điều tra linh hoạt (Multi-Scope Investigation):** Bổ sung 4 chế độ khoanh vùng điều tra trên các ứng dụng chat (Telegram, Discord):
+  1. 💬 **Đoạn chat riêng 1-1 (Direct Messages / Private Chats):** Cho phép giám định trực tiếp hội thoại riêng tư với người dùng hoặc bot mong muốn mà không bị ép buộc theo link/ID nhóm.
+  2. 👥 **Kênh / Nhóm trò chuyện (Group / Channel):** Khoanh vùng điều tra chuyên sâu các thảo luận và thành viên trong nhóm/kênh nghi vấn.
+  3. 🎯 **Truy vết theo định danh đối tượng (Target User UID / SĐT / Username Tracing):** Lọc toàn bộ tin nhắn gửi đến, gửi đi hoặc nhắc tên định danh UID, số điện thoại hoặc tên người dùng mục tiêu.
+  4. 🌐 **Toàn bộ ứng dụng (Comprehensive / Toàn diện):** Rà soát toàn bộ bộ nhớ RAM, tệp đệm, lịch sử và nhật ký có thể phục hồi.
+- **Bộ sản phẩm giám định xuất chuyên biệt:** Xuất khẩu minh bạch các tệp `07_Exports/direct_messages.csv`, `07_Exports/group_messages.csv`, và `07_Exports/target_user_messages.csv` tích hợp chuẩn Autopsy và biên bản bàn giao điện tử.
+- **Giao diện lựa chọn tương tác:** Bổ sung tham số dòng lệnh `--scope-type [all|dm|group|user]` và danh sách chọn phạm vi trực quan trên Giao diện Đồ họa (GUI).
+
 ### 1.4.1 - 2026-11-07
 - **Chuẩn hóa nhận diện dự án:** Đổi tên và chuẩn hóa nhận diện toàn diện sang **FORENSIC_SUITE**.
 - **Trích xuất bộ nhớ tiến trình sống Telegram (Live Memory Carving):** Triển khai module bóc tách bộ nhớ RAM tiến trình `Telegram.exe` (Win32 API `VirtualQueryEx`, `ReadProcessMemory`), trích xuất trực tiếp hội thoại, tên nhóm, tin nhắn bot, @username và số điện thoại từ bộ nhớ đệm.
@@ -47,21 +65,4 @@
 ### 1.4.0 - 2026-11-07
 - **Thu thập chứng cứ Telegram Desktop:** Bổ sung module điều tra trích xuất dữ liệu tài khoản Telegram Desktop, phiên đăng nhập và thư mục tdata (kể cả bản Portable).
 - **Kiến trúc bản quyền bền vững & Chống giả mạo:** Nâng cấp hệ thống chứng thực bản quyền 3 lớp với cơ chế đóng dấu bản quyền, nhật ký sử dụng và kiểm tra toàn vẹn tệp.
-- **Cách ly bí mật tác giả tuyệt đối:** Xóa sạch toàn bộ mã băm phần cứng và danh tính máy nhà phát triển khỏi Git; cơ chế mở khóa tác giả hoạt động độc lập qua tệp cấu hình cục bộ bảo mật.
-- **Nâng cấp CLI Song ngữ:** Tối ưu hóa trải nghiệm dòng lệnh mượt mà giữa Tiếng Việt và Tiếng Anh.
-
-### 1.3.0 - 2026-11-06
-- **Tách bạch kiến trúc an toàn:** Mô hình mã nguồn mở cho bộ công cụ CLI Terminal trên GitHub, ứng dụng đồ họa GUI được đóng gói độc quyền dưới dạng file cài đặt `.exe`.
-- **Bảo mật tuyệt đối hệ thống bản quyền:** Loại bỏ hoàn toàn mã tạo key, thuật toán ký số Private Key và mã máy tác giả khỏi mã nguồn công khai; chuyển chức năng cấp key vào công cụ nội bộ riêng.
-- **Nâng cấp giao diện GUI sắc nét (High-DPI):** Bật chế độ DPI Awareness trên Windows, sử dụng bộ biểu tượng BMP chuẩn chống vỡ hình, sửa triệt để lỗi hiển thị bảng case và căn lề văn bản tab Trợ giúp.
-- **Lộ trình hỗ trợ đa nền tảng:** Tích hợp danh mục ứng dụng với Discord hoạt động chính thức và lộ trình các ứng dụng Zalo, Telegram, WhatsApp, Messenger, Signal.
-- **Chế độ Demo trực quan:** Cung cấp hồ sơ mẫu giả lập an toàn giúp kiểm thử toàn diện tính năng mà không can thiệp vào dữ liệu máy thật.
-
-### 1.2.0 - 2026-11-06
-- Bổ sung ứng dụng GUI song ngữ cho Discord, quản lý hồ sơ, cấu hình workspace và kích hoạt khóa bản quyền.
-- Tích hợp xác thực bản quyền số Ed25519 gắn liền với phần cứng thiết bị.
-- Hỗ trợ đóng gói trình cài đặt tự động bằng Inno Setup.
-
-### 1.1.9 - 2026-11-06
-- Tối ưu tài liệu song ngữ, làm sạch đường dẫn nhị phân cá nhân khỏi repo.
-- Chuẩn hóa bộ công cụ dòng lệnh `fdctl` và tăng cường an toàn dữ liệu case.
+- **Cách ly bí mật tác giả tuyệt đối:** Xóa sạch toàn bộ mã băm phần hardware và danh tính máy nhà phát triển khỏi Git; cơ chế mở khóa tác giả hoạt động độc lập qua tệp cấu hình cục bộ bảo mật.
