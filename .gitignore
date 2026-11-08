@@ -45,6 +45,9 @@ backend/src/fdctl/gui.py
 
 # Private tools (never commit to git)
 tools/
+issue-license.cmd
+*issue_license*
+*issue-license*
 
 # Documentation drafts and evaluation reports
 *.docx
