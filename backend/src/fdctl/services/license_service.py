@@ -532,40 +532,6 @@ def license_usage_history(limit: int = 10) -> list[dict[str, Any]]:
     return entries[-limit:]
 
 
-def _pack_compact_license_payload(
-    license_type: str,
-    issued_at: datetime,
-    expires_at: datetime,
-    max_seats: int,
-    license_id: bytes,
-    email_hash: bytes,
-    machine_hash: bytes,
-) -> bytes:
-    type_code = LICENSE_TYPE_CODES.get(license_type)
-    if type_code is None:
-        raise ValueError(f"Unsupported license type: {license_type}")
-    if len(license_id) != COMPACT_LICENSE_ID_BYTES:
-        raise ValueError("Compact license id length is invalid.")
-    if len(email_hash) != COMPACT_EMAIL_HASH_BYTES:
-        raise ValueError("Compact email hash length is invalid.")
-    if len(machine_hash) != COMPACT_MACHINE_HASH_BYTES:
-        raise ValueError("Compact machine hash length is invalid.")
-    issued_seconds = int(issued_at.timestamp())
-    expires_seconds = int(expires_at.timestamp())
-    return b"".join(
-        [
-            COMPACT_LICENSE_MAGIC,
-            bytes([COMPACT_LICENSE_SCHEMA_VERSION]),
-            bytes([type_code]),
-            issued_seconds.to_bytes(4, "big", signed=False),
-            expires_seconds.to_bytes(4, "big", signed=False),
-            bytes([max(1, min(255, int(max_seats)))]),
-            license_id,
-            email_hash,
-            machine_hash,
-        ]
-    )
-
 
 def _unpack_compact_license_payload(payload: bytes) -> dict[str, Any]:
     expected_length = 2 + 1 + 1 + 4 + 4 + 1 + COMPACT_LICENSE_ID_BYTES + COMPACT_EMAIL_HASH_BYTES + COMPACT_MACHINE_HASH_BYTES
@@ -1262,11 +1228,6 @@ def build_integrity_message(manifest: dict[str, Any]) -> bytes:
         rows.append(f"{item.get('path', '')}|{item.get('sha256', '')}|{item.get('sizeBytes', 0)}")
     return "\n".join(header + rows).encode("utf-8")
 
-def integrity_signature_for_manifest(manifest: dict[str, Any], private_key_pem: str | None = None) -> str:
-    msg = build_integrity_message(manifest)
-    priv = load_author_private_key(private_key_pem)
-    return _url_b64encode(priv.sign(msg))
-
 
 
 def verify_bundle_integrity(root: Path | None = None) -> dict[str, Any]:
@@ -1357,89 +1318,4 @@ def get_license_watermark(status: dict[str, Any] | None = None) -> dict[str, str
         "label": license_type,
         "footerText": f"Forensics Suite (c) {OWNER_NAME} | Licensed to: {identity} | ID: {short_id}",
         "reportWatermark": f"OFFICIAL FORENSIC EXAMINATION REPORT — LICENSED TO: {identity.upper()} — ID: {short_id}",
-    }
-
-
-def load_author_private_key(private_key_pem: str | None = None) -> Any:
-    """Loads the author Ed25519 private key from pem string, env var, or user secrets directory."""
-    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-
-    if private_key_pem:
-        return serialization.load_pem_private_key(private_key_pem.encode("utf-8"), password=None)
-
-    env_pem = str(os.environ.get("FDCTL_LICENSE_PRIVATE_KEY", "") or "").strip()
-    if env_pem:
-        return serialization.load_pem_private_key(env_pem.encode("utf-8"), password=None)
-
-    candidates: list[Path] = []
-    path_override = str(os.environ.get("FDCTL_LICENSE_PRIVATE_KEY_PATH", "") or "").strip()
-    if path_override:
-        candidates.append(Path(path_override).expanduser().resolve())
-    candidates.extend([
-        Path.home() / ".fdctl-secrets" / "forensics_license_private_key.pem",
-        project_root() / ".secrets" / "forensics_license_private_key.pem",
-    ])
-    for p in candidates:
-        if p.exists() and p.is_file():
-            try:
-                data = p.read_bytes()
-                return serialization.load_pem_private_key(data, password=None)
-            except Exception:
-                continue
-    raise FileNotFoundError("Author Ed25519 private key was not found. Cannot issue new license keys.")
-
-
-def issue_compact_license_token(
-    email: str,
-    license_type: str = "issued_365d",
-    *,
-    days: int | None = None,
-    machine_fingerprint_str: str | None = None,
-    is_portable: bool = True,
-    max_seats: int = 1,
-    private_key_pem: str | None = None,
-) -> dict[str, Any]:
-    """Issue a cryptographically signed compact license token using the author private key."""
-    normalized_email = validate_supported_email(email, "Issued email")
-    priv_key = load_author_private_key(private_key_pem)
-
-    profile = _default_profile(license_type)
-    issued_at = now_utc()
-    valid_days = int(days if days is not None else profile.get("defaultDays", 365) or 365)
-    expires_at = issued_at + timedelta(days=valid_days) if valid_days > 0 else issued_at + timedelta(days=3650)
-
-    license_id = os.urandom(COMPACT_LICENSE_ID_BYTES)
-    email_hash = email_fingerprint(normalized_email)
-
-    if is_portable or not machine_fingerprint_str:
-        machine_hash = b"\x00" * COMPACT_MACHINE_HASH_BYTES
-    else:
-        machine_hash = machine_binding_hash(machine_fingerprint_str)
-
-    payload_bytes = _pack_compact_license_payload(
-        license_type=license_type,
-        issued_at=issued_at,
-        expires_at=expires_at,
-        max_seats=max_seats,
-        license_id=license_id,
-        email_hash=email_hash,
-        machine_hash=machine_hash,
-    )
-    signature = priv_key.sign(payload_bytes)
-    signed_blob = payload_bytes + signature
-    token = _encode_letters_only(signed_blob)
-
-    return {
-        "token": token,
-        "licenseId": license_id.hex(),
-        "licenseType": license_type,
-        "licenseLabel": profile["label"],
-        "email": normalized_email,
-        "issuedAt": issued_at.isoformat(),
-        "expiresAt": expires_at.isoformat(),
-        "daysValid": valid_days,
-        "maxSeats": max_seats,
-        "isPortable": is_portable,
-        "licenseMode": "portable" if is_portable else "workstation",
-        "machineHash": machine_hash.hex(),
     }

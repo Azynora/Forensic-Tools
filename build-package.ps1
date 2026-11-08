@@ -213,7 +213,8 @@ $bundleProvenance = [ordered]@{
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $signatureInputPath = Join-Path $workRoot "bundle-provenance.tmp.json"
 [System.IO.File]::WriteAllText($signatureInputPath, ($bundleProvenance | ConvertTo-Json -Depth 6), $utf8NoBom)
-$signature = & $python -c "import json, pathlib, sys; sys.path.insert(0, sys.argv[2]); from fdctl.services.license_service import integrity_signature_for_manifest; data=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')); print(integrity_signature_for_manifest(data))" $signatureInputPath (Join-Path $backend "src")
+$toolsRoot = Join-Path $root "tools"
+$signature = & $python -c "import json, pathlib, sys; sys.path.insert(0, sys.argv[2]); sys.path.insert(0, sys.argv[3]); from author_license import integrity_signature_for_manifest; data=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')); print(integrity_signature_for_manifest(data))" $signatureInputPath (Join-Path $backend "src") $toolsRoot
 $bundleProvenance["integritySignature"] = ($signature | Select-Object -Last 1).ToString().Trim()
 $bundleProvenancePath = Join-Path $bundleRoot "BUILD_PROVENANCE.json"
 [System.IO.File]::WriteAllText($bundleProvenancePath, ($bundleProvenance | ConvertTo-Json -Depth 6), $utf8NoBom)
