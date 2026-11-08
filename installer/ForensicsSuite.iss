@@ -6,7 +6,7 @@
 #endif
 
 #define AppName "Forensics Suite"
-#define AppVersion "1.4.0"
+#define AppVersion "1.4.2"
 #define AppPublisher "Truong Trieu Vy"
 #define AppExe "fdctl_runtime\ForensicsSuite.exe"
 
