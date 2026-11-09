@@ -51,3 +51,6 @@ issue-license.cmd
 
 # Documentation drafts and evaluation reports
 *.docx
+
+tao-license.cmd
+*.pdf

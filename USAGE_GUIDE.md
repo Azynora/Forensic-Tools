@@ -299,3 +299,36 @@ Forensics Suite employs asymmetric Ed25519 digital signatures:
 
 > ⚠️ **Khuyến cáo Pháp lý / Legal Disclaimer**:
 > Phần mềm được phát triển cho mục đích học tập, nghiên cứu khoa học, kiểm thử an toàn thông tin và phục vụ công tác điều tra số (DFIR) của các cá nhân, tổ chức có thẩm quyền. Người sử dụng tự chịu hoàn toàn trách nhiệm pháp lý khi vận hành công cụ, bảo đảm tuân thủ nghiêm ngặt Luật An toàn thông tin mạng 2015, Luật An ninh mạng 2018 và các quy định pháp luật hiện hành. Dự án không đưa ra bất kỳ cam kết hay tuyên bố mang tính tuyệt đối nào theo quy định của Luật Quảng cáo 2012.
+
+
+---
+
+### SECTION 4: INTERACTIVE CRIME SCENE RECONSTRUCTION & IN-APP UPDATER
+
+#### 1. Interactive Crime Scene Reconstruction (`Interactive_Crime_Scene_Replay.html`)
+Every investigation report now automatically compiles a zero-dependency, self-contained HTML5 Crime Scene Reconstruction application in `08_Report/Interactive_Crime_Scene_Replay.html`:
+* **Multi-Channel Emulation**: Faithfully reproduces the target messaging interface (Telegram, Discord, Zalo, etc.) with real carved conversation channels, direct messages, and groups.
+* **Carved Phone & Username Directory**: Dedicated channel tab categorizing all discovered phone numbers and user handles with verification confidence scores.
+* **Carved Media Gallery**: Visual grid of recovered cached images, audio, and attachments with computed SHA-256 integrity hashes.
+* **Forensic Inspector Pane**: Clicking on any dialogue or message immediately displays forensic provenance, including process ID, memory byte offset (`RAM:PID:0x...`), integrity verification status, and decoded plaintext.
+* **Time-Machine Slider**: Drag the chronological slider to replay the exact communication sequence step-by-step.
+
+#### 2. In-App Updates & Offline Patching (License-Preserving)
+Updating Forensics Suite does **not** revoke, overwrite, or delete your activated `license.key`:
+* **Online Check (CLI & GUI)**:
+  ```powershell
+  .\fdctl.cmd update check
+  .\fdctl.cmd update install
+  ```
+  Or navigate to **Trợ giúp (Help) -> Kiểm tra cập nhật (Check for Updates)** in the GUI.
+* **Offline Patching via `update-offline.cmd`**:
+  For isolated lab workstations or air-gapped forensic environments:
+  ```powershell
+  .\update-offline.cmd path\to\ForensicsSuite_Patch_vX.X.X.zip
+  ```
+  The updater securely replaces program binaries and scripts while keeping your configuration, cases, and `license.key` intact.
+
+#### 3. Windows 11 Smart App Control Notice
+If Windows 11 Smart App Control blocks the compiled `.exe` (`CreateProcess failed: code 4551`), run Forensics Suite using the pre-configured script launchers:
+* **`launch-gui.cmd`**: Runs the forensic GUI safely through the trusted Python runtime.
+* **`launch-analysis-terminal.cmd`**: Runs the CLI analysis terminal.

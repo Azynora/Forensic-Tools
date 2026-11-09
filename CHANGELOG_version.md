@@ -8,6 +8,9 @@
 ## ENGLISH
 
 ### 1.4.2 - 2026-11-08
+- **Interactive Crime Scene Reconstruction:** Built a zero-dependency HTML5 investigation replay tool (`Interactive_Crime_Scene_Replay.html`) that emulates suspect messaging apps (Telegram, Discord, Zalo, etc.). Includes a Time-Machine chronological slider, multi-source ingestion of volatile RAM messages and disk records, smart pagination, a Forensic Inspector pane displaying memory byte offsets and SHA-256 hashes, phone directory extraction, and a carved media gallery.
+- **In-App Auto-Update & Offline Patching:** Added seamless updating capabilities via GUI, CLI (`fdctl update check` / `fdctl update install`), and standalone offline patch runner (`update-offline.cmd`) designed to safely replace application code without revoking or modifying the active `license.key`.
+- **Windows 11 Smart App Control Launchers:** Added `launch-gui.cmd` and `launch-analysis-terminal.cmd` to provide safe, policy-compliant execution in environments with strict application control policies (error code 4551).
 - **Multi-Scope Investigation Architecture:** Introduced 4 flexible investigation scope modes across chat applications (Telegram & Discord):
   1. 💬 **Direct 1-on-1 Messages (DMs):** Targeted acquisition and analysis of private chats and bot conversations without enforcing group links.
   2. 👥 **Group / Channel Investigation:** Focused analysis of suspected group and channel interactions by URL or channel ID.
