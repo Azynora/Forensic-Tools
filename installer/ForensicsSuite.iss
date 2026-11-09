@@ -42,4 +42,4 @@ Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"; Parameters: "--g
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Parameters: "--gui"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#AppExe}"; Parameters: "--gui"; Description: "Launch {#AppName}"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\{#AppExe}"; Parameters: "--gui"; Description: "Launch {#AppName}"; Flags: postinstall nowait skipifsilent unchecked

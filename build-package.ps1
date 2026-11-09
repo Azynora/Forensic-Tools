@@ -71,6 +71,7 @@ $scriptsToCopy = @(
     "fdctl.cmd",
     "fdctl.ps1",
     "launch-analysis-terminal.cmd",
+    "launch-gui.cmd",
     "activate-license.cmd",
     "update-offline.cmd"
 )
