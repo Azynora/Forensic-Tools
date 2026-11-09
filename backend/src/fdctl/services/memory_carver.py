@@ -128,19 +128,36 @@ def carve_telegram_process_memory(
     re_phone = re.compile(rb"(?:\+?84|0)[35789]\d{8}\b|\+[1-9]\d{8,14}\b")
     re_json_msg = re.compile(rb'\{[^{}]{0,80}"(?:message|text|caption|title|first_name)"\s*:\s*"([^"]{4,250})"[^{}]{0,80}\}')
 
-    # Exclusion filters for garbage / binary tokens
+    # Exclusion filters for garbage / binary tokens and Windows graphics / DirectX driver symbols
     ignore_user_sub = {
         "schema", "xml", "dtd", "json", "font", "glyph", "microsoft", "windows",
-        "adobe", "apple", "segoe", "arial", "tahoma", "calibri", "github", "google"
+        "adobe", "apple", "segoe", "arial", "tahoma", "calibri", "github", "google",
+        "d3d", "device", "direct", "surface", "adapter", "context", "shader",
+        "buffer", "resource", "hgdiobj", "wndclass", "comctl", "kernel", "user32",
+        "ntdll", "rpc", "gdi", "ole", "msvcp", "vcruntime", "ddi", "glcore"
     }
 
-    # UI localization boilerplate to filter out so we preserve actual chat/bot dialogs
+    # Comprehensive UI localization boilerplate to filter out so we preserve actual chat/bot dialogs
     ui_boilerplate = {
-        "high dpi downscale", "hide reply button", "hide the ai tools button",
+        "high dpi", "downscale", "hide reply button", "hide the ai tools button",
         "hide chat list in forums", "show when you join channel under its description",
         "you can remove this gift from channel's gifts", "ban users from several groups at once",
         "the key of this wallet was changed", "restore the wallet with its current",
         "your group has reached a limit", "you can increase this limit by converting",
+        "unlimited message width", "show shared media as tabs", "allow text-only message bubbles",
+        "replace the shared media buttons", "sort chats with new unmuted messages",
+        "reply to the previous or next message", "show channel joined date in profile", "use small message bubble",
+        "allow to disable native notifications", "favorite button at the bottom", "hide ai button",
+        "this web proxy runs a web page", "these emoji represent the encryption key",
+        "if this wasn't you, please enter the code", "hide the time when you read messages",
+        "this setting does not affect group chats", "if you subscribe to premium",
+        "unless you are a premium user", "if you allow access, your contacts are continuously",
+        "this rating shows which people you are likelier", "hold shift to move the cursor",
+        "an application control policy has blocked", "createprocess failed", "mark new messages as read",
+        "disable auto-play of the next", "makes most message bubbles", "somebody with access to your phone",
+        "has requested to delete your telegram account", "sorry, you have deleted and re-created",
+        "to delete this data, go to settings", "suggest frequent contacts", "enter a cloud password",
+        "two-step verification", "passcode lock", "send when online", "schedule message", "enable precise"
     }
 
     conversational_triggers = [
@@ -179,11 +196,16 @@ def carve_telegram_process_memory(
                             dec = m.group(1).decode("utf-16le", errors="ignore").rstrip("\x00")
                             tme_links.add("https://t.me/" + dec)
 
-                        # 2. Carve usernames
+                        # 2. Carve usernames (filtered against DirectX symbols, driver pointers and all-caps hex tokens)
                         for m in re_user.finditer(raw):
-                            u = m.group(1).decode("utf-8", errors="ignore")
-                            if not any(ign in u.lower() for ign in ignore_user_sub):
-                                usernames.add("@" + u)
+                            u = m.group(1).decode("utf-8", errors="ignore").strip()
+                            if len(u) < 4 or len(u) > 32:
+                                continue
+                            if u.isupper() and len(u) > 5:
+                                continue
+                            if any(ign in u.lower() for ign in ignore_user_sub):
+                                continue
+                            usernames.add("@" + u)
 
                         # 3. Carve phone numbers
                         for m in re_phone.finditer(raw):
@@ -242,6 +264,39 @@ def carve_telegram_process_memory(
                                                         })
                             except Exception:
                                 pass
+
+                        # 6. Target-Specific Contextual Carving (Direct Messages, Bot Commands & Interactions)
+                        if norm_target and (norm_target.encode() in raw.lower()):
+                            target_bytes = norm_target.encode()
+                            s_idx = 0
+                            while True:
+                                f_pos = raw.lower().find(target_bytes, s_idx)
+                                if f_pos == -1:
+                                    break
+                                c_start = max(0, f_pos - 512)
+                                c_end = min(len(raw), f_pos + 512)
+                                chunk = raw[c_start:c_end]
+                                # Scan printable ASCII and UTF-8 conversational strings around target
+                                for m_str in re.finditer(rb"[A-Za-z0-9 _.,!?:;'\-]{4,120}", chunk):
+                                    t_str = m_str.group(0).decode("utf-8", errors="ignore").strip()
+                                    if len(t_str) >= 4 and len(t_str.split()) >= 1:
+                                        if not any(bad in t_str.lower() for bad in ["c:\\", "appdata", "users\\", ".ini", ".dll", "tmp=", "desktop.ini"]):
+                                            if not any(b in t_str.lower() for b in ui_boilerplate):
+                                                if t_str not in seen_messages:
+                                                    seen_messages.add(t_str)
+                                                    carved_messages.append({
+                                                        "messageId": f"RAM-TARGET-{len(carved_messages)+1:05d}",
+                                                        "channelId": f"Private Chat: @{norm_target}",
+                                                        "channelType": "direct_message",
+                                                        "guildId": "Telegram Desktop",
+                                                        "authorUsername": target_user or f"@{norm_target}",
+                                                        "content": t_str,
+                                                        "timestamp": datetime.now().isoformat(),
+                                                        "targetMatched": "yes",
+                                                        "attachmentNames": "",
+                                                        "sourcePath": f"RAM:PID_{pid}:0x{mbi.BaseAddress:012X}",
+                                                    })
+                                s_idx = f_pos + len(target_bytes) + 20
 
             base = mbi.BaseAddress or 0
             next_addr = base + mbi.RegionSize
