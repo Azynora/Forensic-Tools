@@ -246,6 +246,8 @@ def _resolve_menu_choice(choice: str, available: list) -> object:
         return "license"
     if normalized in {"9", "workspace", "settings", "ws"}:
         return "workspace"
+    if normalized in {"u", "update", "upgrade"}:
+        return "u"
     if normalized in {"l", "lang", "language", "10"}:
         return "lang"
     if normalized in {"0", "exit", "quit", "q"}:
@@ -773,7 +775,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
 
                 print(" " + "-" * 80)
                 sys.stdout.flush()
-                prompt_text = "Nhập số lựa chọn (1-9, L đổi ngôn ngữ, 0 để thoát): " if lang == "vi" else "Enter choice number (1-9, L for language, 0 to exit): "
+                prompt_text = "Nhập số lựa chọn (1-9, U cập nhật, L đổi ngôn ngữ, 0 để thoát): " if lang == "vi" else "Enter choice number (1-9, U to update, L for language, 0 to exit): "
                 choice = _prompt_selection(prompt_text)
                 selected = _resolve_menu_choice(choice, available)
 

@@ -811,7 +811,16 @@ def analyze_telegram(case: CaseContext) -> dict:
                     for match in PHONE_PATTERN.finditer(decoded_text):
                         carved_phones.add(match.group(0))
                     for match in USERNAME_PATTERN.finditer(decoded_text):
-                        carved_usernames.add(match.group(0))
+                        u_cand = match.group(0).lstrip('@').strip()
+                        if len(u_cand) < 4 or len(u_cand) > 32:
+                            continue
+                        if u_cand.isupper() and len(u_cand) > 4:
+                            continue
+                        if len(u_cand) >= 6 and all(ch in '0123456789ABCDEFabcdef' for ch in u_cand):
+                            continue
+                        if any(ign in u_cand.lower() for ign in ignore_dirs):
+                            continue
+                        carved_usernames.add('@' + u_cand)
                     for match in LINK_PATTERN.finditer(decoded_text):
                         carved_links.add(match.group(0))
             except Exception:
