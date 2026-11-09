@@ -23,6 +23,7 @@ def write_report_index(case: CaseContext, schema: dict) -> Path:
         "",
         "## Tài liệu nên mở trước",
         "",
+        _line(case.report_dir / "Interactive_Crime_Scene_Replay.html", "🎬 TÁI HIỆN HIỆN TRƯỜNG KỸ THUẬT SỐ TƯƠNG TÁC (Xem lại tin nhắn, dòng thời gian, chứng cứ trực quan)"),
         _line(case_snapshot_path(case), "Snapshot dữ liệu để xem trực tiếp trong ứng dụng"),
         _line(case.root / "case.json", "Metadata của case"),
         _line(case.info_dir / "collection_summary.json", "Tóm tắt thu thập"),

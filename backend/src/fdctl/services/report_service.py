@@ -5,6 +5,7 @@ from pathlib import Path
 from fdctl.console import StageProgress, print_kv, print_section, print_status
 from fdctl.models import CaseContext
 from fdctl.services.autopsy_service import build_autopsy_bundle
+from fdctl.services.crime_scene_reconstructor import build_crime_scene_replay
 from fdctl.services.license_service import require_bundle_access
 from fdctl.services.report_layout import case_snapshot_path
 from fdctl.services.report_documents import write_handover_report, write_report_index
@@ -28,7 +29,8 @@ def refresh_report_outputs(case: CaseContext) -> Path:
     write_report_index(case, schema)
     write_handover_report(case, schema)
     write_json(snapshot_path, schema)
-    print_status("ok", "Case snapshot synchronized.", str(snapshot_path))
+    build_crime_scene_replay(case, schema)
+    print_status("ok", "Case snapshot & Interactive Crime Scene Replay synchronized.", str(snapshot_path))
     return snapshot_path
 
 
@@ -62,6 +64,7 @@ def _print_report_summary(case: CaseContext, schema: dict) -> None:
     print_kv("Desktop cookie rows", str(summary.get("desktopCookieRows", 0)))
     print_kv("Artifact count", str(summary.get("artifactCount", 0)))
     print_kv("Report index", str(case.report_dir / "Muc_luc_bao_cao.md"))
+    print_kv("Crime scene replay", str(case.report_dir / "Interactive_Crime_Scene_Replay.html"))
     print_kv("Handover report", str(case.report_dir / "Bien_ban_ban_giao.md"))
     print_kv("Case snapshot", str(case_snapshot_path(case)))
 

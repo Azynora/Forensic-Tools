@@ -327,6 +327,77 @@ def _cli_show_cases() -> None:
     input("\nPress Enter to return...")
 
 
+def _cli_show_update(lang: str = "vi") -> None:
+    clear_screen()
+    _styled_banner()
+    title = "KIỂM TRA CẬP NHẬT PHIÊN BẢN (AUTO-UPDATER)" if lang == "vi" else "CHECK FOR UPDATES (AUTO-UPDATER)"
+    print_section(title)
+    print_status("step", "Đang kết nối GitHub Releases để kiểm tra phiên bản mới..." if lang == "vi" else "Connecting to GitHub Releases...")
+    
+    from fdctl.services.updater_service import check_github_update, download_file, apply_installer_update
+    from fdctl import __release__
+    import tempfile
+    
+    res = check_github_update()
+    if res.get("offline"):
+        print_status("warn", res.get("error", "Offline mode"))
+        print("\n  [HƯỚNG DẪN CẬP NHẬT OFFLINE CHO PHÒNG LAB NGẮT MẠNG]:")
+        print("    1. Hãy sử dụng tệp 'update-offline.cmd' ở thư mục gốc.")
+        print("    2. Sao chép thư mục bản vá (patch_files) từ USB vào thư mục phần mềm.")
+        print("    3. Bản quyền hệ thống và toàn bộ hồ sơ vụ án cũ được bảo lưu 100%.")
+        input("\nNhấn Enter để quay lại...")
+        return
+
+    if not res.get("has_update"):
+        print_status("ok", f"Bạn đang sử dụng phiên bản mới nhất: v{__release__}" if lang == "vi" else f"You are running the latest version: v{__release__}")
+        print(f"  - Phiên bản hiện tại: v{__release__}")
+        print(f"  - Bản phát hành mới nhất: v{res.get('latest_version')}")
+        print(f"  - Tình trạng: Hệ thống đã cập nhật đầy đủ, không cần cập nhật thêm.")
+        input("\nNhấn Enter để quay lại...")
+        return
+
+    latest_tag = res.get("latest_version")
+    print_status("info", f"ĐÃ CÓ PHIÊN BẢN MỚI: v{latest_tag} (Hiện tại: v{__release__})")
+    print(f"\n  [Thông tin Bản phát hành]: {res.get('release_name')}")
+    print(f"  - Ngày phát hành: {res.get('published_at')}")
+    if res.get("release_notes"):
+        print("\n  [Nội dung Cập nhật (Release Notes)]:")
+        for line in res.get("release_notes", "").splitlines()[:15]:
+            print(f"    {line}")
+            
+    setup_url = res.get("setup_url")
+    if not setup_url:
+        print_status("warn", "Không tìm thấy tệp cài đặt Setup.exe trên GitHub Release.")
+        input("\nNhấn Enter để quay lại...")
+        return
+        
+    choice = input("\nBạn có muốn tải và cài đặt bản cập nhật này ngay bây giờ? (Y/N, Mặc định: Y): ").strip().lower()
+    if choice in {"n", "no"}:
+        print("Đã hủy cập nhật.")
+        input("\nNhấn Enter để quay lại...")
+        return
+        
+    print_status("step", f"Đang tải bản cập nhật Setup.exe ({res.get('setup_size', 0):,} bytes)...")
+    temp_dir = Path(tempfile.gettempdir()) / "forensics_suite_update"
+    target_exe = temp_dir / "ForensicsSuite_Setup_Update.exe"
+    
+    def on_progress(dl, total):
+        pct = (dl / total * 100) if total else 0
+        sys.stdout.write(f"\r  -> Đã tải: {dl:,} / {total:,} bytes ({pct:.1f}%)")
+        sys.stdout.flush()
+        
+    try:
+        download_file(setup_url, target_exe, progress_callback=on_progress)
+        print("\n")
+        print_status("ok", "Tải hoàn tất! Đang khởi động trình cài đặt cập nhật...")
+        print("[LƯU Ý] Trình cài đặt sẽ tự động cập nhật và bảo lưu 100% bản quyền cùng hồ sơ cũ.")
+        apply_installer_update(target_exe, silent=False)
+        sys.exit(0)
+    except Exception as e:
+        print_status("err", f"Lỗi khi tải hoặc cài đặt: {e}")
+        input("\nNhấn Enter để quay lại...")
+
+
 def _cli_show_reports() -> None:
     print_section("Investigation Reports")
     cases_dir = workspace_root() / "cases"
@@ -337,9 +408,11 @@ def _cli_show_reports() -> None:
     reports = []
     for c in cases_dir.iterdir():
         if c.is_dir():
+            replay = c / "08_Report" / "Interactive_Crime_Scene_Replay.html"
             rep = c / "08_Report" / "Muc_luc_bao_cao.md"
-            if rep.exists():
-                reports.append((c.stat().st_mtime, c.name, rep))
+            chosen = replay if replay.exists() else rep
+            if chosen.exists():
+                reports.append((c.stat().st_mtime, c.name, chosen))
     if not reports:
         print_status("info", "No built reports found in workspace cases.")
         input("\nPress Enter to return...")
@@ -626,6 +699,10 @@ def build_parser() -> argparse.ArgumentParser:
     license_sub.add_parser("deactivate", help="Remove the current local activation")
     license_sub.add_parser("machine", help="Show the current device name and machine fingerprint")
 
+    update_parser = subparsers.add_parser("update", help="Check and apply software updates from GitHub")
+    update_parser.add_argument("--check", action="store_true", help="Check if an update is available without applying")
+    update_parser.add_argument("--apply", action="store_true", help="Download and apply update immediately")
+
 
     return parser
 
@@ -672,6 +749,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
                     print("  ⚙️ CẤU HÌNH & HỆ THỐNG (SETTINGS & SYSTEM):")
                     print("    [8] 🔑 Quản lý Bản quyền & Thiết bị (License Status & Hardware Fingerprint)")
                     print("    [9] 📁 Thư mục Lưu trữ Bằng chứng (Case Storage & Workspace Explorer)")
+                    print("    [U] 🔄 Kiểm tra Cập nhật Phiên bản (Check for Updates)")
                     print("    [L] 🌐 Đổi Ngôn ngữ hiển thị / Switch Language (VI / EN)")
                     print("    [0] 🚪 Thoát Chương trình (Exit)")
                 else:
@@ -689,6 +767,7 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
                     print("  ⚙️ SETTINGS & SYSTEM:")
                     print("    [8] 🔑 License Status & Hardware Fingerprint")
                     print("    [9] 📁 Case Storage & Workspace Explorer")
+                    print("    [U] 🔄 Check for Updates (Auto-Updater)")
                     print("    [L] 🌐 Switch Language (Tiếng Việt / English)")
                     print("    [0] 🚪 Exit Forensics Suite")
 
@@ -712,6 +791,8 @@ def interactive_menu(args: argparse.Namespace | None = None) -> int:
                     _cli_show_apps(lang)
                 elif selected in {"8", "license"}:
                     _cli_show_license(access_status)
+                elif selected in {"u", "update", "upgrade"}:
+                    _cli_show_update(lang)
                 elif selected in {"9", "workspace", "settings", "ws"}:
                     _cli_show_workspace(lang)
                 elif selected in {"l", "lang", "language", "10"}:
@@ -1042,6 +1123,32 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "ide" and args.ide_command == "open":
             target = open_workspace()
             _print({"status": "opened", "workspace": target})
+            return 0
+
+        if args.command == "update":
+            from fdctl.services.updater_service import check_github_update, download_file, apply_installer_update
+            res = check_github_update()
+            if res.get("offline"):
+                print(f"[OFFLINE] {res.get('error')}")
+                print("[INFO] Vui lòng sử dụng tệp 'update-offline.cmd' để cập nhật từ USB/patch.")
+                return 1
+            if not res.get("has_update"):
+                print(f"[OK] Đang chạy phiên bản mới nhất: v{__release__}")
+                return 0
+            print(f"[UPDATE] Phát hiện phiên bản mới: v{res.get('latest_version')} (Hiện tại: v{__release__})")
+            if args.check:
+                return 0
+            setup_url = res.get("setup_url")
+            if not setup_url:
+                print("[ERROR] Không tìm thấy tệp cài đặt Setup.exe trên GitHub Release.")
+                return 1
+            import tempfile
+            temp_dir = Path(tempfile.gettempdir()) / "forensics_suite_update"
+            target_exe = temp_dir / "ForensicsSuite_Setup_Update.exe"
+            print(f"Đang tải bản cập nhật từ {setup_url}...")
+            download_file(setup_url, target_exe)
+            print("Tải hoàn tất. Đang khởi chạy cập nhật...")
+            apply_installer_update(target_exe, silent=False)
             return 0
 
         if args.command == "menu":
