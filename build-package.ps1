@@ -71,7 +71,8 @@ $scriptsToCopy = @(
     "fdctl.cmd",
     "fdctl.ps1",
     "launch-analysis-terminal.cmd",
-    "activate-license.cmd"
+    "activate-license.cmd",
+    "update-offline.cmd"
 )
 
 foreach ($path in @($bundleRoot, $publicRoot)) {
