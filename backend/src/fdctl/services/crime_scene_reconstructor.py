@@ -164,21 +164,58 @@ def build_crime_scene_replay(case: CaseContext, schema: dict) -> Path:
         "two-step verification", "passcode lock", "send when online", "schedule message"
     ]
 
-    # Sanitize usernames (filter out DirectX, driver symbols, and all-caps hex tokens)
+    # Sanitize usernames (filter out Win32/C++ structures, LevelDB hex artifacts, and verify authenticity)
     clean_usernames = []
     seen_users = set()
+    win32_cpp_artifacts = {
+        "rect", "point", "tagrect", "hstring", "locinfo", "hwnd", "wstring", "lpcstr",
+        "lpwstr", "handle", "vftable", "vtbl", "alloc", "vector", "mutex", "guid",
+        "struct", "class", "runtime", "window", "display", "monitor", "cursor",
+        "bitmap", "texture", "brush", "render", "directx", "vulkan", "opengl",
+        "d3d", "device", "direct", "surface", "adapter", "context", "shader",
+        "buffer", "resource", "schema", "xml", "glyph", "font", "hdevice", "ddi"
+    }
+    # Collect real verified entities from browser history and messages
+    verified_usernames = set()
+    for bm in browser_rows:
+        b_url = bm.get("url", "").lower()
+        if "t.me/" in b_url:
+            tok = b_url.split("t.me/")[-1].split("?")[0].split("#")[0].strip().lstrip("@")
+            if tok:
+                verified_usernames.add(tok)
+    for rm in unified_msgs:
+        a_un = rm.get("author", "").lower().lstrip("@")
+        if a_un:
+            verified_usernames.add(a_un)
+
     for u in carved_usernames:
         uname = str(u.get("username", "") or "").strip()
         raw_u = uname.lstrip("@").strip()
-        if len(raw_u) < 4 or len(raw_u) > 32:
+        # Telegram usernames are strictly 5 to 32 characters
+        if len(raw_u) < 5 or len(raw_u) > 32:
             continue
-        if raw_u.isupper() and len(raw_u) > 5:
+        # Exclude all-caps or mostly-uppercase strings (>50% upper)
+        if raw_u.isupper() or sum(1 for ch in raw_u if ch.isupper()) > len(raw_u) * 0.5:
             continue
-        if any(ign in raw_u.lower() for ign in ["d3d", "device", "direct", "surface", "adapter", "context", "shader", "buffer", "resource", "schema", "xml", "glyph", "font", "hdevice", "ddi"]):
+        # Exclude LevelDB / Chromium base64 binary prefixes
+        if any(raw_u.startswith(pfx) for pfx in ["AEB", "AFB", "AEU", "AFU", "AEC", "AFC", "AEDA", "AFDA"]):
             continue
-        if raw_u.lower() not in seen_users:
-            seen_users.add(raw_u.lower())
-            clean_usernames.append(u)
+        # Exclude pure hex sequences
+        if all(ch in "0123456789ABCDEFabcdef" for ch in raw_u):
+            continue
+        # Exclude Win32 / C++ API keywords
+        if any(ign in raw_u.lower() for ign in win32_cpp_artifacts):
+            continue
+
+        raw_lower = raw_u.lower()
+        if raw_lower not in seen_users:
+            seen_users.add(raw_lower)
+            # Assign accurate verification score
+            is_verified = (raw_lower in verified_usernames) or (target_name and raw_lower == target_name.lower())
+            u_clean = dict(u)
+            u_clean["confidence"] = "0.99 (Đã thẩm tra chéo)" if is_verified else "0.70 (Dấu vết RAM sơ bộ)"
+            u_clean["verified"] = is_verified
+            clean_usernames.append(u_clean)
 
     if target_name and target_name.lower() not in seen_users:
         clean_usernames.insert(0, {"username": f"@{target_name}", "confidence": "0.99"})

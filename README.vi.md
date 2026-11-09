@@ -37,10 +37,7 @@ Bản phát hành chính thức đã được đóng gói sẵn toàn bộ môi 
 
 ### Các Năng Lực Kỹ Thuật:
 * **Tái Hiện Hiện Trường Điều Tra Trực Quan (Interactive Crime Scene Reconstruction)**: Mô phỏng không gian hiện trường giao tiếp thực tế của ứng dụng (Telegram, Discord, Zalo...) dưới dạng ứng dụng web HTML5 ngoại tuyến. Tích hợp thanh tua thời gian (Time-Machine Slider), bảng Thanh tra Giám định Bằng chứng (Forensic Inspector) chi tiết đến từng địa chỉ Offset RAM/Disk và mã băm SHA-256, danh bạ số điện thoại và thư viện media bóc tách từ hiện trường.
-* **Cập Nhật Phần Mềm Liền Mạch (Bảo Toàn Bản Quyền)**: Hỗ trợ tự động cập nhật online 1-chạm qua GUI hoặc lệnh `fdctl update check`, cũng như cơ chế vá lỗi ngoại tuyến (`update-offline.cmd`) mà không làm thay đổi hoặc mất bản quyền `license.key` đã kích hoạt.
-* **Khoanh vùng điều tra linh hoạt (Multi-Scope Investigation)**: Cho phép điều tra linh hoạt từ đoạn chat riêng 1-1 (--scope-type dm), kênh/nhóm (--scope-type group), hoặc truy vết theo UID/SĐT người dùng (--scope-type user), không ép buộc phải có link nhóm.
 * **Định hướng theo nguyên tắc ISO/IEC 27037 & TCVN ISO/IEC 27037:2019**: Thiết kế quy trình thu thập dữ liệu hướng tới giảm thiểu can thiệp hệ thống (Zero-footprint), tính toán mã băm SHA-256 đối chiếu tính toàn vẹn của tệp sao chép.
-* **Chụp màn hình cửa sổ ứng dụng mục tiêu**: Tự động nhận diện và chỉ chụp cửa sổ Telegram/Discord, bảo vệ quyền riêng tư hình nền desktop của người dùng.
 * **Bảng tổng hợp hình ảnh phục hồi (Carved Media Gallery)**: Hỗ trợ trích xuất các tệp hình ảnh từ bộ nhớ đệm, tạo bảng danh mục ảnh kèm mã băm SHA-256 phục vụ rà soát đối chiếu.
 * **Gói xuất dữ liệu định hướng tương thích Autopsy (Autopsy-compatible evidence export)**: Hỗ trợ xuất cấu trúc hồ sơ vụ án và lược đồ CSV chuẩn hóa, sẵn sàng nạp vào phần mềm Autopsy để phân tích chuyên sâu.
 
