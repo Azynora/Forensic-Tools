@@ -54,3 +54,6 @@ issue-license.cmd
 
 tao-license.cmd
 *.pdf
+
+# Temporary scripts and testing scratchpad
+scratch/

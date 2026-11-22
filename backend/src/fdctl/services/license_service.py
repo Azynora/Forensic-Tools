@@ -220,16 +220,35 @@ def canonicalize_gmail_address(value: str) -> str:
     return f"{local_part}@gmail.com"
 
 
-def validate_supported_email(value: str, field_name: str = "email") -> str:
-    normalized = normalize_email(value)
-    if not normalized or normalized.count("@") != 1:
-        raise ValueError(f"{field_name} must be a valid email address containing an '@'.")
-    local_part, domain = normalized.split("@", 1)
-    if not local_part or not domain or "." not in domain:
-        raise ValueError(f"{field_name} must contain a valid domain (e.g. user@domain.com).")
-    if domain == "gmail.com":
-        return canonicalize_gmail_address(normalized)
-    return normalized
+def validate_supported_email(
+    value: str,
+    field_name: str = "email",
+    *,
+    check_mx: bool = False,
+    probe_smtp: bool = False,
+) -> str:
+    try:
+        from fdctl.services.email_verification_service import (
+            EmailVerificationService,
+            EmailVerificationError,
+        )
+        result = EmailVerificationService.validate_strict_email(
+            value,
+            field_name=field_name,
+            check_mx=check_mx,
+            probe_smtp=probe_smtp,
+        )
+        return str(result.get("canonicalEmail") or result["email"])
+    except ImportError:
+        normalized = normalize_email(value)
+        if not normalized or normalized.count("@") != 1:
+            raise ValueError(f"{field_name} must be a valid email address containing an '@'.")
+        local_part, domain = normalized.split("@", 1)
+        if not local_part or not domain or "." not in domain:
+            raise ValueError(f"{field_name} must contain a valid domain (e.g. user@domain.com).")
+        if domain == "gmail.com":
+            return canonicalize_gmail_address(normalized)
+        return normalized
 
 
 def is_owner_email(email: str) -> bool:
